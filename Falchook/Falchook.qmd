@@ -1,0 +1,865 @@
+---
+title: "Falchook"
+author: "Jack Dumanski"
+format: pdf
+editor: visual
+execute: 
+  echo: false
+---
+
+
+```{r}
+library(tidyverse)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+f_res <- read.csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv", header = T)
+f_direc <- f_res <- read.csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv", header = T)
+  } else {
+f_res <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", header = T)
+f_direc <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv")
+}
+```
+
+# Residents Data
+
+```{r}
+library(zoo)
+library(stringr)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {
+headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+}
+
+questions <- as.character(headers_raw[1,])
+
+answer_choices <- as.character(headers_raw[2,])
+
+questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, questions))
+
+clean_headers <- paste(questions_filled, answer_choices, sep = "_")
+
+
+
+if (Sys.info()[["user"]] == "gregorymatthews"){
+f_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {
+f_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+}
+
+
+
+f_res <- f_res_raw %>%
+  select(c(10:ncol(f_res_raw)))
+#view(f_res)
+
+#f_res has each question and question answer choice in the column title 
+#so, now let's coalesce each question. 
+# open ended responses don't need to be coalesced, but non-numeric values might need to become NA 
+#select all that apply: see if we can coalesce these in a specific way (Q9,...)
+  #Q9 has a separate answer choice if none are selected 
+ # 27 as well
+
+#code for select all that apply: 
+# df %>%
+#   mutate(
+#     Q1 = pmap_chr(
+#       select(., Q1_A, Q1_B, Q1_C, Q1_D),
+#       ~ paste(na.omit(c(...)), collapse = "; ")
+#     )
+#   )
+# 13 is a big one, we need to separate into 13a, b, c,... i... with 7 choices each 
+# 14, 15, 16, 20, 22, 23, 24 are the same 
+
+f_res <- f_res %>%
+  mutate(
+    across(
+      everything(),
+      ~ na_if(as.character(.), "")
+    )
+  )
+
+f_res_q <- f_res %>%
+  mutate(Q1 = do.call(coalesce, pick(1:3))) %>%
+  mutate(Q2 = do.call(coalesce, pick(4:6))) %>%
+  mutate(Q3 = do.call(coalesce, pick(7:9))) %>%
+  mutate(Q4 = do.call(coalesce, pick(10:10))) %>%
+  mutate(Q5 = do.call(coalesce, pick(11:15))) %>%
+  mutate(Q6 = do.call(coalesce, pick(16:17))) %>%
+  mutate(Q7 = do.call(coalesce, pick(18:18))) %>%
+  mutate(Q8 = do.call(coalesce, pick(19:23))) %>%
+  #mutate(Q9 = do.call(coalesce, pick(24:27))) %>%
+  mutate(Q10 = do.call(coalesce, pick(28:32))) %>%
+  mutate(Q11 = do.call(coalesce, pick(33:38))) %>%
+  mutate(Q12 = do.call(coalesce, pick(39:42))) %>%
+  mutate(Q13a = do.call(coalesce, pick(43:49))) %>%
+  mutate(Q13b = do.call(coalesce, pick(50:56))) %>%
+  mutate(Q13c = do.call(coalesce, pick(57:63))) %>%
+  mutate(Q13d = do.call(coalesce, pick(64:70))) %>%
+  mutate(Q13e = do.call(coalesce, pick(71:77))) %>%
+  mutate(Q13f = do.call(coalesce, pick(78:84))) %>%
+  mutate(Q13g = do.call(coalesce, pick(85:91))) %>%
+  mutate(Q13h = do.call(coalesce, pick(92:98))) %>%
+  mutate(Q13i = do.call(coalesce, pick(99:105))) %>%
+  mutate(Q14a = do.call(coalesce, pick(106:110))) %>%
+  mutate(Q14b = do.call(coalesce, pick(111:115))) %>%
+  mutate(Q14c = do.call(coalesce, pick(116:120))) %>%
+  mutate(Q14d = do.call(coalesce, pick(121:125))) %>%
+  mutate(Q15a = do.call(coalesce, pick(126:130))) %>%
+  mutate(Q15b = do.call(coalesce, pick(131:135))) %>%
+  mutate(Q15c = do.call(coalesce, pick(136:140))) %>%
+  mutate(Q16a = do.call(coalesce, pick(141:145))) %>%
+  mutate(Q16b = do.call(coalesce, pick(146:150))) %>%
+  mutate(Q16c = do.call(coalesce, pick(151:155))) %>%
+  mutate(Q16d = do.call(coalesce, pick(156:160))) %>%
+  mutate(Q17 = do.call(coalesce, pick(161:165))) %>%
+  mutate(Q18 = do.call(coalesce, pick(166:170))) %>%
+  mutate(Q19 = do.call(coalesce, pick(171:177))) %>%
+  mutate(Q20a = do.call(coalesce, pick(178:182))) %>%
+  mutate(Q20b = do.call(coalesce, pick(183:187))) %>%
+  mutate(Q20c = do.call(coalesce, pick(188:192))) %>%
+  mutate(Q20d = do.call(coalesce, pick(193:196))) %>%
+  mutate(Q21 = do.call(coalesce, pick(197:200))) %>%
+  mutate(Q22a = do.call(coalesce, pick(201:205))) %>%
+  mutate(Q22b = do.call(coalesce, pick(206:210))) %>%
+  mutate(Q22c = do.call(coalesce, pick(211:215))) %>%
+  mutate(Q23a = do.call(coalesce, pick(216:220))) %>%
+  mutate(Q23b = do.call(coalesce, pick(221:225))) %>%
+  mutate(Q23c = do.call(coalesce, pick(226:230))) %>%
+  mutate(Q23d = do.call(coalesce, pick(231:235))) %>%
+  mutate(Q24a = do.call(coalesce, pick(236:241))) %>%
+  mutate(Q24b = do.call(coalesce, pick(242:247))) %>%
+  mutate(Q24c = do.call(coalesce, pick(248:253))) %>%
+  mutate(Q24d = do.call(coalesce, pick(254:259))) %>%
+  mutate(Q24e = do.call(coalesce, pick(260:265))) %>%
+  mutate(Q24f = do.call(coalesce, pick(266:271))) %>%
+  mutate(Q25 = do.call(coalesce, pick(272:275))) %>%
+  mutate(Q26 = do.call(coalesce, pick(276:278))) %>%
+  #mutate(Q27 = do.call(coalesce, pick(279:289))) %>%
+  mutate(Q28 = do.call(coalesce, pick(290:290))) 
+
+f_res_coalesced_partial <- f_res_q %>%
+  select(291:298, 24:27, 299:344, 279:289, 345)
+
+f_res_coalesced <- f_res_coalesced_partial %>%
+  mutate(Q9 = pmap_chr(select(., 24:27), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  mutate(Q27 = pmap_chr(select(., 59:69), ~ paste(na.omit(c(...)), collapse = "; "))) %>% 
+  select(1:8, 71, 13:58, 72, 70)
+
+f_res_coalesced$role <- "Resident"
+
+```
+
+# Directors Data
+
+```{r}
+if (Sys.info()[["user"]] == "gregorymatthews"){
+dir_headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE) 
+} else {
+dir_headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+}
+
+dir_questions <- as.character(dir_headers_raw[1,])
+
+dir_answer_choices <- as.character(dir_headers_raw[2,])
+
+dir_questions_filled <- na.locf(ifelse(dir_questions == "" | is.na(dir_questions), NA, dir_questions))
+
+dir_clean_headers <- paste(dir_questions_filled, dir_answer_choices, sep = "_")
+
+
+if (Sys.info()[["user"]] == "gregorymatthews"){
+f_dir_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE) } else {
+f_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", skip = 2, col_names = dir_clean_headers, show_col_types = FALSE)
+}
+
+
+f_dir <- f_dir_raw %>%
+  select(c(10:ncol(f_dir_raw)))
+#view(f_dir)
+
+f_dir <- f_dir %>%
+  mutate(
+    across(
+      everything(),
+      ~ na_if(as.character(.), "")
+    )
+  )
+
+#Q8 is SATA, 27 too
+
+f_dir_q <- f_dir %>%
+  mutate(Q1 = do.call(coalesce, pick(1:2))) %>%
+  mutate(Q2 = do.call(coalesce, pick(3:5))) %>%
+  mutate(Q3 = do.call(coalesce, pick(6:6))) %>%
+  mutate(Q4 = do.call(coalesce, pick(7:9))) %>%
+  mutate(Q5 = do.call(coalesce, pick(10:10))) %>%
+  mutate(Q6 = do.call(coalesce, pick(11:11))) %>%
+  mutate(Q7 = do.call(coalesce, pick(12:16))) %>%
+  #mutate(Q8 = do.call(coalesce, pick(17:20))) %>%
+  mutate(Q9 = do.call(coalesce, pick(21:25))) %>%
+  mutate(Q10 = do.call(coalesce, pick(26:32))) %>%
+  mutate(Q11 = do.call(coalesce, pick(33:37))) %>%
+  mutate(Q12a = do.call(coalesce, pick(38:45))) %>%
+  mutate(Q12b = do.call(coalesce, pick(46:53))) %>%
+  mutate(Q12c = do.call(coalesce, pick(54:61))) %>%
+  mutate(Q12d = do.call(coalesce, pick(62:69))) %>%
+  mutate(Q12e = do.call(coalesce, pick(70:77))) %>%
+  mutate(Q12f = do.call(coalesce, pick(78:85))) %>%
+  mutate(Q12g = do.call(coalesce, pick(86:93))) %>%
+  mutate(Q12h = do.call(coalesce, pick(94:101))) %>%
+  mutate(Q12i = do.call(coalesce, pick(102:109))) %>%
+  mutate(Q13a = do.call(coalesce, pick(110:115))) %>%
+  mutate(Q13b = do.call(coalesce, pick(116:121))) %>%
+  mutate(Q13c = do.call(coalesce, pick(122:127))) %>%
+  mutate(Q13d = do.call(coalesce, pick(128:133))) %>%
+  mutate(Q14a = do.call(coalesce, pick(134:138))) %>%
+  mutate(Q14b = do.call(coalesce, pick(139:143))) %>%
+  mutate(Q14c = do.call(coalesce, pick(144:148))) %>%
+  mutate(Q15a = do.call(coalesce, pick(149:153))) %>%
+  mutate(Q15b = do.call(coalesce, pick(154:158))) %>%
+  mutate(Q15c = do.call(coalesce, pick(159:163))) %>%
+  mutate(Q15d = do.call(coalesce, pick(164:168))) %>%
+  mutate(Q16 = do.call(coalesce, pick(169:173))) %>%
+  mutate(Q17 = do.call(coalesce, pick(174:178))) %>%
+  mutate(Q18 = do.call(coalesce, pick(179:184))) %>%
+  mutate(Q19a = do.call(coalesce, pick(185:189))) %>%
+  mutate(Q19b = do.call(coalesce, pick(190:194))) %>%
+  mutate(Q19c = do.call(coalesce, pick(195:199))) %>%
+  mutate(Q19d = do.call(coalesce, pick(200:204))) %>%
+  mutate(Q20 = do.call(coalesce, pick(205:208))) %>%
+  mutate(Q21 = do.call(coalesce, pick(209:210))) %>%
+  mutate(Q22a = do.call(coalesce, pick(211:215))) %>%
+  mutate(Q22b = do.call(coalesce, pick(216:220))) %>%
+  mutate(Q22c = do.call(coalesce, pick(221:225))) %>%
+  mutate(Q23a = do.call(coalesce, pick(226:230))) %>%
+  mutate(Q23b = do.call(coalesce, pick(231:235))) %>%
+  mutate(Q23c = do.call(coalesce, pick(236:240))) %>%
+  mutate(Q23d = do.call(coalesce, pick(241:245))) %>%
+  mutate(Q24a = do.call(coalesce, pick(246:250))) %>%
+  mutate(Q24b = do.call(coalesce, pick(251:255))) %>%
+  mutate(Q24c = do.call(coalesce, pick(256:260))) %>%
+  mutate(Q24d = do.call(coalesce, pick(261:265))) %>%
+  mutate(Q24e = do.call(coalesce, pick(266:270))) %>%
+  mutate(Q24f = do.call(coalesce, pick(271:275))) %>%
+  mutate(Q25 = do.call(coalesce, pick(276:278))) %>%
+  mutate(Q26 = do.call(coalesce, pick(279:281))) %>%
+  #mutate(Q27 = do.call(coalesce, pick(282:292))) %>%
+  mutate(Q28 = do.call(coalesce, pick(293:293))) 
+
+f_dir_coalesced_partial <- f_dir_q %>%
+  select(294:300, 17:20, 301:347, 282:292, 348)
+
+f_dir_coalesced <- f_dir_coalesced_partial %>%
+  mutate(Q8 = pmap_chr(select(., 8:11), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  mutate(Q27 = pmap_chr(select(., 59:69), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  select(1:7, 71, 12:58, 72, 70)
+
+f_dir_coalesced$role <- "Director"
+```
+
+# Resident Analysis
+
+When analyzing the survey results from the residents,
+
+## Question 11 with type of program: workload vs program
+
+```{r}
+programs_res <- f_res_coalesced %>%
+  group_by(Q1, Q11) %>%
+  summarize(counts = n(), .groups = "drop") %>%
+  drop_na() %>%
+  group_by(Q1) %>%
+  mutate(percent = counts / sum(counts) * 100) %>%
+  ungroup()
+#programs_res
+
+ggplot(programs_res, aes(x = Q11, y = percent, fill = Q11)) +
+  geom_col() +
+  facet_wrap(~ Q1) +
+  labs(
+    x = NULL,
+    y = "Percent of responses",
+    fill = "Time spent"
+  ) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+table_hours <- table(f_res_coalesced$Q1, f_res_coalesced$Q11)
+#table_hours
+chisq.test(table_hours)
+
+```
+
+For the residents answering the question of how many hours they work per week, we can see that in a hospital-based program, 42% work below 50 hours a week, 42% work 51-60 hours a week, and the remaining 16% work above 60 hours a week. The distribution for the hybrid-based programs are nearly the same. However, for the university-based programs, 72% of residents spend 41-50 hours a week working and only 28% work above 50 hours.
+
+When testing for significance, we conduced a chi-squared test of independence for the proportions, but obtained a p-value of 0.5317, showing that there is not enough evidence to suggest that the proportions are different between programs, and this can likely be attributed to the fact that there is too low of a sample size to notice a difference, or that the difference is not large enough to be detected by the test. For the data, we can not conclude that there is a significant difference in the distribution of work hours for residents in each program.
+
+## A note on Question 13:
+
+Question 13 asks 9 parts: the first 6 seem to resemble negative or undesirable emotions, and the final 3 which seem to resemble positive or desirable emotions. To remedy this, the positive questions could be answered on the opposite scale, where for example an undesirable trait experienced every day would be the same as a desirable trait experienced never. The same is true for Question 12 for directors.
+
+```{r}
+Q13_long <- f_res_coalesced %>%
+  select(Q10,Q11,Q12, Q1,Q5,Q2,Q13a:Q13i, role) %>%
+  pivot_longer(
+    cols = Q13a:Q13i,
+    names_to = "subquestion",
+    values_to = "response",
+    values_drop_na = TRUE
+  )
+Q13_long <- Q13_long %>%
+  mutate(
+    response = if_else(
+      subquestion %in% c("Q13g", "Q13h", "Q13i"),
+      case_when(
+        response == "Never" ~ "Every day",
+        response == "A few times in a year" ~ "A few times in a week",
+        response == "Once per month or less" ~ "Once per week",
+        response == "A few times in a month" ~ "A few times in a month",
+        response == "Once per week" ~ "Once per month or less", 
+        response == "A few times in a week" ~ "A few times in a year", 
+        response == "Every day" ~ "Never"
+      ),
+      response
+    )
+  )
+Q13_long <- Q13_long %>%
+  mutate(
+    response = factor(
+      response,
+      levels = c(
+        "Never",
+        "A few times in a year",
+        "Once per month or less",
+        "A few times in a month",
+        "Once per week",
+        "A few times in a week",
+        "Every day"
+      ),
+      ordered = TRUE
+    )
+  )
+# this has the scale reversed for the positive questions in the Q13_long object
+```
+
+## Question 13 with Question 10: On-call days per month and strife
+
+```{r}
+call_summary <- Q13_long %>%
+  group_by(Q10, response) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q10) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(call_summary,
+       aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~ Q10) +
+  labs(
+    x = "Negative Impact",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+table_call <- table(Q13_long$Q10, Q13_long$response)
+chisq.test(table_call)
+chisq.test(table_call)$stdres
+```
+
+This question asks if there's an association between hours worked and strife, and we find that there is some significance upon conducting a chi-squared test of independence, showing that we have significant evidence to suggest that there is a difference in how residents have strife among how many days they're on call. The most driving cell of this result is the "16-23 days" & "Every day" group, which shows that the expected distribution of how often strife is experienced underestimates how often the group who works 16-23 experiences strife. Most other cells have reasonable under/overestimates, but this group alone could explain a trend in being on call more leading to experiencing more strife.
+
+# come back to this \^
+
+## Question 13 with Question 11: Work hours per week and impact on personal life
+
+```{r}
+work_summary <- Q13_long %>%
+  group_by(Q11, response) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q11) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(work_summary,
+       aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~ Q11) +
+  labs(
+    x = "Negative Impact",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+table_work <- table(Q13_long$Q11, Q13_long$response)
+chisq.test(table_work)
+chisq.test(table_work)$stdres
+```
+
+When running a significance test on this data, we see significance at a level of 0.05. When looking at what drove the results, we see that the "One per week" & "40 hours or less" and "Every day" & both "71-80" and "More than 81 hours" groups had the highest standardized residuals, meaning they were the groups that differed most from the expected count you would see if there was no difference in distributions. This means there is significant evidence to suggest a difference in distribution between the groupings of hours worked and impact on personal life, and it seems to be a positive relationship, as the groups had large positive residuals, showing that more work (70+ hours) trended towards experiencing more consistent strife than groups with less work hours.
+
+## Question 13 with Question 12: Recreation time and impact on personal life
+
+```{r}
+rec_summary <- Q13_long %>%
+  group_by(Q12, response) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q12) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(rec_summary,
+       aes(x = response, y = percent, fill = response)) +
+  geom_col() +
+  facet_wrap(~ Q12) +
+  labs(
+    x = "Negative Impact",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+table_rec <- table(Q13_long$Q12, Q13_long$response)
+chisq.test(table_rec)
+chisq.test(table_rec)$stdres
+
+```
+
+When comparing the amount of time on recreation per week to experiencing strife, the results were statistically significant. We can see that the group who got 2-3 hours of recreation time experiences
+
+## Question 13 with type of program: program vs negative impact on personal life
+
+```{r}
+prog_long <- f_dir_coalesced %>%
+  select(Q2, Q13a:Q13d) %>%
+  pivot_longer(
+    cols = Q13a:Q13d,
+    names_to = "subquestion",
+    values_to = "personal",
+    values_drop_na = TRUE
+  ) %>%
+  mutate(
+    personal = factor(
+      personal,
+      levels = c(
+        "Never",
+        "Rarely",
+        "Sometimes",
+        "Often",
+        "Always"
+      ),
+      ordered = TRUE
+    )
+  ) %>% 
+  filter(personal != "I don't know") 
+prog_summary <- prog_long %>%
+  group_by(Q2, personal) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(prog_summary,
+       aes(x = personal, y = percent, fill = personal)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = "Negative Impact",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+table_rec <- table(prog_long$Q2, prog_long$personal)
+chisq.test(table_rec)$stdres
+```
+
+We see a statistically significant difference in the distribution of impact on personal life among the programs, and it's driven by a few groups: "Never" & "Hospital-based", "Rarely" & "Hybrid", and "Sometimes" & "University-based", which all have greater counts than we would expect with identical distributions. We observe that hospital-based programs never see an impact on their personal lives, hybrid-based rarely do, and university-based do most often.
+
+## Question 13 with marital status: marital status vs negative impact on personal life
+
+```{r}
+mar_long <- f_dir_coalesced %>%
+  select(Q2, Q13a:Q13d) %>%
+  pivot_longer(
+    cols = Q13a:Q13d,
+    names_to = "subquestion",
+    values_to = "personal",
+    values_drop_na = TRUE
+  ) %>%
+  mutate(
+    personal = factor(
+      personal,
+      levels = c(
+        "Never",
+        "Rarely",
+        "Sometimes",
+        "Often",
+        "Always"
+      ),
+      ordered = TRUE
+    )
+  ) %>% 
+  filter(personal != "I don't know") 
+prog_summary <- prog_long %>%
+  group_by(Q2, personal) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(prog_summary,
+       aes(x = personal, y = percent, fill = personal)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = "Negative Impact",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+table_rec <- table(prog_long$Q2, prog_long$personal)
+chisq.test(table_rec)$stdres
+```
+
+# Directors Analysis
+
+## Question 10 with type of program: workload vs program
+
+```{r}
+programs_dir <- f_dir_coalesced %>%
+  group_by(Q2, Q10) %>%
+  summarize(
+    counts = n(),
+    .groups = "drop"
+  ) %>%
+  drop_na() %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = counts / sum(counts) * 100
+  ) %>%
+  ungroup()
+
+#programs_dir
+
+ggplot(programs_dir, aes(x = Q10, y = percent, fill = Q10)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = NULL,
+    y = "Percent of responses",
+    fill = "Time spent"
+  ) +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+```
+
+As we can see from these bar charts, the majority of directors have hospital-based programs, and within those, 41-50 hours of work is expected. Out of the hybrid and university-based programs, there is more of a scatter, but each category has 41-50 hours of work occur most often. Directors perceive hospital-based programs to have 41-50 hours a week of work or less 83% of the time, hybrid-based programs 42% of the time, and 66% of the time for university-based programs.
+
+## Question 12 with type of program: perceived strife within residents
+
+```{r}
+Q12_long <- f_dir_coalesced %>%
+  select(Q2,Q12a:Q12i, role) %>%
+  pivot_longer(
+    cols = Q12a:Q12i,
+    names_to = "subquestion",
+    values_to = "response",
+    values_drop_na = TRUE
+  )
+Q12_long <- Q12_long %>%
+  mutate(
+    response = if_else(
+      subquestion %in% c("Q12g", "Q12h", "Q12i"),
+      case_when(
+        response == "Never" ~ "Every day",
+        response == "A few times in a year" ~ "A few times in a week",
+        response == "Once per month or less" ~ "Once per week",
+        response == "A few times in a month" ~ "A few times in a month",
+        response == "Once per week" ~ "Once per month or less", 
+        response == "A few times in a week" ~ "A few times in a year", 
+        response == "Every day" ~ "Never"
+      ),
+      response
+    )
+  )
+Q12_long <- Q12_long %>%
+  mutate(
+    response = factor(
+      response,
+      levels = c(
+        "Never",
+        "A few times in a year",
+        "Once per month or less",
+        "A few times in a month",
+        "Once per week",
+        "A few times in a week",
+        "Every day"
+      ),
+      ordered = TRUE
+    )
+  ) %>%
+  drop_na()
+```
+
+```{r}
+strife_long_neg <- f_dir_coalesced %>%
+  select(Q2, Q12a:Q12f) %>%
+  pivot_longer(
+    cols = Q12a:Q12f,
+    names_to = "subquestion",
+    values_to = "strife",
+    values_drop_na = TRUE
+  ) %>%
+  mutate(
+    strife = factor(
+      strife,
+      levels = c(
+        "Never",
+        "A few times in a year",
+        "Once per month or less",
+        "A few times in a month",
+        "Once per week",
+        "A few times in a week", 
+        "Every day",
+        "I don't know"
+      ),
+      ordered = TRUE
+    )
+  )
+strife_summary_neg <- strife_long_neg %>%
+  group_by(Q2, strife) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(strife_summary_neg,
+       aes(x = strife, y = percent, fill = strife)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = "Strife",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+```
+
+For this question, it asks how directors perceive residents to feel various emotions of strife, depersonalization, callousness, and emotional drainage. All three programs skew towards answering fewer rather than more times per year, with 50% of hospital-based responses being "never," "a few times a year," "once per month or less," 38% for hybrid-based, and 32% for university-based. Notably, the university-based programs have the "a few times in a month" at 38%, potentially showing a higher amount of strife in university-based settings versus hybrid or hospital-based.
+
+```{r}
+positivity_long <- f_dir_coalesced %>%
+  select(Q2, Q12g:Q12i) %>%
+  pivot_longer(
+    cols = Q12g:Q12i,
+    names_to = "subquestion",
+    values_to = "positivity",
+    values_drop_na = TRUE
+  ) %>%
+  mutate(
+    positivity = factor(
+      positivity,
+      levels = c(
+        "Never",
+        "A few times in a year",
+        "Once per month or less",
+        "A few times in a month",
+        "Once per week",
+        "A few times in a week", 
+        "Every day",
+        "I don't know"
+      ),
+      ordered = TRUE
+    )
+  )
+positivity_summary <- positivity_long %>%
+  group_by(Q2, positivity) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(positivity_summary,
+       aes(x = positivity, y = percent, fill = positivity)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = "Positivity",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+```
+
+The same question then asked parts about how often residents should be expected to feel positively influencing people's lives through their work, exhilaration working with patients, and confidence in effective treatments. The directors highest response was either "every day" or "a few times in a week" for each group. 100% of university-based programs should see residents experiencing positive feedback at least once a week, 71% for hybrid-based programs, and 63% for hospital-based programs.
+
+## Question 21 with type of program: training provided specifically for directors?
+
+```{r}
+training_dir <- f_dir_coalesced %>%
+  group_by(Q2, Q21) %>%
+  summarize(counts = n()) %>%
+  drop_na()
+training_dir
+ggplot(training_dir, aes(x = Q21, y = counts, fill = Q21)) +
+  geom_col() + 
+  facet_wrap(~Q2)
+```
+
+Seemingly, only in hospital-based settings is training provided specifically for program directors. In other programs, there is not.
+
+## Question 22 with type of program: satisfaction with issue handling
+
+```{r}
+satisfaction_long <- f_dir_coalesced %>%
+  select(Q2, Q22a:Q22c) %>%
+  pivot_longer(
+    cols = Q22a:Q22c,
+    names_to = "subquestion",
+    values_to = "satisfaction",
+    values_drop_na = TRUE
+  ) %>%
+  mutate(
+    satisfaction = factor(
+      satisfaction,
+      levels = c(
+        "Very Unsatisfied",
+        "Somewhat Unsatisfied",
+        "Neither Unsatisfied nor Satisfied",
+        "Somewhat Satisfied",
+        "Very Satisfied"
+      ),
+      ordered = TRUE
+    )
+  )
+satisfaction_summary <- satisfaction_long %>%
+  group_by(Q2, satisfaction) %>%
+  summarize(
+    count = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(Q2) %>%
+  mutate(
+    percent = count / sum(count) * 100
+  )
+ggplot(satisfaction_summary,
+       aes(x = satisfaction, y = percent, fill = satisfaction)) +
+  geom_col() +
+  facet_wrap(~ Q2) +
+  labs(
+    x = "Satisfaction",
+    y = "Percent of responses"
+  ) +
+  theme_minimal() + 
+  theme(
+  axis.text.x = element_blank(),
+  axis.ticks.x = element_blank()
+)
+  
+```
+
+The hospital-based program has the highest amount of satisfaction at around 74% (somewhat satisfied + very satisfied), the hybrid-based program is relatively neutral with just under 40% being neither unsatisfied nor satisfied and the next-highest groups being somewhat satisfied/unsatisfied, and the university-based program leans towards being unsatisfied with 55% being unsatisfied (somewhat + very) and 33% being somewhat satisfied. These statistics come from a summary of burnout, depression, and suicide, but being combined to measure a general scale of satisfaction, the results above explain the difference between program types.
+
+# Cross Comparing Residents and Directors
+
+## Perceived vs actual work hours per week for residents
+
+```{r}
+res_hours <- f_res_coalesced %>%
+  select(hours = Q11, role)
+
+dir_hours <- f_dir_coalesced %>%
+  select(hours = Q10, role)
+
+hours <- bind_rows(
+  res_hours,
+  dir_hours
+) %>% drop_na()
+
+hours_tab <- table(hours$hours, hours$role)
+hours_tab
+chisq.test(hours_tab)
+
+ggplot(hours, aes(x = hours, fill = role)) +
+  geom_bar(position = "dodge")
+```
+
+We do not have significant evidence to suggest that directors have unrealistic perceptions of how many hours residents work in a week. The distributions look nearly identical, albeit scaled, for both groups.
+
+## Perceived vs experienced strife in residents
+
+```{r}
+res_strife <- Q13_long %>%
+  select(response, role)
+
+dir_strife <- Q12_long %>%
+  select(response, role)
+
+strife <- bind_rows(
+  res_strife,
+  dir_strife
+) %>% drop_na()
+
+strife_tab <- table(strife$response, strife$role)
+strife_tab
+chisq.test(strife_tab)$stdres
+```
+
+We don't have significant evidence to suggest a difference in how directors perceive strife versus how residents experience it, but notable, there is a major discrepancy in the "a few times a week cell," where residents realistically experience strife a few times a week more than directors expect.
+
+## Automating the cross comparison process:
+
+```{r}
+question_pairs <- data.frame(
+  resident = c("Q13_long", "Q14_long", "Q15_long"),
+  director = c("Q12_long", "Q13_long", "Q14_long")
+)
+```
+
+# 
