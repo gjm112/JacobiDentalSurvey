@@ -16,11 +16,14 @@ library(tidyverse)
 library(zoo)
 library(stringr)
 
-f_res <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", header = T)
-f_direc <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv")
+library(tidyverse)
 
-headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {
+  headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+}
 questions <- as.character(headers_raw[1,])
 
 answer_choices <- as.character(headers_raw[2,])
@@ -29,7 +32,12 @@ questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, quest
 
 clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
-f_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  f_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  skip = 2, col_names = clean_headers, show_col_types = FALSE)
+} else {
+  f_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+}
+
 f_res <- f_res_raw %>%
   select(c(10:ncol(f_res_raw)))
 
@@ -110,7 +118,11 @@ f_res_coalesced <- f_res_coalesced_partial %>%
 
 f_res_coalesced$role <- "Resident"
 
-dir_headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  dir_headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE) 
+} else {
+  dir_headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+}
 
 dir_questions <- as.character(dir_headers_raw[1,])
 
@@ -120,10 +132,14 @@ dir_questions_filled <- na.locf(ifelse(dir_questions == "" | is.na(dir_questions
 
 dir_clean_headers <- paste(dir_questions_filled, dir_answer_choices, sep = "_")
 
-f_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", skip = 2, col_names = dir_clean_headers, show_col_types = FALSE)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  f_dir_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  skip = 2, col_names = dir_clean_headers, show_col_types = FALSE) } else {
+    f_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", skip = 2, col_names = dir_clean_headers, show_col_types = FALSE)
+  }
+
 f_dir <- f_dir_raw %>%
   select(c(10:ncol(f_dir_raw)))
-view(f_dir)
+#view(f_dir)
 
 f_dir <- f_dir %>%
   mutate(
