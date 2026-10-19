@@ -5,11 +5,7 @@ format: pdf
 editor: visual
 ---
 
-# As a director once said:
-
-## "Residency is hard. Life is hard. Being a dentist is hard. People don’t like us, we make kids cry."
-
-### This inspired me to persevere through each question, presenting it as cleanly as possible. See below for my efforts.
+# Executive Summary
 
 ```{r}
 library(tidyverse)
@@ -247,15 +243,26 @@ validation <- function(question1, question2, data){
 #table_hours
   test <- suppressWarnings(chisq.test(table_comparison))
   
-  if (test$p.value <= 0.05){
-    significant <- TRUE
+  if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
+    fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
+    if (test$p.value <= 0.05){
+     significant <- TRUE
+   }
+   else {
+      significant <- FALSE
+   }
+    return(c("question1", "question2", round(fish_test$p.value, digits = 4), significant, "fisher"))
   }
-  else {
-    significant <- FALSE
-  }
-  return(c("question1", "question2", round(test$p.value, digits = 4), significant))
+  else{
+    if (test$p.value <= 0.05){
+     significant <- TRUE
+   }
+   else {
+      significant <- FALSE
+   }
+    }
+  return(c("question1", "question2", round(test$p.value, digits = 4), significant, "chisq"))
 }
-# validation(question1 = f_res_coalesced$Q11, question2 = f_res_coalesced$Q1, data = f_res_coalesced)
 ```
 
 ## Running Each Question
@@ -265,7 +272,8 @@ res_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Significant = logical()
+  Significant = logical(), 
+  test = character()
 )
 
 for (i in seq_len(nrow(question_dic_res))) {
@@ -283,7 +291,7 @@ res_results <- res_results %>%
     Sig_Adj = Adj_P <= 0.05,
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
-  ) 
+  ) %>% arrange(Adj_P)
 
 ```
 
@@ -305,7 +313,8 @@ dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Significant = logical()
+  Significant = logical(), 
+  test = character()
 )
 
 for (i in seq_len(nrow(question_dic_dir))) {
@@ -323,7 +332,7 @@ dir_results <- dir_results %>%
     Sig_Adj = Adj_P <= 0.05,
     Question1 = question_dic_dir$question1s, 
     Question2 = question_dic_dir$question2s
-  ) 
+  ) %>% arrange(Adj_P)
 ```
 
 # Directors/Residents
@@ -359,7 +368,8 @@ res_dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Significant = logical()
+  Significant = logical(), 
+  test = character()
 )
 
 for (i in seq_len(ncol(res_dir)-1)) {
@@ -377,7 +387,7 @@ res_dir_results <- res_dir_results %>%
     Sig_Adj = Adj_P <= 0.05,
     Question1 = colnames(res_dir)[1:51], 
     Question2 = "role"
-  ) 
+  ) %>% arrange(Adj_P)
 ```
 
 # Results
