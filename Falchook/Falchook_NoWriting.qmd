@@ -7,10 +7,21 @@ editor: visual
 
 # Executive Summary
 
-```{r}
+
+
+# Methods
+
+For our methodology, 
+
+```{r packages, echo = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
+library(gt)
+```
+
+
+```{r cleaning, echo=FALSE}
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
   headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
@@ -110,6 +121,11 @@ f_res_coalesced <- f_res_coalesced_partial %>%
   select(1:8, 71, 13:58, 72, 70)
 
 f_res_coalesced$role <- "Resident"
+f_res_coalesced <- f_res_coalesced %>%
+  mutate(Q26 = case_when(
+  Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
+  Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
+  ))
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
   dir_headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE) 
@@ -209,21 +225,23 @@ f_dir_coalesced <- f_dir_coalesced_partial %>%
   mutate(Q27 = pmap_chr(select(., 59:69), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
   select(1:7, 71, 12:58, 72, 70)
 f_dir_coalesced$role <- "Director"
-  
+f_dir_coalesced <- f_dir_coalesced %>%
+  mutate(Q26 = case_when(
+  Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
+  Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
+  ))
 ```
 
-# Dictionary of questions to compare
+```{r residents-dictionary, echo=FALSE}
 
-```{r}
 question1s <- c("Q11", rep("Q13a", 6), rep("Q13b", 6), rep("Q13c", 6), rep("Q13d", 6), rep("Q13e", 6), rep("Q13f", 6), rep("Q13g", 6), rep("Q13h", 6), rep("Q13i", 6), rep("Q14a", 2), rep("Q14b", 2), rep("Q14c", 2), rep("Q14d", 2), "Q15a", "Q15b", "Q15c", rep("Q16a", 2), rep("Q16b", 2), rep("Q16c", 2), rep("Q16d", 2), rep("Q17", 3), rep("Q18", 4))
 question2s <- c("Q1", rep(c("Q10", "Q11", "Q12", "Q1", "Q5", "Q2"), 9), rep(c("Q5", "Q3"), 4), rep("Q3", 3), rep(c("Q3", "Q1"), 4),"Q10", "Q11", "Q1", "Q10", "Q11", "Q1", "Q2")
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
 
-```{r}
+```{r validation-function, echo=FALSE}
 # when trying to cross reference one question (question1) by another grouping variable (question2) 
-
 validation <- function(question1, question2, data){
   df <- data %>%
     transmute(
@@ -245,7 +263,7 @@ validation <- function(question1, question2, data){
   
   if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
     fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
-    if (test$p.value <= 0.05){
+    if (fish_test$p.value <= 0.05){
      significant <- TRUE
    }
    else {
@@ -263,11 +281,13 @@ validation <- function(question1, question2, data){
     }
   return(c("question1", "question2", round(test$p.value, digits = 4), significant, "chisq"))
 }
+
 ```
 
-## Running Each Question
+# Residents Results Table
 
-```{r}
+```{r residents-running, echo=FALSE}
+
 res_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
@@ -292,23 +312,19 @@ res_results <- res_results %>%
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
-
+gt(res_results)
 ```
 
-# The Directors
-
-### Dictionary
-
-```{r}
+```{r directors-dictionary, echo=FALSE}
 question1s_dir <- c("Q10", "Q12a", "Q12b", "Q12c", "Q12d", "Q12e", "Q12f", "Q12g", "Q12h", "Q12i", "Q21", "Q22a", "Q22b", "Q22c")
-question2s_dir <- c(rep("Q1",14))
+question2s_dir <- c(rep("Q2",14))
 
 question_dic_dir <- data.frame(question1s_dir, question2s_dir)
 ```
 
-### Running each question
+# Directors Results Table
 
-```{r}
+```{r directors-running, echo=FALSE}
 dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
@@ -318,7 +334,6 @@ dir_results <- data.frame(
 )
 
 for (i in seq_len(nrow(question_dic_dir))) {
-
   dir_results[i, ] <- validation(
     question1 = question_dic_dir$question1s_dir[i],
     question2 = question_dic_dir$question2s_dir[i],
@@ -333,15 +348,10 @@ dir_results <- dir_results %>%
     Question1 = question_dic_dir$question1s, 
     Question2 = question_dic_dir$question2s
   ) %>% arrange(Adj_P)
+gt(dir_results)
 ```
 
-# Directors/Residents
-
-### First, we need to reformat our dataframes so that each question matches up despite having a different title within the survey
-
-### Additionally, we will only select the questions in common with both groups
-
-```{r}
+```{r full-dictionary,echo=FALSE}
 common_qs_res <- c("Q1", "Q3", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13a", "Q13b","Q13c","Q13d", "Q13e", "Q13f", "Q13g", "Q13h", "Q13i","Q14a" ,"Q14b", "Q14c" ,"Q14d", "Q15a" ,"Q15b" ,"Q15c",
 "Q16a", "Q16b", "Q16c", "Q16d", "Q17",  "Q18",  "Q19",  "Q20a", "Q20b", "Q20c", "Q20d", "Q21", "Q22a", "Q22b","Q22c", "Q23a", "Q23b", "Q23c", "Q23d", "Q24a", "Q24b", "Q24c", "Q24d", "Q24e", "Q24f", "Q25",  "Q26",  "Q27", "role")
 common_qs_dir <- c("Q2", "Q4", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12a", "Q12b","Q12c","Q12d", "Q12e", "Q12f", "Q12g", "Q12h", "Q12i","Q13a" ,"Q13b", "Q13c" ,"Q13d", "Q14a" ,"Q14b" ,"Q14c",
@@ -361,9 +371,7 @@ res_dir <- bind_rows(
 )
 ```
 
-## Group by "role" and conduct chi-squared tests again
-
-```{r}
+```{r full-running, echo=FALSE}
 res_dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
@@ -388,33 +396,10 @@ res_dir_results <- res_dir_results %>%
     Question1 = colnames(res_dir)[1:51], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
+gt(res_dir_results)
 ```
 
-# Results
-
-## Residents
-
-```{r}
-res_results
-```
-
-## Directors
-
-```{r}
-dir_results
-```
-
-## Comparing Groups
-
-```{r}
-res_dir_results
-```
-
-# Visualization
-
-## Charts for residents
-
-```{r}
+```{r barplot-function, echo=FALSE}
 stack_bar <- function(q_reference, q_group, data){
   bar_df <- data %>%
     group_by(.data[[q_reference]], .data[[q_group]]) %>%
@@ -439,6 +424,11 @@ stack_bar <- function(q_reference, q_group, data){
   return(p)
 }
 
+```
+
+# Appendix A: Plots 
+
+```{r plots, echo=FALSE, fig.width=8, fig.height=5}
 plots_res <- pmap(question_dic_res, 
               function(question1s, question2s){
                 stack_bar(
@@ -448,11 +438,7 @@ plots_res <- pmap(question_dic_res,
                 )
               })
 walk(plots_res, print)
-```
 
-## Charts for Directors
-
-```{r}
 plots_dir <- pmap(question_dic_dir, 
                   function(question1s_dir, question2s_dir){
                     stack_bar(
@@ -462,32 +448,6 @@ plots_dir <- pmap(question_dic_dir,
                     )
                   })
 walk(plots_dir, print)
-```
-
-## Charts for comparisons
-
-```{r}
-# Mosaic plots? 
-#library(ggmosaic2)
-
-# mosaic_fun <- function(q_reference, q_group, data){
-#     gg_df <- data %>%
-#     group_by(.data[[q_reference]], .data[[q_group]]) %>%
-#     summarize(counts = n(), .groups = "drop") %>%
-#     drop_na() %>%
-#     group_by(.data[[q_group]]) %>%
-#     mutate(percent = counts / sum(counts) * 100) %>%
-#     ungroup()
-#     
-#     p <- ggplot(data = gg_df) +
-#       geom_mosaic(aes(weight = percent, x = product(q_reference*, fill = q_group)) +
-#       labs(title = "Mosaic Plot using ggplot2", x = "Eye Color", y = "Hair Color") +
-#       theme_mosaic()
-#     
-#   return(gg_df)
-# }
-# 
-# mosaic_fun("Q1", "role", data = res_dir)
 
 question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
                                    , question2s_res_dir = rep("role", ncol(res_dir)))
@@ -503,3 +463,10 @@ plots_comp <- pmap(question_dic_res_dir,
                   })
 walk(plots_comp, print)
 ```
+
+# Appendix B: Code 
+
+```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+
+```
+
