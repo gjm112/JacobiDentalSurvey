@@ -16,9 +16,6 @@ library(tidyverse)
 library(zoo)
 library(stringr)
 
-f_res <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", header = T)
-f_direc <- read.csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv")
-
 headers_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/Resident Expanded(in).csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
 questions <- as.character(headers_raw[1,])
@@ -123,7 +120,7 @@ dir_clean_headers <- paste(dir_questions_filled, dir_answer_choices, sep = "_")
 f_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/PD expanded(in).csv", skip = 2, col_names = dir_clean_headers, show_col_types = FALSE)
 f_dir <- f_dir_raw %>%
   select(c(10:ncol(f_dir_raw)))
-view(f_dir)
+#view(f_dir)
 
 f_dir <- f_dir %>%
   mutate(
@@ -200,6 +197,7 @@ f_dir_coalesced <- f_dir_coalesced_partial %>%
   mutate(Q27 = pmap_chr(select(., 59:69), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
   select(1:7, 71, 12:58, 72, 70)
 f_dir_coalesced$role <- "Director"
+  
 ```
 
 # Dictionary of questions to compare
@@ -232,18 +230,6 @@ validation <- function(question1, question2, data){
   table_comparison <- table(df$response2, df$response1)
 #table_hours
   test <- suppressWarnings(chisq.test(table_comparison))
-  
-  ggplot(comparison_res, aes(x = question1, y = percent, fill = question1)) +
-    geom_col() +
-    facet_wrap(~ question2) +
-    labs(
-      x = NULL,
-      y = "Percent of responses"
-    ) +
-    theme(
-      axis.text.x = element_blank(),
-      axis.ticks.x = element_blank()
-    )
   
   if (test$p.value <= 0.05){
     significant <- TRUE
@@ -336,6 +322,8 @@ common_qs_res <- c("Q1", "Q3", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13a", "Q13b","
 common_qs_dir <- c("Q2", "Q4", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12a", "Q12b","Q12c","Q12d", "Q12e", "Q12f", "Q12g", "Q12h", "Q12i","Q13a" ,"Q13b", "Q13c" ,"Q13d", "Q14a" ,"Q14b" ,"Q14c",
 "Q15a", "Q15b", "Q15c", "Q15d", "Q16",  "Q17",  "Q18",  "Q19a", "Q19b", "Q19c", "Q19d", "Q20", "Q22a", "Q22b","Q22c", "Q23a", "Q23b", "Q23c", "Q23d", "Q24a", "Q24b", "Q24c", "Q24d", "Q24e", "Q24f", "Q25",  "Q26",  "Q27", "role")
 
+full_dic <- data.frame(common_qs_res, common_qs_dir)
+
 res_common <- f_res_coalesced %>%
   select(all_of(common_qs_res))
 
@@ -394,4 +382,98 @@ dir_results
 
 ```{r}
 res_dir_results
+```
+
+# Visualization
+
+## Charts for residents
+
+```{r}
+stack_bar <- function(q_reference, q_group, data){
+  bar_df <- data %>%
+    group_by(.data[[q_reference]], .data[[q_group]]) %>%
+    summarize(counts = n(), .groups = "drop") %>%
+    drop_na() %>%
+    group_by(.data[[q_group]]) %>%
+    mutate(percent = counts / sum(counts) * 100) %>%
+    ungroup()
+  
+  p <- ggplot(bar_df, aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
+    geom_col() +
+    facet_wrap(vars(.data[[q_group]])) +
+    labs(
+      title = paste(q_reference, "vs", q_group, sep = " "),
+      x = NULL,
+      y = "Percent of responses"
+    ) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+  return(p)
+}
+
+plots_res <- pmap(question_dic_res, 
+              function(question1s, question2s){
+                stack_bar(
+                  q_reference = question1s, 
+                  q_group = question2s,
+                  data = f_res_coalesced
+                )
+              })
+walk(plots_res, print)
+```
+
+## Charts for Directors
+
+```{r}
+plots_dir <- pmap(question_dic_dir, 
+                  function(question1s_dir, question2s_dir){
+                    stack_bar(
+                      q_reference = question1s_dir, 
+                      q_group = question2s_dir,
+                      data = f_dir_coalesced
+                    )
+                  })
+walk(plots_dir, print)
+```
+
+## Charts for comparisons
+
+```{r}
+# Mosaic plots? 
+#library(ggmosaic2)
+
+# mosaic_fun <- function(q_reference, q_group, data){
+#     gg_df <- data %>%
+#     group_by(.data[[q_reference]], .data[[q_group]]) %>%
+#     summarize(counts = n(), .groups = "drop") %>%
+#     drop_na() %>%
+#     group_by(.data[[q_group]]) %>%
+#     mutate(percent = counts / sum(counts) * 100) %>%
+#     ungroup()
+#     
+#     p <- ggplot(data = gg_df) +
+#       geom_mosaic(aes(weight = percent, x = product(q_reference*, fill = q_group)) +
+#       labs(title = "Mosaic Plot using ggplot2", x = "Eye Color", y = "Hair Color") +
+#       theme_mosaic()
+#     
+#   return(gg_df)
+# }
+# 
+# mosaic_fun("Q1", "role", data = res_dir)
+
+question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
+                                   , question2s_res_dir = rep("role", ncol(res_dir)))
+question_dic_res_dir <- question_dic_res_dir %>%
+  filter(question1s_res_dir != "role") 
+plots_comp <- pmap(question_dic_res_dir, 
+                  function(question1s_res_dir, question2s_res_dir){
+                    stack_bar(
+                      q_reference = question1s_res_dir, 
+                      q_group = question2s_res_dir,
+                      data = res_dir
+                    )
+                  })
+walk(plots_comp, print)
 ```
