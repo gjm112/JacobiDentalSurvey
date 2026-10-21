@@ -5,14 +5,14 @@ format: pdf
 editor: visual
 ---
 
-```{r}
+```{r, echo = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
 ```
 
-```{r}
+```{r, echo = FALSE}
 m_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", n_max = 2, col_names = F, show_col_types = F)
 
 questions <- as.character(m_headers[1,])
@@ -72,7 +72,7 @@ m_questions <- m_non_coalesced %>%
   #mutate(Q21 = do.call(coalesce, pick(162:169))) %>%
   #mutate(Q22 = do.call(coalesce, pick(170:175))) %>%
   #mutate(Q23 = do.call(coalesce, pick(176:183))) %>%
-  
+
 m_no_sata <- m_questions %>%
   select(184:204, 111:122, 205:213, 162:183)
 
@@ -84,5 +84,440 @@ m_coalesced <- m_no_sata %>%
   mutate(Q23 = pmap_chr(select(., 57:64), ~ paste(na.omit(c(...)), collapse = "; "))) %>% 
   select(1:21, Q11a, Q11b, 34:42, Q21, Q22, Q23)
 
+coll_ids <- m_rawdata$`Collector ID_NA`
 
+m_coalesced <- m_coalesced %>%
+  mutate(ids = coll_ids) %>%
+  mutate(role = case_when(
+    ids == 440127144 ~ "Dentist", 
+    ids == 440133230 ~ "Resident"
+  ))
+
+correct_answers <- c("Ask about tobacco or vaping use and provide counseling", "Counsel on tobacco use, and re-evaluate in 2 weeks", "Erythema, mucosal irritation, and xerostomia", "Perform biopsy or refer for specialist evaluation", "Perform biopsy or refer to specialist", "Avoid irritants, consider topical corticosteroids, re-evaluate in 1–2 weeks")
+
+m_coalesced <- m_coalesced %>%
+  mutate(
+    score = if_else(
+      if_all(Q15:Q20, is.na),
+      NA_real_,
+      rowSums(
+        across(Q15:Q20) == matrix(
+          correct_answers,
+          nrow = n(),
+          ncol = length(correct_answers),
+          byrow = TRUE
+        ),
+        na.rm = TRUE
+      )
+    )
+  )
+```
+
+# Analysis
+
+Below are several tables outlining each of the categories of analysis requested.
+
+```{r, echo = FALSE}
+validation <- function(question1, question2, data){
+  df <- data %>%
+    transmute(
+      response1 = .data[[question1]],
+      response2 = .data[[question2]]
+    ) %>%
+    drop_na()
+  
+  comparison_res <- df %>%
+    group_by(response1, response2) %>%
+    summarize(counts = n(), .groups = "drop") %>%
+    group_by(response2) %>%
+    mutate(percent = counts / sum(counts) * 100) %>%
+    ungroup()
+  
+  table_comparison <- table(df$response2, df$response1)
+  #table_hours
+  test <- suppressWarnings(chisq.test(table_comparison))
+  
+  if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
+    fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
+    if (fish_test$p.value <= 0.05){
+      significant <- TRUE
+    }
+    else {
+      significant <- FALSE
+    }
+    return(c("question1", "question2", round(fish_test$p.value, digits = 4), significant, "fisher"))
+  }
+  else{
+    if (test$p.value <= 0.05){
+      significant <- TRUE
+    }
+    else {
+      significant <- FALSE
+    }
+  }
+  return(c("question1", "question2", round(test$p.value, digits = 4), significant, "chisq"))
+}
+```
+
+## Resident/Dentist Comfort & Clinical Practice Analysis
+
+Below is a table comparing residents and dentists comfort levels and clinical practices.
+
+```{r, echo = FALSE}
+comfort_dic <- data.frame(
+  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b"), 
+  role = c(rep("role", 16))
+)
+
+comfort_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(comfort_dic))) {
+  
+  comfort_results[i, ] <- validation(
+    question1 = comfort_dic$q_ref[i],
+    question2 = comfort_dic$role[i],
+    data = m_coalesced
+  )
+}
+
+comfort_results <- comfort_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = comfort_dic$q_ref, 
+    Question2 = comfort_dic$role
+  ) %>% 
+  arrange(Adj_P)
+
+gt(comfort_results, caption = "Comfort/Clinical Practice")
+```
+
+## Resident/Dentist Knowledge Analysis
+
+Below is a table comparing residents and dentist questions on knowledge.
+
+```{r, echo = FALSE}
+knowledge_dic <- data.frame(
+  q_ref = c("Q12", "Q13", "Q14"), 
+  role = c(rep("role", 3))
+)
+
+knowledge_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(knowledge_dic))) {
+  
+  knowledge_results[i, ] <- validation(
+    question1 = knowledge_dic$q_ref[i],
+    question2 = knowledge_dic$role[i],
+    data = m_coalesced
+  )
+}
+
+knowledge_results <- knowledge_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = knowledge_dic$q_ref, 
+    Question2 = knowledge_dic$role
+  ) %>% 
+  arrange(Adj_P)
+
+gt(knowledge_results, caption = "Knowledge Comparison")
+```
+
+## Residents/Dentists Quiz Analysis
+
+Below is a table comparing residents and dentist quiz results.
+
+```{r, echo = FALSE}
+quiz_dic <- data.frame(
+  q_ref = c("Q15", "Q16", "Q17", "Q18", "Q19", "Q20", "score"), 
+  role = c(rep("role", 7))
+)
+
+quiz_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(quiz_dic))) {
+  
+  quiz_results[i, ] <- validation(
+    question1 = quiz_dic$q_ref[i],
+    question2 = quiz_dic$role[i],
+    data = m_coalesced
+  )
+}
+
+quiz_results <- quiz_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = quiz_dic$q_ref, 
+    Question2 = quiz_dic$role
+  ) %>% 
+  arrange(Adj_P)
+
+gt(quiz_results, caption = "Residents vs Dentists Difference in Quiz Answers")
+```
+
+## Environment Analysis
+
+Below is a table comparing environmental questions.
+
+```{r, echo = FALSE}
+env_dic <- data.frame(
+  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q12", "Q13", "score"), 
+  Q5 = c(rep("Q5", 17))
+)
+
+env_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(env_dic))) {
+  
+  env_results[i, ] <- validation(
+    question1 = env_dic$q_ref[i],
+    question2 = env_dic$Q5[i],
+    data = m_coalesced
+  )
+}
+
+env_results <- env_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = env_dic$q_ref, 
+    Question2 = env_dic$Q5
+  ) %>% 
+  arrange(Adj_P)
+
+gt(env_results, caption = "Environment Analysis")
+```
+
+## Dentist/Practice Analysis
+
+Below is a table comparing dentists and their practices.
+
+```{r, echo = FALSE}
+dentists <- m_coalesced %>%
+  filter(role == "Dentist")
+
+prac_dic <- data.frame(
+  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a", "Q11b","Q12", "score"), 
+  Q3 = c(rep("Q3", 18))
+)
+
+prac_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(prac_dic))) {
+  
+  prac_results[i, ] <- validation(
+    question1 = prac_dic$q_ref[i],
+    question2 = prac_dic$Q3[i],
+    data = dentists
+  )
+}
+
+prac_results <- prac_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = prac_dic$q_ref, 
+    Question2 = prac_dic$Q3
+  ) %>% 
+  arrange(Adj_P)
+
+gt(prac_results, caption = "Dental Practice Analysis")
+
+```
+
+## Additional Analysis
+
+Below is a table comparing additional analysis questions.
+
+```{r, echo = FALSE}
+
+addt_dic <- data.frame(
+  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a", "Q11b", "Q10a", "Q10b"), 
+  q_group = c(rep("Q12", 14), "Q9", "Q9", "Q13", "Q13")
+)
+
+addt_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(addt_dic))) {
+  
+  addt_results[i, ] <- validation(
+    question1 = addt_dic$q_ref[i],
+    question2 = addt_dic$q_group[i],
+    data = m_coalesced
+  )
+}
+
+addt_results <- addt_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = addt_dic$q_ref, 
+    Question2 = addt_dic$q_group
+  ) %>% 
+  arrange(Adj_P)
+
+gt(addt_results, caption = "Additional Analysis")
+```
+
+# Visualization
+
+```{r, echo = F}
+stack_bar <- function(q_reference, q_group, data){
+  bar_df <- data %>%
+    group_by(.data[[q_reference]], .data[[q_group]]) %>%
+    summarize(counts = n(), .groups = "drop") %>%
+    drop_na() %>%
+    group_by(.data[[q_group]]) %>%
+    mutate(percent = counts / sum(counts) * 100) %>%
+    ungroup()
+  
+  p <- ggplot(bar_df, aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
+    geom_col() +
+    facet_wrap(vars(.data[[q_group]])) +
+    labs(
+      title = paste(q_reference, "vs", q_group, sep = " "),
+      x = NULL,
+      y = "Percent of responses"
+    ) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+  return(p)
+}
+```
+
+## Comfort & Clinical Practice Plots 
+
+Below are plots comparing the comfort and clinical practices between residents and dentists.
+
+```{r, echo = F}
+plots_comfort <- pmap(comfort_dic, 
+                   function(q_ref, role){
+                     stack_bar(
+                       q_reference = q_ref, 
+                       q_group = role,
+                       data = m_coalesced
+                     )
+                   })
+walk(plots_comfort, print)
+```
+
+## Knowledge Plots 
+
+Below are plots comparing the knowledge of residents versus dentists.
+
+```{r, echo = F}
+plots_knowledge <- pmap(knowledge_dic, 
+                      function(q_ref, role){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = role,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_knowledge, print)
+```
+
+## Quiz Plots
+
+Below are plots comparing the quiz results between residents and dentists.
+
+```{r, echo = F}
+plots_quiz <- pmap(quiz_dic, 
+                      function(q_ref, role){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = role,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_quiz, print)
+```
+
+## Environmental Analysis Plots
+
+Below are plots for the environmental analysis.
+
+```{r, echo = F}
+plots_env <- pmap(env_dic, 
+                      function(q_ref, Q5){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = Q5,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_env, print)
+```
+
+## Dentist Analysis Plots 
+
+Below are plots for the dentist analysis.
+
+```{r, echo = F}
+plots_dentists <- pmap(prac_dic, 
+                      function(q_ref, Q3){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = Q3,
+                          data = dentists
+                        )
+                      })
+walk(plots_dentists, print)
+```
+
+## Additional Analysis Plots
+
+Below are plots comparing each additional analysis question.
+
+```{r, echo = F}
+plots_addt <- pmap(addt_dic, 
+                      function(q_ref, q_group){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = q_group,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_addt, print)
 ```
