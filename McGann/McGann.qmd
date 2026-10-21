@@ -1,0 +1,88 @@
+---
+title: "McGann"
+author: "Jack Dumanski"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(zoo)
+library(stringr)
+library(gt)
+```
+
+```{r}
+m_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", n_max = 2, col_names = F, show_col_types = F)
+
+questions <- as.character(m_headers[1,])
+
+answer_choices <- as.character(m_headers[2,])
+
+questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, questions))
+
+clean_headers <- paste(questions_filled, answer_choices, sep = "_")
+
+m_rawdata <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+
+m_non_coalesced <- m_rawdata %>%
+  select(c(10:ncol(m_rawdata)))
+
+m_non_coalesced <- m_non_coalesced %>%
+  mutate(
+    across(
+      everything(),
+      ~ na_if(as.character(.), "")
+    )
+  )
+
+m_questions <- m_non_coalesced %>%
+  mutate(Q1 = do.call(coalesce, pick(1:6))) %>%
+  mutate(Q2 = do.call(coalesce, pick(7:12))) %>%
+  mutate(Q3 = do.call(coalesce, pick(13:21))) %>%
+  mutate(Q4 = do.call(coalesce, pick(22:24))) %>%
+  mutate(Q5 = do.call(coalesce, pick(25:27))) %>%
+  mutate(Q6 = do.call(coalesce, pick(28:33))) %>%
+  mutate(Q7 = do.call(coalesce, pick(34:40))) %>%
+  mutate(Q8a = do.call(coalesce, pick(41:45))) %>%
+  mutate(Q8b = do.call(coalesce, pick(46:50))) %>%
+  mutate(Q8c = do.call(coalesce, pick(51:55))) %>%
+  mutate(Q8d = do.call(coalesce, pick(56:60))) %>%
+  mutate(Q8e = do.call(coalesce, pick(61:65))) %>%
+  mutate(Q8f = do.call(coalesce, pick(66:70))) %>%
+  mutate(Q8g = do.call(coalesce, pick(71:75))) %>%
+  mutate(Q8h = do.call(coalesce, pick(76:80))) %>%
+  mutate(Q8i = do.call(coalesce, pick(81:85))) %>%
+  mutate(Q8j = do.call(coalesce, pick(86:90))) %>%
+  mutate(Q8k = do.call(coalesce, pick(91:95))) %>%
+  mutate(Q9 = do.call(coalesce, pick(96:100))) %>%
+  mutate(Q10a = do.call(coalesce, pick(101:105))) %>%
+  mutate(Q10b = do.call(coalesce, pick(106:110))) %>%
+  #mutate(Q11a = do.call(coalesce, pick(111:116))) %>%
+  #mutate(Q11b = do.call(coalesce, pick(117:122))) %>%
+  mutate(Q12 = do.call(coalesce, pick(123:126))) %>%
+  mutate(Q13 = do.call(coalesce, pick(127:131))) %>%
+  mutate(Q14 = do.call(coalesce, pick(132:137))) %>%
+  mutate(Q15 = do.call(coalesce, pick(138:141))) %>%
+  mutate(Q16 = do.call(coalesce, pick(142:145))) %>%
+  mutate(Q17 = do.call(coalesce, pick(146:149))) %>%
+  mutate(Q18 = do.call(coalesce, pick(150:153))) %>%
+  mutate(Q19 = do.call(coalesce, pick(154:157))) %>%
+  mutate(Q20 = do.call(coalesce, pick(158:161))) 
+  #mutate(Q21 = do.call(coalesce, pick(162:169))) %>%
+  #mutate(Q22 = do.call(coalesce, pick(170:175))) %>%
+  #mutate(Q23 = do.call(coalesce, pick(176:183))) %>%
+  
+m_no_sata <- m_questions %>%
+  select(184:204, 111:122, 205:213, 162:183)
+
+m_coalesced <- m_no_sata %>%
+  mutate(Q11a = pmap_chr(select(., 22:27), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  mutate(Q11b = pmap_chr(select(., 28:33), ~ paste(na.omit(c(...)), collapse = "; "))) %>% 
+  mutate(Q21 = pmap_chr(select(., 45:50), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  mutate(Q22 = pmap_chr(select(., 51:56), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
+  mutate(Q23 = pmap_chr(select(., 57:64), ~ paste(na.omit(c(...)), collapse = "; "))) %>% 
+  select(1:21, Q11a, Q11b, 34:42, Q21, Q22, Q23)
+
+
+```
