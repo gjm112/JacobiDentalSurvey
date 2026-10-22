@@ -5,6 +5,12 @@ format: pdf
 editor: visual
 ---
 
+# Summary 
+
+# Methodology
+
+# Significant Findings
+
 ```{r, echo = FALSE}
 library(tidyverse)
 library(zoo)
@@ -113,7 +119,7 @@ m_coalesced <- m_coalesced %>%
   )
 ```
 
-# Analysis
+# Full Analysis / Results 
 
 Below are several tables outlining each of the categories of analysis requested.
 
@@ -398,7 +404,7 @@ addt_results <- addt_results %>%
 gt(addt_results, caption = "Additional Analysis")
 ```
 
-# Visualization
+# Appendix A: Plots 
 
 ```{r, echo = F}
 stack_bar <- function(q_reference, q_group, data){
@@ -426,7 +432,7 @@ stack_bar <- function(q_reference, q_group, data){
 }
 ```
 
-## Comfort & Clinical Practice Plots 
+## Comfort & Clinical Practice Plots
 
 Below are plots comparing the comfort and clinical practices between residents and dentists.
 
@@ -442,7 +448,7 @@ plots_comfort <- pmap(comfort_dic,
 walk(plots_comfort, print)
 ```
 
-## Knowledge Plots 
+## Knowledge Plots
 
 Below are plots comparing the knowledge of residents versus dentists.
 
@@ -490,7 +496,7 @@ plots_env <- pmap(env_dic,
 walk(plots_env, print)
 ```
 
-## Dentist Analysis Plots 
+## Dentist Analysis Plots
 
 Below are plots for the dentist analysis.
 
@@ -520,4 +526,9 @@ plots_addt <- pmap(addt_dic,
                         )
                       })
 walk(plots_addt, print)
+```
+
+# Appendix B: Code
+
+```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```

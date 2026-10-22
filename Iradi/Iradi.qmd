@@ -5,16 +5,17 @@ format: pdf
 editor: visual
 ---
 
-# IRADI
+# Executive Summary 
 
 ## Data Cleaning
 
-```{r}
+```{r, echo = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
-i_res_headers <- read_csv("CSV/res_survey.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+
+i_res_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
 questions <- as.character(i_res_headers[1,])
 
@@ -24,7 +25,7 @@ questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, quest
 
 clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
-i_res_raw <- read_csv("CSV/res_survey.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+i_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
 i_res <- i_res_raw %>%
   select(c(10:ncol(i_res_raw)))
 
@@ -70,7 +71,7 @@ i_res_coalesced <- i_res_q %>%
   select(110:135)
 ```
 
-```{r}
+```{r, echo = FALSE}
 i_dir_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/i_directors.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
 questions_dir <- as.character(i_dir_headers[1,])
@@ -147,7 +148,7 @@ i_dir_coalesced <- i_dir_coalesced %>%
 
 ## Residents Analysis
 
-```{r}
+```{r, echo = FALSE}
 # 2 with 7 and 8
 # 2 with 11
 # 2 with 11 and 12
@@ -158,7 +159,7 @@ question2s <- c(rep("Q2", 10))
 question_dic_res <- data.frame(question1s, question2s)
 ```
 
-```{r}
+```{r, echo = FALSE}
 validation <- function(question1, question2, data){
   df <- data %>%
     transmute(
@@ -200,7 +201,7 @@ validation <- function(question1, question2, data){
 }
 ```
 
-```{r}
+```{r, echo = FALSE}
 res_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
@@ -232,7 +233,7 @@ gt(res_results)
 
 ### Question 2 with Questions 11 and 12
 
-```{r}
+```{r, echo = FALSE}
 library(modelsummary)
 cleft_program <- i_res_coalesced %>%
   filter(Q2 != "Unsure") %>%
@@ -252,13 +253,13 @@ anova(cleft_glm, cleft_null)
 
 ### The logistic regression summary
 
-```{r}
+```{r, echo = FALSE}
 modelsummary(cleft_glm)
 ```
 
 # Residents & Directors Cross-Referenced
 
-```{r}
+```{r, echo = FALSE}
 common_qs_res <- c("Q2", "Q3", "Q4", "Q6", "Q7a", "Q7b", "Q7c", "Q7d","Q8a","Q8b", "Q8c", "Q8d", "Q5", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q10e", "Q12", "Q13", "Q14", "Q15",
                    "role")
 common_qs_dir <- c("Q2", "Q3", "Q4", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q11a","Q11b","Q11c", "Q11d", "Q12", "Q13", "Q16a", "Q16b", "Q16c", "Q16d", "Q16e", "Q18", "Q19", "Q20",
@@ -279,7 +280,7 @@ res_dir <- bind_rows(
 
 # Run the tests
 
-```{r}
+```{r, echo = FALSE}
 res_dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
@@ -309,7 +310,7 @@ gt(res_dir_results)
 
 # Visualization
 
-```{r}
+```{r, echo = FALSE}
 stack_bar <- function(q_reference, q_group, data){
   bar_df <- data %>%
     group_by(.data[[q_reference]], .data[[q_group]]) %>%
@@ -335,7 +336,7 @@ stack_bar <- function(q_reference, q_group, data){
 }
 ```
 
-```{r}
+```{r, echo = FALSE}
 plots_res <- pmap(question_dic_res, 
                   function(question1s, question2s){
                     stack_bar(
@@ -360,4 +361,9 @@ plots_comp <- pmap(question_dic_res_dir,
                      )
                    })
 walk(plots_comp, print)
+```
+
+# Appendix B: Code
+
+```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
