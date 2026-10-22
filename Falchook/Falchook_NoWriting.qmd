@@ -319,7 +319,7 @@ res_results <- res_results %>%
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
-gt(res_results)
+gt(res_results, caption = "Residents Analysis")
 
 ```
 
