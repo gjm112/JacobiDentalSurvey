@@ -5,13 +5,21 @@ format: pdf
 editor: visual
 ---
 
-# Executive Summary
+# Summary
 
-
+We analyzed data within residents and directors, and then we analyzed data between them. Out of 81 comparisons for residents, we found 7 to be significant at a 0.05 level, but 0 after adjusting for the amount of comparions. Out of 14 for directors, we found 0 to be true before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment.
 
 # Methods
 
-For our methodology, 
+For our methodology, we conducted chi-squared tests for independence to see if there were differences in how the responses were distributed for each comparison. In doing so, most of the expected counts were lower than the requirements necessary for chi-squared tests due to a low sample size and large amount of potential responses for each question, so instead we used Fisher exact tests, as all of the comparisons violated the chi-square assumptions.
+
+The Fisher exact test can calculate exact probabilities to see if there's a non-random association between groups, in which a low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+
+For questions that had multiple parts, we had to split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which usually was the role (being a resident/director) in the case of cross-comparison, or other information like program, experience, or other variables in question. In practice, this saw us, for example, analyzing whether directors perceive residence having negative impact on marriage versus whether residents feel their residency having a negative impact on marriage. The same question was asked for personal health care, control over one's life, and work/life balance. All of that example was from data from question 13 on the director's survey.
+
+Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and are also in a list of all comparison results and plots in the appendix.
+
+# Significant Findings
 
 ```{r packages, echo = FALSE}
 library(tidyverse)
@@ -19,7 +27,6 @@ library(zoo)
 library(stringr)
 library(gt)
 ```
-
 
 ```{r cleaning, echo=FALSE}
 
@@ -313,6 +320,7 @@ res_results <- res_results %>%
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
 gt(res_results)
+
 ```
 
 ```{r directors-dictionary, echo=FALSE}
@@ -426,7 +434,7 @@ stack_bar <- function(q_reference, q_group, data){
 
 ```
 
-# Appendix A: Plots 
+# Appendix A: Plots
 
 ```{r plots, echo=FALSE, fig.width=8, fig.height=5}
 plots_res <- pmap(question_dic_res, 
@@ -464,9 +472,8 @@ plots_comp <- pmap(question_dic_res_dir,
 walk(plots_comp, print)
 ```
 
-# Appendix B: Code 
+# Appendix B: Code
 
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 
 ```
-
