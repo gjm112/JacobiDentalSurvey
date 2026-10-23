@@ -1,25 +1,26 @@
 ---
-title: "Falchook_NoWriting"
-author: "Jack Dumanski"
+title: "Burnout and Mental Health in Pediatric Dental Residency: A Cross-Sectional Survey of Residents and Directors"
+author: "Loyola University Chicago Center for Data Science and Consulting"
 format: pdf
 editor: visual
 ---
 
 # Summary
 
-We analyzed data within residents and directors, and then we analyzed data between them. Out of 81 comparisons for residents, we found 7 to be significant at a 0.05 level, but 0 after adjusting for the amount of comparions. Out of 14 for directors, we found 0 to be true before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. 
+Out of 81 test within the residents group, we found 5 to be significant, but because of the amount of tests, zero were significant after adjusting for the false discovery rate. 
+Out of 14 tests for directors, we found 0 to be true both before and after adjustment. 
+We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. 
+However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. 
+All significant tests will be reported in the results section, and their significance before and after adjustment will be noted.
 
 # Methods
 
-For our methodology, we conducted chi-squared tests for independence to see if there were differences in how the responses were distributed for each comparison. In doing so, most of the expected counts were lower than the requirements necessary for chi-squared tests due to a low sample size and large amount of potential responses for each question, so instead we used Fisher exact tests, as all of the comparisons violated the chi-square assumptions.
+For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
 
-The Fisher exact test can calculate exact probabilities to see if there's a non-random association between groups, in which a low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+For questions that had multiple parts, we had to split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors perceive residence having negative impact on marriage versus whether residents feel their residency having a negative impact on marriage. The same question was asked for personal health care, control over one's life, and work/life balance. This example came from data from question 13 on the director's survey to illustrate the complexity of certain questions.
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which usually was the role (being a resident/director) in the case of cross-comparison, or other information like program, experience, or other variables in question. In practice, this saw us, for example, analyzing whether directors perceive residence having negative impact on marriage versus whether residents feel their residency having a negative impact on marriage. The same question was asked for personal health care, control over one's life, and work/life balance. All of that example was from data from question 13 on the director's survey.
-
-Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and are also in a list of all comparison results and plots in the appendix.
-
-# Significant Findings
+Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
 
 ```{r packages, echo = FALSE}
 library(tidyverse)
@@ -319,7 +320,6 @@ res_results <- res_results %>%
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
-gt(res_results, caption = "Residents Analysis")
 
 ```
 
@@ -356,7 +356,7 @@ dir_results <- dir_results %>%
     Question1 = question_dic_dir$question1s, 
     Question2 = question_dic_dir$question2s
   ) %>% arrange(Adj_P)
-gt(dir_results)
+
 ```
 
 ```{r full-dictionary,echo=FALSE}
@@ -404,7 +404,7 @@ res_dir_results <- res_dir_results %>%
     Question1 = colnames(res_dir)[1:51], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
-gt(res_dir_results)
+
 ```
 
 ```{r barplot-function, echo=FALSE}
@@ -445,7 +445,6 @@ plots_res <- pmap(question_dic_res,
                   data = f_res_coalesced
                 )
               })
-walk(plots_res, print)
 
 plots_dir <- pmap(question_dic_dir, 
                   function(question1s_dir, question2s_dir){
@@ -455,7 +454,7 @@ plots_dir <- pmap(question_dic_dir,
                       data = f_dir_coalesced
                     )
                   })
-walk(plots_dir, print)
+
 
 question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
                                    , question2s_res_dir = rep("role", ncol(res_dir)))
@@ -469,6 +468,82 @@ plots_comp <- pmap(question_dic_res_dir,
                       data = res_dir
                     )
                   })
+
+```
+# Significant Findings
+
+## Residents Significance 
+
+Questions 13d and 2, 13h and 2, 18 and 11, 16d and 3, 17 and 10 were all found to be significant before adjustment. 
+
+The contexts of these questions and plots are as follows: 
+
+13d/2: Treating patients as impersonal objects and PGY level 
+
+13h/2: Not caring about what happens to certain patients and PGY level 
+
+18/11: Working hours/week and desire to quit residency training 
+
+16d/3: Experiencing sexual harassment and gender 
+
+17/10: On call days/month and quality of life 
+
+```{r}
+plots_res_sig <- plots_res[c(22, 49, 73, 75, 79)]
+walk(plots_res_sig, print)
+```
+
+
+## Directors Significant 
+
+Little significance was found between directors, possibly due to low sample size, and none of the tests saw a p-value below 0.2. 
+
+## Cross-Comparison Significance
+
+Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to: 
+
+3: Gender 
+
+12: Recreation hours per week
+
+13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
+
+14a/b: Negative impact on marriage, personal healthcare 
+
+15a: Experienced discrimination based on gender
+
+19: Frequency of meeting with director
+
+20a/b/d: Frequency of discussing burnout, depression, quitting residency
+  - notably, the only insignificant subquestion concerned suicidal thoughts
+  
+21: Presence of standardized criteria for screening burnout & mental health
+
+22a/b/c: Satisfaction with how program manages burnout, depression, suicide
+
+26: Setting for screening (Anonymously vs Confidentially)
+
+```{r}
+plots_res_sig <- plots_res[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
+walk(plots_res_sig, print)
+```
+
+
+# Appendix A i) Residents Plots + Table: 
+```{r}
+gt(res_results, caption = "Residents Analysis")
+walk(plots_res, print)
+```
+
+# Appendix A ii) Directors Plots + Table: 
+```{r}
+gt(dir_results)
+walk(plots_dir, print)
+```
+
+# Appendix A iii) Cross Comparison Plots + Table: 
+```{r}
+gt(res_dir_results)
 walk(plots_comp, print)
 ```
 
