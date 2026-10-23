@@ -1,6 +1,6 @@
 ---
-title: "An Exploration"
-author: "Jack Dumanski"
+title: "Closing the Gap: Cleft Training in Pediatric Dentistry Residency Programs"
+author: "Loyola University Chicago Center for Data Science and Consulting"
 format: pdf
 editor: visual
 ---
