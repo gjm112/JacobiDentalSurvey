@@ -428,6 +428,6 @@ walk(plots_comp, print)
 # Appendix C: Results Tables 
 
 ```{r, echo = FALSE}
-gt(res_results, caption = "Residents results")
-gt(res_dir_results, caption = "Cross-comparison results")
+res_results
+res_dir_results
 ```

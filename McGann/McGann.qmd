@@ -13,11 +13,9 @@ In this study, we analyzed data within residents and directors, then compared th
 
 For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors perceive residence having negative impact on marriage versus whether residents feel their residency having a negative impact on marriage. The same question was asked for personal health care, control over one's life, and work/life balance. This example came from data from question 13 on the director's survey to illustrate the complexity of certain questions.
+For questions that had multiple parts, we had to split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors think residents should be comfortable recognizing oral soft-tissue changes related to cigarettes, ENDS/vaping, and so on, for each part. Each sub-question statistically needs to be considered independently, which is why they are separated in the analysis.
 
 Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
-
-# Significant Findings
 
 ```{r, echo = FALSE}
 library(tidyverse)
@@ -127,7 +125,7 @@ m_coalesced <- m_coalesced %>%
   )
 ```
 
-# Full Analysis / Results 
+# 
 
 Below are several tables outlining each of the categories of analysis requested.
 
@@ -209,7 +207,7 @@ comfort_results <- comfort_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(comfort_results, caption = "Comfort/Clinical Practice")
+comfort_results
 ```
 
 ## Resident/Dentist Knowledge Analysis
@@ -248,7 +246,7 @@ knowledge_results <- knowledge_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(knowledge_results, caption = "Knowledge Comparison")
+knowledge_results
 ```
 
 ## Residents/Dentists Quiz Analysis
@@ -287,7 +285,7 @@ quiz_results <- quiz_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(quiz_results, caption = "Residents vs Dentists Difference in Quiz Answers")
+quiz_results
 ```
 
 ## Environment Analysis
@@ -326,7 +324,7 @@ env_results <- env_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(env_results, caption = "Environment Analysis")
+env_results
 ```
 
 ## Dentist/Practice Analysis
@@ -368,8 +366,7 @@ prac_results <- prac_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(prac_results, caption = "Dental Practice Analysis")
-
+prac_results
 ```
 
 ## Additional Analysis
@@ -409,8 +406,12 @@ addt_results <- addt_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(addt_results, caption = "Additional Analysis")
+addt_results
 ```
+
+# Significant Findings: 
+
+The findings will be split into each category in which
 
 # Appendix A: Plots 
 

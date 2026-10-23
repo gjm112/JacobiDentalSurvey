@@ -523,21 +523,21 @@ walk(plots_res_sig, print)
 # Appendix A i) Residents Plots + Table:
 
 ```{r}
-gt(res_results, caption = "Residents Analysis")
+res_results
 walk(plots_res, print)
 ```
 
 # Appendix A ii) Directors Plots + Table:
 
 ```{r}
-gt(dir_results)
+dir_results
 walk(plots_dir, print)
 ```
 
 # Appendix A iii) Cross Comparison Plots + Table:
 
 ```{r}
-gt(res_dir_results)
+res_dir_results
 walk(plots_comp, print)
 ```
 
