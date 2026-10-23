@@ -238,10 +238,9 @@ res_results <- res_results %>%
   ) %>% 
   arrange(Adj_P)
 
-gt(res_results)
 ```
 
-### Question 2 with Questions 11 and 12
+## Question 2 with Questions 11 and 12
 
 ```{r, echo = FALSE}
 library(modelsummary)
@@ -254,8 +253,6 @@ cleft_program <- i_res_coalesced %>%
   drop_na()
 cleft_glm <- glm(cleft_response ~ cleft_center + program, family = "binomial", data = cleft_program)
 cleft_null <- glm(cleft_response ~ 1, family = "binomial", data = cleft_program)
-anova(cleft_glm, cleft_null)
-
 #logistic regression 
 #use model summary
 # we notice signficance when comparing the model with program and cleft centers to the null model when predicting if residents are interested in continuing cleft care after residency 
@@ -307,7 +304,6 @@ res_dir_results <- res_dir_results %>%
     Question1 = colnames(res_dir)[1:(ncol(res_dir) -1)], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
-gt(res_dir_results)
 ```
 
 ```{r, echo = FALSE}
@@ -378,14 +374,16 @@ c\) manage pre-surgical and post-surgical dental care for patients with cleft or
 
 d\) manage behavioral and psychosocial considerations when providing care to patients...
 
-```{r}
+```{r, echo = FALSE}
 sig_res_plots <- plots_res[c(5, 6, 7, 8)]
 walk(sig_res_plots, print)
 ```
 
 Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
 
-```{r}
+We see from this model summary that we have one parameter that is particularly significant (being at a hospital-based program), but in total, the model predicts desire to be involved in cleft care more significantly than a model without any predictors (essentially, it's much better than random chance). Our coefficient for hospital-based programs is -1.635, which translates to saying that if a resident is in a hospital-based program, the odds of them NOT wanting to continue into cleft care is \~5 times the odds of a resident in a hybrid program.
+
+```{r, echo = FALSE}
 modelsummary(cleft_glm)
 ```
 
@@ -405,24 +403,31 @@ b\) identify and collaborate with the appropriate specialists as part of a cleft
 
 c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
 
-```{r}
+```{r, echo = FALSE}
 plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
 walk(plots_comp_sig, print)
 ```
 
-# Appendix A i) Residents Visualization
+# Appendix A i) Residents Visualization (all plots)
 
-```{r}
+```{r, echo = FALSE}
 walk(plots_res, print)
 ```
 
-# Appendix A ii) Cross-reference visualization
+# Appendix A ii) Cross-reference visualization (all plots)
 
-```{r}
+```{r, echo = FALSE}
 walk(plots_comp, print)
 ```
 
 # Appendix B: Code
 
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```
+
+# Appendix C: Results Tables 
+
+```{r, echo = FALSE}
+gt(res_results, caption = "Residents results")
+gt(res_dir_results, caption = "Cross-comparison results")
 ```
