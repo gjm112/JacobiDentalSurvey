@@ -5,9 +5,19 @@ format: pdf
 editor: visual
 ---
 
-# Executive Summary 
+# Summary
 
-## Data Cleaning
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjustment. This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All significant tests will be reported in the results section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings.
+
+# Methods
+
+For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+
+For cross referencing 2x11x12, we had to run a regression model, where there were multiple questions being compared with the response variable, which in this case was whether a resident was likely to continue their practices after residency, and this model was also found to be significant.
+
+For questions that had multiple parts, we had to split them into individual questions (e.g. 11a, 11b, 11c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors perceive residents having knowledge on related, but separate, types of care. This example came from data from question 11 on the director's survey to illustrate the complexity of certain questions.
+
+Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For the specific 2x11x12 question, a visualization of the regression model was created to show the probability of a resident continuing in their program after finishing residency. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
 
 ```{r, echo = FALSE}
 library(tidyverse)
@@ -251,12 +261,6 @@ anova(cleft_glm, cleft_null)
 # we notice signficance when comparing the model with program and cleft centers to the null model when predicting if residents are interested in continuing cleft care after residency 
 ```
 
-### The logistic regression summary
-
-```{r, echo = FALSE}
-modelsummary(cleft_glm)
-```
-
 # Residents & Directors Cross-Referenced
 
 ```{r, echo = FALSE}
@@ -278,8 +282,6 @@ res_dir <- bind_rows(
 )
 ```
 
-# Run the tests
-
 ```{r, echo = FALSE}
 res_dir_results <- data.frame(
   Question1 = character(),
@@ -290,7 +292,7 @@ res_dir_results <- data.frame(
 )
 
 for (i in seq_len(ncol(res_dir)-1)) {
-
+  
   res_dir_results[i, ] <- validation(
     question1 = colnames(res_dir)[i],
     question2 = colnames(res_dir)[ncol(res_dir)],
@@ -307,8 +309,6 @@ res_dir_results <- res_dir_results %>%
   ) %>% arrange(Adj_P)
 gt(res_dir_results)
 ```
-
-# Visualization
 
 ```{r, echo = FALSE}
 stack_bar <- function(q_reference, q_group, data){
@@ -345,7 +345,7 @@ plots_res <- pmap(question_dic_res,
                       data = i_res_coalesced
                     )
                   })
-walk(plots_res, print)
+
 
 question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
                                    , question2s_res_dir = rep("role", ncol(res_dir)))
@@ -360,6 +360,65 @@ plots_comp <- pmap(question_dic_res_dir,
                        data = res_dir
                      )
                    })
+```
+
+# Significant Findings
+
+## Residents Significance
+
+The following question combinations were found significant between questions in the residents survey. Their contexts and plots will be noted below:
+
+Q8a/b/c/d & 2: Feel prepared to:
+
+a) provide appropriate care for a patient with a cleft or craniofacial...
+
+b\) identify and collaborate with the appropriate specialists as part of a cleft...
+
+c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
+
+d\) manage behavioral and psychosocial considerations when providing care to patients...
+
+```{r}
+sig_res_plots <- plots_res[c(5, 6, 7, 8)]
+walk(sig_res_plots, print)
+```
+
+Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
+
+```{r}
+modelsummary(cleft_glm)
+```
+
+## Cross-Comparison Significance
+
+Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
+
+Q6: Instruction in all aspects of cleft reconstruction
+
+Q7b: Level of education in the appropriate timing of palatal closure
+
+Q8a/b/c: Feel prepared to:
+
+a\) provide appropriate care for a patient with a cleft or craniofacial...
+
+b\) identify and collaborate with the appropriate specialists as part of a cleft...
+
+c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
+
+```{r}
+plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
+walk(plots_comp_sig, print)
+```
+
+# Appendix A i) Residents Visualization
+
+```{r}
+walk(plots_res, print)
+```
+
+# Appendix A ii) Cross-reference visualization
+
+```{r}
 walk(plots_comp, print)
 ```
 
