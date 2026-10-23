@@ -1,5 +1,5 @@
 ---
-title: "New Habits, New Harms: Pediatric Dentists and Substance-Related Oral Changes in Adolescents."
+title: "New Habits, New Harms: Pediatric Dentists and Substance-Related Oral Changes in Adolescents"
 author: "Loyola University Chicago Center for Data Science and Consulting"
 format: pdf
 editor: visual
@@ -7,21 +7,22 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 tests within the residents group, we found 7 to be significant, but because of the amount of tests, zero were significant after adjusting for the false discovery rate. Out of 14 tests for directors, we found 0 to be true both before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. All significant tests will be reported in the results section, and their significance before and after adjustment will be noted.
+In this study, we analyzed data in several categories within residents and dentists, then compared the groups' answer selections. We looked at comfort levels, clinical practices, knowledge, and quiz results between residents and dentists to attempt to discern whether there is a difference in residents and dentist responses to each group of questions. Then, we looked at the residency program for each respondent (current and past residents) to see if that informed differences in responses, and then within practicing dentists, analyzed whether tenure in their practice contributed to different responses. Finally, additional analysis questions were conducted to find out how familiarity with guidelines contributed to findings of substance use in practice, and other comparisons along those lines. All significant tests will be reported in the significant findings section, and their significance before and after adjustment will be noted.
 
 # Methods
 
 For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors think residents should be comfortable recognizing oral soft-tissue changes related to cigarettes, ENDS/vaping, and so on, for each part. Each sub-question statistically needs to be considered independently, which is why they are separated in the analysis.
+For questions that had multiple parts, we had to split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/dentist) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors think residents should be comfortable recognizing oral soft-tissue changes related to cigarettes, ENDS/vaping, and so on, for each part. Each sub-question statistically needs to be considered independently, which is why they are separated in the analysis.
 
-Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
+Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/dentist comparisons, for example, this shows side-by-side plots of the residents' response to a question versus the dentists'. All plots, significant or not, are in the appendix.
 
 ```{r, echo = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
+set.seed(1)
 ```
 
 ```{r, echo = FALSE}
@@ -125,7 +126,7 @@ m_coalesced <- m_coalesced %>%
   )
 ```
 
-# 
+# Significant Findings
 
 Below are several tables outlining each of the categories of analysis requested.
 
@@ -210,6 +211,18 @@ comfort_results <- comfort_results %>%
 comfort_results
 ```
 
+Significant findings include, with context:
+
+Q8h, Q9, Q8a, and Q8k, all compared to the role (resident/dentist): This means that for each of the following questions, dentists and residents' responses differed significantly in regards to comfort level/clinical practices
+
+Q8h: Determining when an oral soft-tissue finding warrants referral or biopsy
+
+Q8a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
+
+Q8k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management
+
+Q9: How often do you screen patients for tobacco, vaping/ENDS, or other substance use?
+
 ## Resident/Dentist Knowledge Analysis
 
 Below is a table comparing residents and dentist questions on knowledge.
@@ -248,6 +261,8 @@ knowledge_results <- knowledge_results %>%
 
 knowledge_results
 ```
+
+Out of the three questions analyzed, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to these questions based on knowledge.
 
 ## Residents/Dentists Quiz Analysis
 
@@ -288,6 +303,8 @@ quiz_results <- quiz_results %>%
 quiz_results
 ```
 
+Similarly, out of the 7 questions analyzed, including the overall quiz score, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to each quiz question nor in aggregate.
+
 ## Environment Analysis
 
 Below is a table comparing environmental questions.
@@ -326,6 +343,24 @@ env_results <- env_results %>%
 
 env_results
 ```
+
+Out of the 17 comparisons, 6 were found significant, but none after adjusting for the amount of tests conducted. Still, the original significant results are recorded below:
+
+Q8a, c, g, h, k, Q13 vs Q5:
+
+a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
+
+c: Recognizing oral soft-tissue changes associated with marijuana use (smoked or vaped) in adolescents
+
+g: Identifying potentially malignant oral lesions in adolescents
+
+h: Determining when an oral soft-tissue finding warrants referral or biopsy
+
+k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management
+
+13: According to AAPD guidelines, at what age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
+
+All questions were analyzed compared to the residency program, showing that there is significant evidence for each of these tests, before adjusting for multiple tests, that there is a difference in responses to the above questions based on program.
 
 ## Dentist/Practice Analysis
 
@@ -369,6 +404,26 @@ prac_results <- prac_results %>%
 prac_results
 ```
 
+Out of 18 comparisons, 6 were found to be significant, but only 1 after adjustment. All contexts are reported below:
+
+All questions were compared to Q3, which is the amount of years a dentist has spent in their practice.
+
+Q9 vs Q3 (only significant question after adjustment): Years in practice vs frequency of screening patients for substance abuse
+
+Q8a, b, d: Comfort level of:
+
+a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
+
+b: Recognizing oral soft-tissue changes associated with electronic nicotine delivery systems (ENDS/vaping) in adolescents
+
+d: Recognizing oral soft-tissue changes associated with alcohol use in adolescents
+
+Q10b: What age do you begin:
+
+b: Providing anticipatory guidance or counseling related to tobacco, vaping/ENDS, or substance misuse
+
+Score: Overall quiz score
+
 ## Additional Analysis
 
 Below is a table comparing additional analysis questions.
@@ -409,9 +464,17 @@ addt_results <- addt_results %>%
 addt_results
 ```
 
-# Significant Findings: 
+For additional analysis questions, surprisingly, all comparisons (18) evaluated to have significance before and after adjustment. These include:
 
-The findings will be split into each category in which
+Q8: All topics of comfort level vs Q12: Familiarity with AAPD policies
+
+Q9: Screening frequency for substances vs Q12: Familiarity with AAPD policies
+
+Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q12: Familiarity with AAPD policies
+
+Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q13: What age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
+
+Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
 
 # Appendix A: Plots 
 
@@ -443,7 +506,7 @@ stack_bar <- function(q_reference, q_group, data){
 
 ## Comfort & Clinical Practice Plots
 
-Below are plots comparing the comfort and clinical practices between residents and dentists.
+Below are all plots comparing the comfort and clinical practices between residents and dentists.
 
 ```{r, echo = F}
 plots_comfort <- pmap(comfort_dic, 
@@ -459,7 +522,7 @@ walk(plots_comfort, print)
 
 ## Knowledge Plots
 
-Below are plots comparing the knowledge of residents versus dentists.
+Below are all plots comparing the knowledge of residents versus dentists.
 
 ```{r, echo = F}
 plots_knowledge <- pmap(knowledge_dic, 
@@ -475,7 +538,7 @@ walk(plots_knowledge, print)
 
 ## Quiz Plots
 
-Below are plots comparing the quiz results between residents and dentists.
+Below are all plots comparing the quiz results between residents and dentists.
 
 ```{r, echo = F}
 plots_quiz <- pmap(quiz_dic, 

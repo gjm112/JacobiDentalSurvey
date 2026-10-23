@@ -7,7 +7,7 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 tests within the residents group, we found 5 to be significant, but because of the amount of tests, zero were significant after adjusting for the false discovery rate. Out of 14 tests for directors, we found 0 to be true both before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. All significant tests will be reported in the results section, and their significance before and after adjustment will be noted.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 tests within the residents group, we found 5 to be significant, but because of the amount of tests, zero were significant after adjusting for the false discovery rate. Out of 14 tests for directors, we found 0 to be true both before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted.
 
 # Methods
 
@@ -22,6 +22,7 @@ library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
+set.seed(1)
 ```
 
 ```{r cleaning, echo=FALSE}
@@ -287,7 +288,9 @@ validation <- function(question1, question2, data){
 
 ```
 
-# Residents Results Table
+# Results Tables
+
+## Residents Results Table
 
 ```{r residents-running, echo=FALSE}
 
@@ -315,7 +318,7 @@ res_results <- res_results %>%
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
-
+res_results
 ```
 
 ```{r directors-dictionary, echo=FALSE}
@@ -325,7 +328,7 @@ question2s_dir <- c(rep("Q2",14))
 question_dic_dir <- data.frame(question1s_dir, question2s_dir)
 ```
 
-# Directors Results Table
+## Directors Results Table
 
 ```{r directors-running, echo=FALSE}
 dir_results <- data.frame(
@@ -351,7 +354,7 @@ dir_results <- dir_results %>%
     Question1 = question_dic_dir$question1s, 
     Question2 = question_dic_dir$question2s
   ) %>% arrange(Adj_P)
-
+dir_results
 ```
 
 ```{r full-dictionary,echo=FALSE}
@@ -373,6 +376,8 @@ res_dir <- bind_rows(
   dir_common
 )
 ```
+
+## Cross-Comparison Results Table
 
 ```{r full-running, echo=FALSE}
 res_dir_results <- data.frame(
@@ -399,7 +404,7 @@ res_dir_results <- res_dir_results %>%
     Question1 = colnames(res_dir)[1:51], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
-
+res_dir_results
 ```
 
 ```{r barplot-function, echo=FALSE}
@@ -482,7 +487,7 @@ The contexts of these questions and plots are as follows:
 
 17/10: On call days/month and quality of life
 
-```{r}
+```{r, echo = FALSE}
 plots_res_sig <- plots_res[c(22, 49, 73, 75, 79)]
 walk(plots_res_sig, print)
 ```
@@ -522,21 +527,21 @@ walk(plots_res_sig, print)
 
 # Appendix A i) Residents Plots + Table:
 
-```{r}
+```{r, echo = FALSE}
 res_results
 walk(plots_res, print)
 ```
 
 # Appendix A ii) Directors Plots + Table:
 
-```{r}
+```{r, echo = FALSE}
 dir_results
 walk(plots_dir, print)
 ```
 
 # Appendix A iii) Cross Comparison Plots + Table:
 
-```{r}
+```{r, echo = FALSE}
 res_dir_results
 walk(plots_comp, print)
 ```

@@ -7,7 +7,7 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjustment. This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All significant tests will be reported in the results section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjustment. This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings section as well.
 
 # Methods
 
@@ -24,6 +24,7 @@ library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
+set.seed(1)
 
 i_res_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
@@ -156,8 +157,6 @@ i_dir_coalesced <- i_dir_coalesced %>%
   ))
 ```
 
-## Residents Analysis
-
 ```{r, echo = FALSE}
 # 2 with 7 and 8
 # 2 with 11
@@ -240,8 +239,6 @@ res_results <- res_results %>%
 
 ```
 
-## Question 2 with Questions 11 and 12
-
 ```{r, echo = FALSE}
 library(modelsummary)
 cleft_program <- i_res_coalesced %>%
@@ -257,8 +254,6 @@ cleft_null <- glm(cleft_response ~ 1, family = "binomial", data = cleft_program)
 #use model summary
 # we notice signficance when comparing the model with program and cleft centers to the null model when predicting if residents are interested in continuing cleft care after residency 
 ```
-
-# Residents & Directors Cross-Referenced
 
 ```{r, echo = FALSE}
 common_qs_res <- c("Q2", "Q3", "Q4", "Q6", "Q7a", "Q7b", "Q7c", "Q7d","Q8a","Q8b", "Q8c", "Q8d", "Q5", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q10e", "Q12", "Q13", "Q14", "Q15",
@@ -358,6 +353,21 @@ plots_comp <- pmap(question_dic_res_dir,
                    })
 ```
 
+# Results Tables 
+
+## Residents Results
+
+```{r, echo = FALSE}
+res_results
+
+```
+
+## Cross-Comparison Results
+
+```{r, echo = FALSE}
+res_dir_results
+```
+
 # Significant Findings
 
 ## Residents Significance
@@ -425,9 +435,4 @@ walk(plots_comp, print)
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
 
-# Appendix C: Results Tables 
-
-```{r, echo = FALSE}
-res_results
-res_dir_results
-```
+# 
