@@ -476,7 +476,7 @@ Q10a, Q10b: What age to begin screening + providing guidance for substance use v
 
 Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
 
-# Appendix A: Plots 
+# Appendix A: Plots
 
 ```{r, echo = F}
 stack_bar <- function(q_reference, q_group, data){

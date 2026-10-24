@@ -353,7 +353,7 @@ plots_comp <- pmap(question_dic_res_dir,
                    })
 ```
 
-# Results Tables 
+# Results Tables
 
 ## Residents Results
 
@@ -376,7 +376,7 @@ The following question combinations were found significant between questions in 
 
 Q8a/b/c/d & 2: Feel prepared to:
 
-a) provide appropriate care for a patient with a cleft or craniofacial...
+a)  provide appropriate care for a patient with a cleft or craniofacial...
 
 b\) identify and collaborate with the appropriate specialists as part of a cleft...
 
