@@ -8,15 +8,15 @@ editor: visual
 
 # Summary
 
-In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level.  However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Banjamini-Hochberg (BH) procedure to control false discovery rate (FDR).  Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses.  When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted.
+In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level. However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses. When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted.
 
 # Methods
 
-We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests.  Low p-value's indicate significant results.  
+We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests. Low p-value's indicate significant results.
 
-For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. 
+For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc.
 
-Finally we present data visualizations to summarize the results.  Interesting plots and findings were placed in the "significant findings" section with all plots appearing in   are in the Appendix.
+Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix.
 
 ```{r packages, echo = FALSE, warnings = FALSE}
 library(tidyverse)
@@ -43,6 +43,7 @@ clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 #################################
 #Residents
 #################################
+
 if (Sys.info()[["user"]] == "gregorymatthews"){
   f_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  skip = 2, col_names = clean_headers, show_col_types = FALSE)
 } else {
@@ -152,7 +153,6 @@ f_res_coalesced$Q16d <- factor(f_res_coalesced$Q16d, levels = cats16)
 
 cats17 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
 f_res_coalesced$Q17 <- factor(f_res_coalesced$Q17, levels = cats17)
-
 
 cats18 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
 f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
@@ -352,55 +352,53 @@ validation <- function(question1, question2, data){
 ## Resident Demographics
 
 ```{r eda-residents, echo = FALSE, warning = FALSE}
-f_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
 
-f_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents PGY Level")
 
-f_res_coalesced %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
 
 f_res_coalesced$Q4[f_res_coalesced$Q4 == "30 :("] <- 30
 f_res_coalesced$Q4 <- as.numeric(f_res_coalesced$Q4)
-f_res_coalesced %>% ggplot(aes(x = Q4)) + geom_histogram(bins = 10)  + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q4)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
 
-f_res_coalesced %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
 
 
 f_res_coalesced <- f_res_coalesced %>%
   mutate(Q8 = str_trim(str_extract(Q8, "^[^(]+")))
 
-f_res_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
 
-f_res_coalesced %>% ggplot(aes(x = Q9,fill = Q9)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+f_res_coalesced %>% ggplot(aes(x = Q9,fill = Q9)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
 
 ```
-
 
 ## Directors Deomgraphics
 
 ```{r eda-directors, echo = FALSE, warning = FALSE}
 f_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
 
-f_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+f_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Program")
 
 f_dir_coalesced$Q3[f_dir_coalesced$Q3 == "13 years"] <- "13"
 f_dir_coalesced$Q3 <- as.numeric(f_dir_coalesced$Q3)
-f_dir_coalesced %>% ggplot(aes(x = Q3)) + geom_histogram(bins = 10) + ggtitle("Directors")
+f_dir_coalesced %>% ggplot(aes(x = Q3)) + geom_histogram(bins = 10) + ggtitle("Directors Years of Service")
 
-f_dir_coalesced %>% ggplot(aes(x = Q4, fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors") 
+f_dir_coalesced %>% ggplot(aes(x = Q4, fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors Gender") 
 
 
 f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "61 years"] <- "61"
 f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "50's"] <- "55"
 f_dir_coalesced$Q5 <- as.numeric(f_dir_coalesced$Q5)
-f_dir_coalesced %>% ggplot(aes(x = Q5)) + geom_histogram(bins = 10) +  ggtitle("Directors")
+f_dir_coalesced %>% ggplot(aes(x = Q5)) + geom_histogram(bins = 10) +  ggtitle("Directors Age")
 
 f_dir_coalesced <- f_dir_coalesced %>%
   mutate(Q7 = str_trim(str_extract(Q7, "^[^(]+")))
-f_dir_coalesced %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+f_dir_coalesced %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 
-f_dir_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("directors")
+f_dir_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
 ```
-
 
 # Results Tables
 
@@ -587,17 +585,17 @@ plots_comp <- pmap(question_dic_res_dir,
 
 ## Residents Significance
 
-The following relationships were found to be significant: 
+The following relationships were found to be significant:
 
- - Q13d/Q2: Treating patients as impersonal objects and PGY level
+- Q13d/Q2: Treating patients as impersonal objects and PGY level
 
- - Q13h/Q2: Not caring about what happens to certain patients and PGY level
+- Q13h/Q2: Not caring about what happens to certain patients and PGY level
 
- - Q18/Q11: Working hours/week and desire to quit residency training
+- Q18/Q11: Working hours/week and desire to quit residency training
 
- - Q16d/Q3: Experiencing sexual harassment and gender
+- Q16d/Q3: Experiencing sexual harassment and gender
 
- - Q17/Q10: On call days/month and quality of life
+- Q17/Q10: On call days/month and quality of life
 
 ```{r, echo = FALSE}
 plots_res_sig <- plots_res[c(22, 49, 73, 75, 79)]
@@ -612,25 +610,25 @@ No tests in this group were found to be significant.
 
 Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
 
- - Q3: Gender
+- Q3: Gender
 
- - Q12: Recreation hours per week
+- Q12: Recreation hours per week
 
- - Q13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
+- Q13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
 
- - Q14a/b: Negative impact on marriage, personal healthcare
+- Q14a/b: Negative impact on marriage, personal healthcare
 
- - Q15a: Experienced discrimination based on gender
+- Q15a: Experienced discrimination based on gender
 
- - Q19: Frequency of meeting with director
+- Q19: Frequency of meeting with director
 
- - Q20a/b/d: Frequency of discussing burnout, depression, quitting residency - notably, the only insignificant subquestion concerned suicidal thoughts
+- Q20a/b/d: Frequency of discussing burnout, depression, quitting residency - notably, the only insignificant subquestion concerned suicidal thoughts
 
- - Q21: Presence of standardized criteria for screening burnout & mental health
+- Q21: Presence of standardized criteria for screening burnout & mental health
 
- - Q22a/b/c: Satisfaction with how program manages burnout, depression, suicide
+- Q22a/b/c: Satisfaction with how program manages burnout, depression, suicide
 
- - Q26: Setting for screening (Anonymously vs Confidentially)
+- Q26: Setting for screening (Anonymously vs Confidentially)
 
 ```{r}
 plots_res_sig <- plots_res[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
