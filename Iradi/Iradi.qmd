@@ -1,13 +1,13 @@
 ---
 title: "Closing the Gap: Cleft Training in Pediatric Dentistry Residency Programs"
-author: "Loyola University Chicago Center for Data Science and Consulting"
+author: "Jack Dumanski and Gregory J. Matthews \\ Center for Data Science and Consulting \\ Loyola University Chicago"
 format: pdf
 editor: visual
 ---
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjustment. This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings section as well.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings section as well.
 
 # Methods
 
@@ -148,13 +148,34 @@ i_dir_coalesced <- i_dir_coalesced_partial %>%
   select(1:4, 49, 17, 50, 25:48)
 
 i_dir_coalesced$role <- "Director"
+
+i_res_coalesced <- i_res_coalesced %>%
+  mutate(Q15 = case_when(
+    Q15 == "3-Jan" ~ "1-3",
+    Q15 == "6-Apr" ~ "4-6",
+    Q15 == "10-Jul" ~ "7-10",
+    Q15 == ">10" ~ "10+"
+  ))
 i_dir_coalesced <- i_dir_coalesced %>%
   mutate(Q21_new = case_when(
     Q21 == "3-Jan" ~ "1-3",
     Q21 == "6-Apr" ~ "4-6",
     Q21 == "10-Jul" ~ "7-10",
-    Q21 == ">10" ~ ">10"
+    Q21 == ">10" ~ "10+"
   ))
+
+cats8 <- c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree", "Strongly Agree")
+
+i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats8)
+i_dir_coalesced$Q11b <- factor(i_dir_coalesced$Q11b, levels = cats8)
+i_dir_coalesced$Q11c <- factor(i_dir_coalesced$Q11c, levels = cats8)
+i_dir_coalesced$Q11d <- factor(i_dir_coalesced$Q11d, levels = cats8)
+
+i_res_coalesced$Q8a <- factor(i_res_coalesced$Q8a, levels = cats8)
+i_res_coalesced$Q8b <- factor(i_res_coalesced$Q8b, levels = cats8)
+i_res_coalesced$Q8c <- factor(i_res_coalesced$Q8c, levels = cats8)
+i_res_coalesced$Q8d <- factor(i_res_coalesced$Q8d, levels = cats8)
+
 ```
 
 ```{r, echo = FALSE}
@@ -352,6 +373,50 @@ plots_comp <- pmap(question_dic_res_dir,
                      )
                    })
 ```
+
+# Summary Statistics
+
+## Resident Demographics
+
+```{r, echo = FALSE}
+
+i_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Count")
+
+i_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Association With Cleft Center")
+
+i_res_coalesced %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents With Pediatric Dentist on Team")
+
+i_res_coalesced %>% ggplot(aes(x = Q12,fill = Q12)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residency Program")
+
+i_res_coalesced %>% ggplot(aes(x = Q15,fill = Q15)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Program")
+
+i_res_coalesced <- i_res_coalesced %>%
+  mutate(Q6 = str_trim(str_extract(Q13, "^[^(]+")))
+
+i_res_coalesced %>% ggplot(aes(x = Q13,fill = Q13)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
+```
+
+## Director Demographics
+
+```{r, echo = FALSE}
+
+i_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
+
+i_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Cleft Program")
+
+i_dir_coalesced %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Pediatric Dentist on Team")
+
+i_dir_coalesced %>% ggplot(aes(x = Q18,fill = Q18)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Program")
+
+i_dir_coalesced %>% ggplot(aes(x = Q21,fill = Q21)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Director's Program")
+
+i_dir_coalesced <- i_dir_coalesced %>%
+  mutate(Q6 = str_trim(str_extract(Q19, "^[^(]+")))
+
+i_dir_coalesced %>% ggplot(aes(x = Q19,fill = Q19)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
+```
+
+# 
 
 # Results Tables
 

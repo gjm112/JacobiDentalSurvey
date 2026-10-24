@@ -195,7 +195,7 @@ m_den %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = elem
 m_den <- m_den %>%
   mutate(Q6 = str_trim(str_extract(Q6, "^[^(]+")))
 
-m_den %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
+m_den %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Dentist Region")
 ```
 
 # Significant Findings
