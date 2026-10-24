@@ -149,7 +149,7 @@ f_res_coalesced$Q13h <- factor(f_res_coalesced$Q13h, levels = cats13)
 f_res_coalesced$Q13i <- factor(f_res_coalesced$Q13i, levels = cats13)
 
 cats16 <- c("Never","Rarely","Sometimes","Often")
-f_res_coalesced$Q16d <- factor(f_res_coalesced$Q16d, levels = cats16)
+f_res_coalesced$Q16 <- factor(f_res_coalesced$Q16, levels = cats16)
 
 cats17 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
 f_res_coalesced$Q17 <- factor(f_res_coalesced$Q17, levels = cats17)

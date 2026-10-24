@@ -1,6 +1,6 @@
 ---
 title: "New Habits, New Harms: Pediatric Dentists and Substance-Related Oral Changes in Adolescents"
-author: "Loyola University Chicago Center for Data Science and Consulting"
+author: "Jack Dumanski and Gregory J. Matthews \\ Center for Data Science and Consulting \\ Loyola University Chicago"
 format: pdf
 editor: visual
 ---
@@ -11,7 +11,7 @@ In this study, we analyzed data in several categories within residents and denti
 
 # Methods
 
-For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. We then adjusted for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
 
 For questions that had multiple parts, we had to split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/dentist) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors think residents should be comfortable recognizing oral soft-tissue changes related to cigarettes, ENDS/vaping, and so on, for each part. Each sub-question statistically needs to be considered independently, which is why they are separated in the analysis.
 
@@ -124,6 +124,78 @@ m_coalesced <- m_coalesced %>%
       )
     )
   )
+m_coalesced$Q1 <- factor(m_coalesced$Q1, levels = c("Less than 25", "25-34", "35-44", "45-54", "55-64", "65+"))
+
+m_coalesced$Q3 <- factor(m_coalesced$Q3, levels = c("First year resident","Second year resident","Third year resident","Less than 5 years", "5–10 years","11-15 years", "16-20 years", "21-25 years", "26+ years"))
+
+cats8 <- c("Uncomfortable","Somewhat uncomfortable","Neither comfortable nor uncomfortable","Somewhat comfortable")
+
+m_coalesced$Q8a <- factor(m_coalesced$Q8a, levels = cats8)
+m_coalesced$Q8b <- factor(m_coalesced$Q8b, levels = cats8)
+m_coalesced$Q8c <- factor(m_coalesced$Q8c, levels = cats8)
+m_coalesced$Q8d <- factor(m_coalesced$Q8d, levels = cats8)
+m_coalesced$Q8e <- factor(m_coalesced$Q8e, levels = cats8)
+m_coalesced$Q8f <- factor(m_coalesced$Q8f, levels = cats8)
+m_coalesced$Q8g <- factor(m_coalesced$Q8g, levels = cats8)
+m_coalesced$Q8h <- factor(m_coalesced$Q8h, levels = cats8)
+m_coalesced$Q8i <- factor(m_coalesced$Q8i, levels = cats8)
+m_coalesced$Q8j <- factor(m_coalesced$Q8j, levels = cats8)
+m_coalesced$Q8k <- factor(m_coalesced$Q8k, levels = cats8)
+
+cats9 <- c("Never","Rarely","Sometimes","Often", "Always")
+m_coalesced$Q9 <- factor(m_coalesced$Q9, levels = cats9)
+
+cats10 <- c("Less than 6 years","6-12 years","13-17 years","18+ years", "Never")
+
+m_coalesced$Q10a <- factor(m_coalesced$Q10a, levels = cats10)
+m_coalesced$Q10b <- factor(m_coalesced$Q10b, levels = cats10)
+
+cats12 <- c("Not familiar","Slightly familiar","Moderately familiar","Very familiar")
+m_coalesced$Q12 <- factor(m_coalesced$Q12, levels = cats12)
+
+cats13 <- c("Less than 6 years","6-12 years","13-17 years","18+ years", "Unsure")
+m_coalesced$Q13 <- factor(m_coalesced$Q13, levels = cats13)
+
+```
+
+# Summary Statistics
+
+## Resident Demographics
+
+```{r, echo = FALSE}
+m_res <- m_coalesced %>% 
+  filter(role == "Resident")
+m_res %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Age")
+
+m_res %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
+
+m_res %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residency Year")
+
+m_res %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
+
+m_res <- m_res %>%
+  mutate(Q6 = str_trim(str_extract(Q6, "^[^(]+")))
+
+m_res %>% ggplot(aes(x = Q6,fill = Q6)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
+```
+
+## Dentist Demographics
+
+```{r, echo = FALSE}
+m_den <- m_coalesced %>% 
+  filter(role == "Dentist")
+m_den %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Dentist Age")
+
+m_den %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Dentist Program")
+
+m_den %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Dentist Practice Year")
+
+m_den %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Dentist Gender")
+
+m_den <- m_den %>%
+  mutate(Q6 = str_trim(str_extract(Q6, "^[^(]+")))
+
+m_den %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 ```
 
 # Significant Findings
