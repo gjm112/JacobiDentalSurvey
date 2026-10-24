@@ -1,23 +1,24 @@
 ---
 title: "Burnout and Mental Health in Pediatric Dental Residency: A Cross-Sectional Survey of Residents and Directors"
-author: "Loyola University Chicago Center for Data Science and Consulting"
 format: pdf
+authors: "Jack Dumanski and Gregory J. Matthews \\ Center for Data Science and Consulting \\ Loyola University Chicago"
+date: "October 23, 2026"
 editor: visual
 ---
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 tests within the residents group, we found 5 to be significant, but because of the amount of tests, zero were significant after adjusting for the false discovery rate. Out of 14 tests for directors, we found 0 to be true both before and after adjustment. We had a total of 119 residents and 24 directors in our data, which for some questions with many categorical responses, made it difficult to find significance. However, when cross-comparing the groups on each common question, we found 20/51 comparisons to be significant, 18 after adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted.
+In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level.  However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Banjamini-Hochberg (BH) procedure to control false discovery rate (FDR).  Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses.  When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted.
 
 # Methods
 
-For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests.  Low p-value's indicate significant results.  
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors perceive residence having negative impact on marriage versus whether residents feel their residency having a negative impact on marriage. The same question was asked for personal health care, control over one's life, and work/life balance. This example came from data from question 13 on the director's survey to illustrate the complexity of certain questions.
+For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. 
 
-Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
+Finally we present data visualizations to summarize the results.  Interesting plots and findings were placed in the "significant findings" section with all plots appearing in   are in the Appendix.
 
-```{r packages, echo = FALSE}
+```{r packages, echo = FALSE, warnings = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
@@ -26,7 +27,6 @@ set.seed(1)
 ```
 
 ```{r cleaning, echo=FALSE}
-
 if (Sys.info()[["user"]] == "gregorymatthews"){
   headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
 } else {
@@ -40,6 +40,9 @@ questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, quest
 
 clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
+#################################
+#Residents
+#################################
 if (Sys.info()[["user"]] == "gregorymatthews"){
   f_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  skip = 2, col_names = clean_headers, show_col_types = FALSE)
 } else {
@@ -130,6 +133,34 @@ f_res_coalesced <- f_res_coalesced %>%
   Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
   Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
   ))
+
+f_res_coalesced$Q10 <- factor(f_res_coalesced$Q10, levels = c("0 days","1-7 days","8-15 days","16-23 days","24-31 days"))
+
+cats13 <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
+f_res_coalesced$Q13a <- factor(f_res_coalesced$Q13a, levels = cats13)
+f_res_coalesced$Q13b <- factor(f_res_coalesced$Q13b, levels = cats13)
+f_res_coalesced$Q13c <- factor(f_res_coalesced$Q13c, levels = cats13)
+f_res_coalesced$Q13d <- factor(f_res_coalesced$Q13d, levels = cats13)
+f_res_coalesced$Q13e <- factor(f_res_coalesced$Q13e, levels = cats13)
+f_res_coalesced$Q13f <- factor(f_res_coalesced$Q13f, levels = cats13)
+f_res_coalesced$Q13g <- factor(f_res_coalesced$Q13g, levels = cats13)
+f_res_coalesced$Q13h <- factor(f_res_coalesced$Q13h, levels = cats13)
+f_res_coalesced$Q13i <- factor(f_res_coalesced$Q13i, levels = cats13)
+
+cats16 <- c("Never","Rarely","Sometimes","Often")
+f_res_coalesced$Q16d <- factor(f_res_coalesced$Q16d, levels = cats16)
+
+cats17 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
+f_res_coalesced$Q17 <- factor(f_res_coalesced$Q17, levels = cats17)
+
+
+cats18 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
+f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
+
+
+#################################
+#Directors
+#################################
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
   dir_headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/PD expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE) 
@@ -234,6 +265,34 @@ f_dir_coalesced <- f_dir_coalesced %>%
   Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
   Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
   ))
+
+
+f_dir_coalesced$Q9 <- factor(f_dir_coalesced$Q9, levels = c("0 days","1-7 days","8-15 days","16-23 days","24-31 days"))
+
+cats12 <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
+f_dir_coalesced$Q12a <- factor(f_dir_coalesced$Q12a, levels = cats12)
+f_dir_coalesced$Q12b <- factor(f_dir_coalesced$Q12b, levels = cats12)
+f_dir_coalesced$Q12c <- factor(f_dir_coalesced$Q12c, levels = cats12)
+f_dir_coalesced$Q12d <- factor(f_dir_coalesced$Q12d, levels = cats12)
+f_dir_coalesced$Q12e <- factor(f_dir_coalesced$Q12e, levels = cats12)
+f_dir_coalesced$Q12f <- factor(f_dir_coalesced$Q12f, levels = cats12)
+f_dir_coalesced$Q12g <- factor(f_dir_coalesced$Q12g, levels = cats12)
+f_dir_coalesced$Q12h <- factor(f_dir_coalesced$Q12h, levels = cats12)
+f_dir_coalesced$Q12i <- factor(f_dir_coalesced$Q12i, levels = cats12)
+
+cats13 <- c("Never","Rarely","Sometimes","Often","I don't know")
+f_dir_coalesced$Q13a <- factor(f_dir_coalesced$Q13a, levels = cats13)
+f_dir_coalesced$Q13b <- factor(f_dir_coalesced$Q13b, levels = cats13)
+f_dir_coalesced$Q13c <- factor(f_dir_coalesced$Q13c, levels = cats13)
+f_dir_coalesced$Q13d <- factor(f_dir_coalesced$Q13d, levels = cats13)
+
+cats16 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
+f_dir_coalesced$Q16 <- factor(f_dir_coalesced$Q16, levels = cats16)
+
+
+cats18 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
+f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
+
 ```
 
 ```{r residents-dictionary, echo=FALSE}
@@ -287,6 +346,61 @@ validation <- function(question1, question2, data){
 }
 
 ```
+
+# Summary Statistics
+
+## Resident Demographics
+
+```{r eda-residents, echo = FALSE, warning = FALSE}
+f_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+f_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+f_res_coalesced %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+f_res_coalesced$Q4[f_res_coalesced$Q4 == "30 :("] <- 30
+f_res_coalesced$Q4 <- as.numeric(f_res_coalesced$Q4)
+f_res_coalesced %>% ggplot(aes(x = Q4)) + geom_histogram(bins = 10)  + ggtitle("Residents")
+
+f_res_coalesced %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+
+f_res_coalesced <- f_res_coalesced %>%
+  mutate(Q8 = str_trim(str_extract(Q8, "^[^(]+")))
+
+f_res_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+f_res_coalesced %>% ggplot(aes(x = Q9,fill = Q9)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents")
+
+```
+
+
+## Directors Deomgraphics
+
+```{r eda-directors, echo = FALSE, warning = FALSE}
+f_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+
+f_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+
+f_dir_coalesced$Q3[f_dir_coalesced$Q3 == "13 years"] <- "13"
+f_dir_coalesced$Q3 <- as.numeric(f_dir_coalesced$Q3)
+f_dir_coalesced %>% ggplot(aes(x = Q3)) + geom_histogram(bins = 10) + ggtitle("Directors")
+
+f_dir_coalesced %>% ggplot(aes(x = Q4, fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors") 
+
+
+f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "61 years"] <- "61"
+f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "50's"] <- "55"
+f_dir_coalesced$Q5 <- as.numeric(f_dir_coalesced$Q5)
+f_dir_coalesced %>% ggplot(aes(x = Q5)) + geom_histogram(bins = 10) +  ggtitle("Directors")
+
+f_dir_coalesced <- f_dir_coalesced %>%
+  mutate(Q7 = str_trim(str_extract(Q7, "^[^(]+")))
+f_dir_coalesced %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+
+f_dir_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("directors")
+```
+
 
 # Results Tables
 
@@ -473,19 +587,17 @@ plots_comp <- pmap(question_dic_res_dir,
 
 ## Residents Significance
 
-Questions 13d and 2, 13h and 2, 18 and 11, 16d and 3, 17 and 10 were all found to be significant before adjustment.
+The following relationships were found to be significant: 
 
-The contexts of these questions and plots are as follows:
+ - Q13d/Q2: Treating patients as impersonal objects and PGY level
 
-13d/2: Treating patients as impersonal objects and PGY level
+ - Q13h/Q2: Not caring about what happens to certain patients and PGY level
 
-13h/2: Not caring about what happens to certain patients and PGY level
+ - Q18/Q11: Working hours/week and desire to quit residency training
 
-18/11: Working hours/week and desire to quit residency training
+ - Q16d/Q3: Experiencing sexual harassment and gender
 
-16d/3: Experiencing sexual harassment and gender
-
-17/10: On call days/month and quality of life
+ - Q17/Q10: On call days/month and quality of life
 
 ```{r, echo = FALSE}
 plots_res_sig <- plots_res[c(22, 49, 73, 75, 79)]
@@ -494,31 +606,31 @@ walk(plots_res_sig, print)
 
 ## Directors Significance
 
-Little significance was found between directors, possibly due to low sample size, and none of the tests saw a p-value below 0.2.
+No tests in this group were found to be significant.
 
 ## Cross-Comparison Significance
 
 Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
 
-3: Gender
+ - Q3: Gender
 
-12: Recreation hours per week
+ - Q12: Recreation hours per week
 
-13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
+ - Q13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
 
-14a/b: Negative impact on marriage, personal healthcare
+ - Q14a/b: Negative impact on marriage, personal healthcare
 
-15a: Experienced discrimination based on gender
+ - Q15a: Experienced discrimination based on gender
 
-19: Frequency of meeting with director
+ - Q19: Frequency of meeting with director
 
-20a/b/d: Frequency of discussing burnout, depression, quitting residency - notably, the only insignificant subquestion concerned suicidal thoughts
+ - Q20a/b/d: Frequency of discussing burnout, depression, quitting residency - notably, the only insignificant subquestion concerned suicidal thoughts
 
-21: Presence of standardized criteria for screening burnout & mental health
+ - Q21: Presence of standardized criteria for screening burnout & mental health
 
-22a/b/c: Satisfaction with how program manages burnout, depression, suicide
+ - Q22a/b/c: Satisfaction with how program manages burnout, depression, suicide
 
-26: Setting for screening (Anonymously vs Confidentially)
+ - Q26: Setting for screening (Anonymously vs Confidentially)
 
 ```{r}
 plots_res_sig <- plots_res[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
