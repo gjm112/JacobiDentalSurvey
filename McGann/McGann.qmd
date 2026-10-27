@@ -1,6 +1,9 @@
 ---
 title: "New Habits, New Harms: Pediatric Dentists and Substance-Related Oral Changes in Adolescents"
-author: "Jack Dumanski and Gregory J. Matthews \\ Center for Data Science and Consulting \\ Loyola University Chicago"
+authors: 
+"Jack Dumanski and Gregory J. Matthews
+Center for Data Science and Consulting
+Loyola University Chicago"
 format: pdf
 editor: visual
 ---

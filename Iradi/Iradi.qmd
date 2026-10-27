@@ -1,6 +1,9 @@
 ---
 title: "Closing the Gap: Cleft Training in Pediatric Dentistry Residency Programs"
-author: "Jack Dumanski and Gregory J. Matthews \\ Center for Data Science and Consulting \\ Loyola University Chicago"
+authors: 
+"Jack Dumanski and Gregory J. Matthews
+Center for Data Science and Consulting
+Loyola University Chicago"
 format: pdf
 editor: visual
 ---
