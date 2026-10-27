@@ -1,16 +1,24 @@
 ---
 title: "New Habits, New Harms: Pediatric Dentists and Substance-Related Oral Changes in Adolescents"
-authors: 
-"Jack Dumanski and Gregory J. Matthews
-Center for Data Science and Consulting
-Loyola University Chicago"
-format: pdf
+author:
+  - "Jack Dumanski and Gregory J. Matthews"
+  - "Center for Data Science and Consulting"
+  - "Loyola University Chicago"
+date: "October 27, 2026"
 editor: visual
+format: 
+  pdf:
+    include-in-header:
+      text: |
+        \usepackage{authblk}
 ---
 
 # Summary
 
-In this study, we analyzed data in several categories within residents and dentists, then compared the groups' answer selections. We looked at comfort levels, clinical practices, knowledge, and quiz results between residents and dentists to attempt to discern whether there is a difference in residents and dentist responses to each group of questions. Then, we looked at the residency program for each respondent (current and past residents) to see if that informed differences in responses, and then within practicing dentists, analyzed whether tenure in their practice contributed to different responses. Finally, additional analysis questions were conducted to find out how familiarity with guidelines contributed to findings of substance use in practice, and other comparisons along those lines. All significant tests will be reported in the significant findings section, and their significance before and after adjustment will be noted.
+In this report, we began by looking for statistically significant differences between groups (*i.e.* dentists and residents). We examined comfort levels, clinical practices, knowledge, and quiz results. We then looked at the residency program for each respondent (current and past residents) to see if that informed differences in responses, and then within practicing dentists, analyzed whether tenure in their practice contributed to differences in their responses. Finally, additional analysis questions were conducted to find out how familiarity with guidelines contributed to findings of substance use in practice, and other comparisons along those lines.  
+All hypothesis tests were conducted using a Fisher exact test at the $\alpha$ = 0.05 significance level.  Each family of tests was adjusted for multiple hypothesis testing using the Benjamini- Hochberg (BH) adjustment to control the false discover rate (FDR) at 0.1. After adjustment, we found that 1 out of the 16 tests in the comfort and clinical practice analysis was significant.  No other statistically significant results were found in any of the knowledge, quiz, or environment groups.  Additionally, no significant results were found in the dentist practice analysis, though several results were significant prior to adjustment.  Finally, 17 of the 18 tests performed in the additional analysis section were found to be significant even after adjusting with BH.  
+
+All hypothesis test results are reported in the significant findings section, and their significance before and after the B-H adjustment is presented.
 
 # Methods
 
@@ -29,7 +37,9 @@ set.seed(1)
 ```
 
 ```{r, echo = FALSE}
-m_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", n_max = 2, col_names = F, show_col_types = F)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  m_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/McGann/New Habits New Harms Pediatric Dentists and Substance-Related Oral Changes in Adolescents.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {m_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", n_max = 2, col_names = F, show_col_types = F)}
 
 questions <- as.character(m_headers[1,])
 
@@ -39,7 +49,10 @@ questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, quest
 
 clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
-m_rawdata <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  m_rawdata <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/McGann/New Habits New Harms Pediatric Dentists and Substance-Related Oral Changes in Adolescents.csv",  skip = 2, col_names = clean_headers, show_col_types = FALSE)
+} else {
+m_rawdata <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/McGannData.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)}
 
 m_non_coalesced <- m_rawdata %>%
   select(c(10:ncol(m_rawdata)))
@@ -102,6 +115,7 @@ m_coalesced <- m_no_sata %>%
 
 coll_ids <- m_rawdata$`Collector ID_NA`
 
+#This comes from the file "CollectorList.csv"
 m_coalesced <- m_coalesced %>%
   mutate(ids = coll_ids) %>%
   mutate(role = case_when(
@@ -126,7 +140,8 @@ m_coalesced <- m_coalesced %>%
         na.rm = TRUE
       )
     )
-  )
+  ) %>% mutate(score = as.factor(score))
+
 m_coalesced$Q1 <- factor(m_coalesced$Q1, levels = c("Less than 25", "25-34", "35-44", "45-54", "55-64", "65+"))
 
 m_coalesced$Q3 <- factor(m_coalesced$Q3, levels = c("First year resident","Second year resident","Third year resident","Less than 5 years", "5–10 years","11-15 years", "16-20 years", "21-25 years", "26+ years"))
@@ -165,7 +180,7 @@ m_coalesced$Q13 <- factor(m_coalesced$Q13, levels = cats13)
 
 ## Resident Demographics
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE}
 m_res <- m_coalesced %>% 
   filter(role == "Resident")
 m_res %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Age")
@@ -252,9 +267,11 @@ validation <- function(question1, question2, data){
 Below is a table comparing residents and dentists comfort levels and clinical practices.
 
 ```{r, echo = FALSE}
+qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
+n <- length(qref)
 comfort_dic <- data.frame(
-  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b"), 
-  role = c(rep("role", 16))
+  q_ref = qref, 
+  role = c(rep("role", n))
 )
 
 comfort_results <- data.frame(
@@ -584,7 +601,7 @@ stack_bar <- function(q_reference, q_group, data){
 Below are all plots comparing the comfort and clinical practices between residents and dentists.
 
 ```{r, echo = F}
-plots_comfort <- pmap(comfort_dic, 
+plots_comfort <- pmap(comfort_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                    function(q_ref, role){
                      stack_bar(
                        q_reference = q_ref, 
@@ -600,7 +617,7 @@ walk(plots_comfort, print)
 Below are all plots comparing the knowledge of residents versus dentists.
 
 ```{r, echo = F}
-plots_knowledge <- pmap(knowledge_dic, 
+plots_knowledge <- pmap(knowledge_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                       function(q_ref, role){
                         stack_bar(
                           q_reference = q_ref, 
@@ -616,7 +633,7 @@ walk(plots_knowledge, print)
 Below are all plots comparing the quiz results between residents and dentists.
 
 ```{r, echo = F}
-plots_quiz <- pmap(quiz_dic, 
+plots_quiz <- pmap(quiz_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                       function(q_ref, role){
                         stack_bar(
                           q_reference = q_ref, 
@@ -632,7 +649,7 @@ walk(plots_quiz, print)
 Below are plots for the environmental analysis.
 
 ```{r, echo = F}
-plots_env <- pmap(env_dic, 
+plots_env <- pmap(env_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                       function(q_ref, Q5){
                         stack_bar(
                           q_reference = q_ref, 
@@ -648,7 +665,7 @@ walk(plots_env, print)
 Below are plots for the dentist analysis.
 
 ```{r, echo = F}
-plots_dentists <- pmap(prac_dic, 
+plots_dentists <- pmap(prac_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                       function(q_ref, Q3){
                         stack_bar(
                           q_reference = q_ref, 
@@ -664,7 +681,7 @@ walk(plots_dentists, print)
 Below are plots comparing each additional analysis question.
 
 ```{r, echo = F}
-plots_addt <- pmap(addt_dic, 
+plots_addt <- pmap(addt_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
                       function(q_ref, q_group){
                         stack_bar(
                           q_reference = q_ref, 
