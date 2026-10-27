@@ -16,24 +16,51 @@ format:
 # Summary
 
 In this report, we began by looking for statistically significant differences between groups (*i.e.* dentists and residents). We examined comfort levels, clinical practices, knowledge, and quiz results. We then looked at the residency program for each respondent (current and past residents) to see if that informed differences in responses, and then within practicing dentists, analyzed whether tenure in their practice contributed to differences in their responses. Finally, additional analysis questions were conducted to find out how familiarity with guidelines contributed to findings of substance use in practice, and other comparisons along those lines.  
-All hypothesis tests were conducted using a Fisher exact test at the $\alpha$ = 0.05 significance level.  Each family of tests was adjusted for multiple hypothesis testing using the Benjamini- Hochberg (BH) adjustment to control the false discover rate (FDR) at 0.1. After adjustment, we found that 1 out of the 16 tests in the comfort and clinical practice analysis was significant.  No other statistically significant results were found in any of the knowledge, quiz, or environment groups.  Additionally, no significant results were found in the dentist practice analysis, though several results were significant prior to adjustment.  Finally, 17 of the 18 tests performed in the additional analysis section were found to be significant even after adjusting with BH.  
+All hypothesis tests were conducted using a Fisher exact test at the $\alpha$ = 0.05 significance level.  Each family of tests was adjusted for multiple hypothesis testing using the Benjamini- Hochberg (BH) adjustment to control the false discover rate (FDR) at 0.05. After adjustment, we found that 1 out of the 16 tests in the comfort and clinical practice analysis was significant.  No other statistically significant results were found in any of the knowledge, quiz, or environment groups.  Additionally, no significant results were found in the dentist practice analysis, though several results were significant prior to adjustment.  Finally, 17 of the 18 tests performed in the additional analysis section were found to be significant even after adjusting with BH.  
 
 All hypothesis test results are reported in the significant findings section, and their significance before and after the B-H adjustment is presented.
 
 # Methods
 
-For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. We then adjusted for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests. Low p-value's indicate significant results.  We adjusted for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) at 0.05.  
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/dentist) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors think residents should be comfortable recognizing oral soft-tissue changes related to cigarettes, ENDS/vaping, and so on, for each part. Each sub-question statistically needs to be considered independently, which is why they are separated in the analysis.
+For questions with multiple parts, we split them into individual questions (e.g. 8a, 8b, 8c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc.
 
-Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For resident/dentist comparisons, for example, this shows side-by-side plots of the residents' response to a question versus the dentists'. All plots, significant or not, are in the appendix.
+Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix.
 
-```{r, echo = FALSE}
+
+```{r, echo = FALSE, message = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
 library(gt)
 set.seed(1)
+```
+
+```{r, echo = F}
+stack_bar <- function(q_reference, q_group, data){
+  bar_df <- data %>%
+    group_by(.data[[q_reference]], .data[[q_group]]) %>%
+    summarize(counts = n(), .groups = "drop") %>%
+    drop_na() %>%
+    group_by(.data[[q_group]]) %>%
+    mutate(percent = counts / sum(counts) * 100) %>%
+    ungroup()
+  
+  p <- ggplot(bar_df, aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
+    geom_col() +
+    facet_wrap(vars(.data[[q_group]])) +
+    labs(
+      title = paste(q_reference, "vs", q_group, sep = " "),
+      x = NULL,
+      y = "Percent of responses"
+    ) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+  return(p)
+}
 ```
 
 ```{r, echo = FALSE}
@@ -264,7 +291,7 @@ validation <- function(question1, question2, data){
 
 ## Resident/Dentist Comfort & Clinical Practice Analysis
 
-Below is a table comparing residents and dentists comfort levels and clinical practices.
+Below is a table comparing residents and dentists comfort levels and clinical practices.   
 
 ```{r, echo = FALSE}
 qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
@@ -303,21 +330,171 @@ comfort_results <- comfort_results %>%
 comfort_results
 ```
 
-Significant findings include, with context:
+Significant results found here: 
 
-Q8h, Q9, Q8a, and Q8k, all compared to the role (resident/dentist): This means that for each of the following questions, dentists and residents' responses differed significantly in regards to comfort level/clinical practices
+<!-- Q8h, Q9, Q8a, and Q8k, all compared to the role (resident/dentist): This means that for each of the following questions, dentists and residents' responses differed significantly in regards to comfort level/clinical practices -->
 
-Q8h: Determining when an oral soft-tissue finding warrants referral or biopsy
+<!-- Q8h: Determining when an oral soft-tissue finding warrants referral or biopsy -->
 
-Q8a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
+<!-- Q8a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents -->
 
-Q8k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management
+<!-- Q8k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management -->
 
-Q9: How often do you screen patients for tobacco, vaping/ENDS, or other substance use?
+ - Q9: How often do you screen patients for tobacco, vaping/ENDS, or other substance use?
+ 
+```{r echo = FALSE}
+bar_df <- m_coalesced %>%
+    group_by(role,Q9) %>%
+    summarize(counts = n(), .groups = "drop") %>%
+    drop_na() %>%
+    group_by(role) %>%
+    mutate(percent = counts / sum(counts) * 100) %>%
+    ungroup()
+
+bar_df %>% ggplot(aes(x = Q9, y = percent, fill = Q9)) + geom_col() + facet_wrap(~role) +  labs(
+      title = "role vs Q9",
+      x = NULL,
+      y = "Percent of responses"
+    ) +
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank()
+    )
+
+
+
+```
 
 ## Resident/Dentist Knowledge Analysis
 
-Below is a table comparing residents and dentist questions on knowledge.
+Out of the three questions analyzed, none of them found significance. 
+
+## Residents/Dentists Quiz Analysis
+
+Similarly, out of the 7 questions analyzed, including the overall quiz score, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to each quiz question nor in aggregate.
+
+## Environment Analysis
+
+Out of the 17 comparisons, none were found to be significant after adjusting for multiple hypothesis testing.  
+
+## Dentist/Practice Analysis
+
+None of the 18 test performed here were found to be statistically significat after adjusting for multiple hypothesis testing.  
+
+## Additional Analysis
+
+Nearly all comparisons tested in this group were found to be significant even after adjusting for multiple hypothesis testing.  
+
+```{r, echo = FALSE}
+
+addt_dic <- data.frame(
+  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a", "Q11b", "Q10a", "Q10b"), 
+  q_group = c(rep("Q12", 14), "Q9", "Q9", "Q13", "Q13")
+)
+
+addt_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(addt_dic))) {
+  
+  addt_results[i, ] <- validation(
+    question1 = addt_dic$q_ref[i],
+    question2 = addt_dic$q_group[i],
+    data = m_coalesced
+  )
+}
+
+addt_results <- addt_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = addt_dic$q_ref, 
+    Question2 = addt_dic$q_group
+  ) %>% 
+  arrange(Adj_P)
+
+addt_results
+
+```
+
+Test's that were found to be significant were: 
+
+ - Q8: All topics of comfort level (except Q8h) vs Q12: Familiarity with AAPD policies
+ - Q9: Screening frequency for substances vs Q12: Familiarity with AAPD policies
+ - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q12: Familiarity with AAPD policies
+ - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q13: What age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
+ - Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
+
+## Additional Analysis Plots
+
+Below are plots comparing each additional analysis question (Q11a and Q11b were excluded from visualizations because there were too many categories).
+
+```{r, echo = F}
+plots_addt <- pmap(addt_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
+                      function(q_ref, q_group){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = q_group,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_addt, print)
+```
+
+
+# Appendix A: Full Test Results
+
+## Resident/Dentist Comfort & Clinical Practice Analysis
+
+Below is a table comparing residents and dentists comfort levels and clinical practices.   
+
+```{r, echo = FALSE}
+qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
+n <- length(qref)
+comfort_dic <- data.frame(
+  q_ref = qref, 
+  role = c(rep("role", n))
+)
+
+comfort_results <- data.frame(
+  Question1 = character(),
+  Question2 = character(),
+  P_value = numeric(),
+  Significant = logical(), 
+  Test = character()
+)
+
+for (i in seq_len(nrow(comfort_dic))) {
+  
+  comfort_results[i, ] <- validation(
+    question1 = comfort_dic$q_ref[i],
+    question2 = comfort_dic$role[i],
+    data = m_coalesced
+  )
+}
+
+comfort_results <- comfort_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    Question1 = comfort_dic$q_ref, 
+    Question2 = comfort_dic$role
+  ) %>% 
+  arrange(Adj_P)
+
+comfort_results
+```
+
+
+ 
+
+
+## Resident/Dentist Knowledge Analysis
 
 ```{r, echo = FALSE}
 knowledge_dic <- data.frame(
@@ -354,11 +531,8 @@ knowledge_results <- knowledge_results %>%
 knowledge_results
 ```
 
-Out of the three questions analyzed, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to these questions based on knowledge.
 
 ## Residents/Dentists Quiz Analysis
-
-Below is a table comparing residents and dentist quiz results.
 
 ```{r, echo = FALSE}
 quiz_dic <- data.frame(
@@ -395,11 +569,9 @@ quiz_results <- quiz_results %>%
 quiz_results
 ```
 
-Similarly, out of the 7 questions analyzed, including the overall quiz score, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to each quiz question nor in aggregate.
 
 ## Environment Analysis
 
-Below is a table comparing environmental questions.
 
 ```{r, echo = FALSE}
 env_dic <- data.frame(
@@ -436,27 +608,10 @@ env_results <- env_results %>%
 env_results
 ```
 
-Out of the 17 comparisons, 6 were found significant, but none after adjusting for the amount of tests conducted. Still, the original significant results are recorded below:
 
-Q8a, c, g, h, k, Q13 vs Q5:
-
-a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
-
-c: Recognizing oral soft-tissue changes associated with marijuana use (smoked or vaped) in adolescents
-
-g: Identifying potentially malignant oral lesions in adolescents
-
-h: Determining when an oral soft-tissue finding warrants referral or biopsy
-
-k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management
-
-13: According to AAPD guidelines, at what age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
-
-All questions were analyzed compared to the residency program, showing that there is significant evidence for each of these tests, before adjusting for multiple tests, that there is a difference in responses to the above questions based on program.
 
 ## Dentist/Practice Analysis
 
-Below is a table comparing dentists and their practices.
 
 ```{r, echo = FALSE}
 dentists <- m_coalesced %>%
@@ -496,29 +651,11 @@ prac_results <- prac_results %>%
 prac_results
 ```
 
-Out of 18 comparisons, 6 were found to be significant, but only 1 after adjustment. All contexts are reported below:
 
-All questions were compared to Q3, which is the amount of years a dentist has spent in their practice.
-
-Q9 vs Q3 (only significant question after adjustment): Years in practice vs frequency of screening patients for substance abuse
-
-Q8a, b, d: Comfort level of:
-
-a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents
-
-b: Recognizing oral soft-tissue changes associated with electronic nicotine delivery systems (ENDS/vaping) in adolescents
-
-d: Recognizing oral soft-tissue changes associated with alcohol use in adolescents
-
-Q10b: What age do you begin:
-
-b: Providing anticipatory guidance or counseling related to tobacco, vaping/ENDS, or substance misuse
-
-Score: Overall quiz score
 
 ## Additional Analysis
 
-Below is a table comparing additional analysis questions.
+
 
 ```{r, echo = FALSE}
 
@@ -554,51 +691,15 @@ addt_results <- addt_results %>%
   arrange(Adj_P)
 
 addt_results
+
 ```
 
-For additional analysis questions, surprisingly, all comparisons (18) evaluated to have significance before and after adjustment. These include:
+# Appendix B: Plots
 
-Q8: All topics of comfort level vs Q12: Familiarity with AAPD policies
 
-Q9: Screening frequency for substances vs Q12: Familiarity with AAPD policies
-
-Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q12: Familiarity with AAPD policies
-
-Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q13: What age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
-
-Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
-
-# Appendix A: Plots
-
-```{r, echo = F}
-stack_bar <- function(q_reference, q_group, data){
-  bar_df <- data %>%
-    group_by(.data[[q_reference]], .data[[q_group]]) %>%
-    summarize(counts = n(), .groups = "drop") %>%
-    drop_na() %>%
-    group_by(.data[[q_group]]) %>%
-    mutate(percent = counts / sum(counts) * 100) %>%
-    ungroup()
-  
-  p <- ggplot(bar_df, aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
-    geom_col() +
-    facet_wrap(vars(.data[[q_group]])) +
-    labs(
-      title = paste(q_reference, "vs", q_group, sep = " "),
-      x = NULL,
-      y = "Percent of responses"
-    ) +
-    theme(
-      axis.text.x = element_blank(),
-      axis.ticks.x = element_blank()
-    )
-  return(p)
-}
-```
 
 ## Comfort & Clinical Practice Plots
 
-Below are all plots comparing the comfort and clinical practices between residents and dentists.
 
 ```{r, echo = F}
 plots_comfort <- pmap(comfort_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
@@ -630,7 +731,6 @@ walk(plots_knowledge, print)
 
 ## Quiz Plots
 
-Below are all plots comparing the quiz results between residents and dentists.
 
 ```{r, echo = F}
 plots_quiz <- pmap(quiz_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
@@ -646,7 +746,7 @@ walk(plots_quiz, print)
 
 ## Environmental Analysis Plots
 
-Below are plots for the environmental analysis.
+
 
 ```{r, echo = F}
 plots_env <- pmap(env_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
@@ -662,7 +762,7 @@ walk(plots_env, print)
 
 ## Dentist Analysis Plots
 
-Below are plots for the dentist analysis.
+
 
 ```{r, echo = F}
 plots_dentists <- pmap(prac_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
@@ -676,23 +776,7 @@ plots_dentists <- pmap(prac_dic %>% filter(q_ref %notin% c("Q11a","Q11b")),
 walk(plots_dentists, print)
 ```
 
-## Additional Analysis Plots
-
-Below are plots comparing each additional analysis question.
-
-```{r, echo = F}
-plots_addt <- pmap(addt_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
-                      function(q_ref, q_group){
-                        stack_bar(
-                          q_reference = q_ref, 
-                          q_group = q_group,
-                          data = m_coalesced
-                        )
-                      })
-walk(plots_addt, print)
-```
-
-# Appendix B: Code
+# Appendix C: Code
 
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
