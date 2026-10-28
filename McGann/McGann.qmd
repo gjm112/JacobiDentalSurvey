@@ -291,7 +291,19 @@ validation <- function(question1, question2, data){
 
 ## Resident/Dentist Comfort & Clinical Practice Analysis
 
-Below is a table comparing residents and dentists comfort levels and clinical practices.   
+Below is a table comparing residents and dentists comfort levels and clinical practices.  We find one comparison to be statistically significant.
+
+Significant results found here: 
+
+<!-- Q8h, Q9, Q8a, and Q8k, all compared to the role (resident/dentist): This means that for each of the following questions, dentists and residents' responses differed significantly in regards to comfort level/clinical practices -->
+
+<!-- Q8h: Determining when an oral soft-tissue finding warrants referral or biopsy -->
+
+<!-- Q8a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents -->
+
+<!-- Q8k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management -->
+
+ - Q9: How often do you screen patients for tobacco, vaping/ENDS, or other substance use?
 
 ```{r resident-dentist-comfort, echo = FALSE}
 qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
@@ -330,17 +342,7 @@ comfort_results <- comfort_results %>%
 comfort_results
 ```
 
-Significant results found here: 
 
-<!-- Q8h, Q9, Q8a, and Q8k, all compared to the role (resident/dentist): This means that for each of the following questions, dentists and residents' responses differed significantly in regards to comfort level/clinical practices -->
-
-<!-- Q8h: Determining when an oral soft-tissue finding warrants referral or biopsy -->
-
-<!-- Q8a: Recognizing oral soft-tissue changes associated with cigarette smoking in adolescents -->
-
-<!-- Q8k: Knowledge and understanding of current AAPD guidelines related to substance-use, anticipatory guidance, and management -->
-
- - Q9: How often do you screen patients for tobacco, vaping/ENDS, or other substance use?
  
 ```{r echo = FALSE}
 bar_df <- m_coalesced %>%
@@ -523,7 +525,7 @@ prac_results <- prac_results %>%
   ) %>% 
   arrange(Adj_P)
 
-prac_results
+
 ```
 
 

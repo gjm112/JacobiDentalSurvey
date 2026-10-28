@@ -669,5 +669,4 @@ walk(plots_comp, print)
 # Appendix B: Code
 
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
-
 ```
