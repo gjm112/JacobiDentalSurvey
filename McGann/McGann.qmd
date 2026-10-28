@@ -293,7 +293,7 @@ validation <- function(question1, question2, data){
 
 Below is a table comparing residents and dentists comfort levels and clinical practices.   
 
-```{r, echo = FALSE}
+```{r resident-dentist-comfort, echo = FALSE}
 qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
 n <- length(qref)
 comfort_dic <- data.frame(
@@ -369,134 +369,7 @@ bar_df %>% ggplot(aes(x = Q9, y = percent, fill = Q9)) + geom_col() + facet_wrap
 
 Out of the three questions analyzed, none of them found significance. 
 
-## Residents/Dentists Quiz Analysis
-
-Similarly, out of the 7 questions analyzed, including the overall quiz score, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to each quiz question nor in aggregate.
-
-## Environment Analysis
-
-Out of the 17 comparisons, none were found to be significant after adjusting for multiple hypothesis testing.  
-
-## Dentist/Practice Analysis
-
-None of the 18 test performed here were found to be statistically significat after adjusting for multiple hypothesis testing.  
-
-## Additional Analysis
-
-Nearly all comparisons tested in this group were found to be significant even after adjusting for multiple hypothesis testing.  
-
-```{r, echo = FALSE}
-
-addt_dic <- data.frame(
-  q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a", "Q11b", "Q10a", "Q10b"), 
-  q_group = c(rep("Q12", 14), "Q9", "Q9", "Q13", "Q13")
-)
-
-addt_results <- data.frame(
-  Question1 = character(),
-  Question2 = character(),
-  P_value = numeric(),
-  Significant = logical(), 
-  Test = character()
-)
-
-for (i in seq_len(nrow(addt_dic))) {
-  
-  addt_results[i, ] <- validation(
-    question1 = addt_dic$q_ref[i],
-    question2 = addt_dic$q_group[i],
-    data = m_coalesced
-  )
-}
-
-addt_results <- addt_results %>%
-  mutate(
-    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
-    Sig_Adj = Adj_P <= 0.05,
-    Question1 = addt_dic$q_ref, 
-    Question2 = addt_dic$q_group
-  ) %>% 
-  arrange(Adj_P)
-
-addt_results
-
-```
-
-Test's that were found to be significant were: 
-
- - Q8: All topics of comfort level (except Q8h) vs Q12: Familiarity with AAPD policies
- - Q9: Screening frequency for substances vs Q12: Familiarity with AAPD policies
- - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q12: Familiarity with AAPD policies
- - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q13: What age should anticipatory guidance and counseling regarding tobacco vaping/ ENDS, and substance misuse begin?
- - Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
-
-## Additional Analysis Plots
-
-Below are plots comparing each additional analysis question (Q11a and Q11b were excluded from visualizations because there were too many categories).
-
-```{r, echo = F}
-plots_addt <- pmap(addt_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
-                      function(q_ref, q_group){
-                        stack_bar(
-                          q_reference = q_ref, 
-                          q_group = q_group,
-                          data = m_coalesced
-                        )
-                      })
-walk(plots_addt, print)
-```
-
-
-# Appendix A: Full Test Results
-
-## Resident/Dentist Comfort & Clinical Practice Analysis
-
-Below is a table comparing residents and dentists comfort levels and clinical practices.   
-
-```{r, echo = FALSE}
-qref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a" ,"Q11b")
-n <- length(qref)
-comfort_dic <- data.frame(
-  q_ref = qref, 
-  role = c(rep("role", n))
-)
-
-comfort_results <- data.frame(
-  Question1 = character(),
-  Question2 = character(),
-  P_value = numeric(),
-  Significant = logical(), 
-  Test = character()
-)
-
-for (i in seq_len(nrow(comfort_dic))) {
-  
-  comfort_results[i, ] <- validation(
-    question1 = comfort_dic$q_ref[i],
-    question2 = comfort_dic$role[i],
-    data = m_coalesced
-  )
-}
-
-comfort_results <- comfort_results %>%
-  mutate(
-    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
-    Sig_Adj = Adj_P <= 0.05,
-    Question1 = comfort_dic$q_ref, 
-    Question2 = comfort_dic$role
-  ) %>% 
-  arrange(Adj_P)
-
-comfort_results
-```
-
-
- 
-
-
-## Resident/Dentist Knowledge Analysis
-
-```{r, echo = FALSE}
+```{r resident-dentist-knowledge, echo = FALSE}
 knowledge_dic <- data.frame(
   q_ref = c("Q12", "Q13", "Q14"), 
   role = c(rep("role", 3))
@@ -528,13 +401,15 @@ knowledge_results <- knowledge_results %>%
   ) %>% 
   arrange(Adj_P)
 
-knowledge_results
+
 ```
 
 
 ## Residents/Dentists Quiz Analysis
 
-```{r, echo = FALSE}
+Similarly, out of the 7 questions analyzed, including the overall quiz score, none of them found significance. We did not find significant evidence to suggest that residents/dentists had different responses to each quiz question nor in aggregate.
+
+```{r resident-dentist-quiz, echo = FALSE}
 quiz_dic <- data.frame(
   q_ref = c("Q15", "Q16", "Q17", "Q18", "Q19", "Q20", "score"), 
   role = c(rep("role", 7))
@@ -566,14 +441,14 @@ quiz_results <- quiz_results %>%
   ) %>% 
   arrange(Adj_P)
 
-quiz_results
-```
 
+```
 
 ## Environment Analysis
 
+Out of the 17 comparisons, none were found to be significant after adjusting for multiple hypothesis testing.  
 
-```{r, echo = FALSE}
+```{r environment, echo = FALSE}
 env_dic <- data.frame(
   q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q12", "Q13", "score"), 
   Q5 = c(rep("Q5", 17))
@@ -605,13 +480,13 @@ env_results <- env_results %>%
   ) %>% 
   arrange(Adj_P)
 
-env_results
 ```
 
 
 
 ## Dentist/Practice Analysis
 
+None of the 18 test performed here were found to be statistically significant after adjusting for multiple hypothesis testing.  
 
 ```{r, echo = FALSE}
 dentists <- m_coalesced %>%
@@ -652,13 +527,12 @@ prac_results
 ```
 
 
-
 ## Additional Analysis
 
+Nearly all comparisons tested in this group were found to be significant even after adjusting for multiple hypothesis testing.  
 
 
-```{r, echo = FALSE}
-
+```{r aditional-analysis, echo = FALSE}
 addt_dic <- data.frame(
   q_ref = c("Q8a",  "Q8b",  "Q8c",  "Q8d",  "Q8e",  "Q8f", "Q8g",  "Q8h" , "Q8i" , "Q8j" , "Q8k" , "Q9" ,  "Q10a" ,"Q10b", "Q11a", "Q11b", "Q10a", "Q10b"), 
   q_group = c(rep("Q12", 14), "Q9", "Q9", "Q13", "Q13")
@@ -693,10 +567,72 @@ addt_results <- addt_results %>%
 addt_results
 
 ```
+Test's that were found to be significant were: 
+
+ - Q8: All topics of comfort level (except Q8h) vs Q12: Familiarity with AAPD policies
+ - Q9: Screening frequency for substances vs Q12: Familiarity with AAPD policies
+ - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q12: Familiarity with AAPD policies
+ - Q10a, Q10b: What age to begin screening + providing guidance for substance use vs Q13: What age should anticipatory guidance and counseling regarding tobacco vaping/ENDS, and substance misuse begin?
+ - Q11a, Q11b: Substances identified through history + oral findings vs Q9: Frequency of screening patients for substance use
+
+Below are plots comparing each additional analysis question (Q11a and Q11b were excluded from visualizations because there were too many categories).
+
+```{r, echo = F}
+plots_addt <- pmap(addt_dic %>% filter(q_ref %notin% c("Q11a","Q11b")), 
+                      function(q_ref, q_group){
+                        stack_bar(
+                          q_reference = q_ref, 
+                          q_group = q_group,
+                          data = m_coalesced
+                        )
+                      })
+walk(plots_addt, print)
+```
+
+
+# Appendix A: Full Test Results
+
+## Resident/Dentist Comfort & Clinical Practice Analysis
+
+Below is a table comparing residents and dentists comfort levels and clinical practices.   
+
+```{r, echo = FALSE}
+comfort_results
+```
+
+## Resident/Dentist Knowledge Analysis
+
+```{r, echo = FALSE}
+knowledge_results
+```
+
+## Residents/Dentists Quiz Analysis
+
+```{r, echo = FALSE}
+quiz_results
+```
+
+## Environment Analysis
+
+```{r, echo = FALSE}
+env_results
+```
+
+
+## Dentist/Practice Analysis
+
+```{r, echo = FALSE}
+prac_results
+```
+
+## Additional Analysis
+
+
+```{r, echo = FALSE}
+addt_results
+```
 
 # Appendix B: Plots
-
-
 
 ## Comfort & Clinical Practice Plots
 
