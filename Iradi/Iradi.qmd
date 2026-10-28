@@ -1,9 +1,10 @@
 ---
 title: "Closing the Gap: Cleft Training in Pediatric Dentistry Residency Programs"
-authors: 
-"Jack Dumanski and Gregory J. Matthews
-Center for Data Science and Consulting
-Loyola University Chicago"
+author: 
+- "Jack Dumanski and Gregory J. Matthews"
+- "Center for Data Science and Consulting"
+- "Loyola University Chicago"
+date: "October 28, 2026"
 format: pdf
 editor: visual
 ---
@@ -29,8 +30,11 @@ library(stringr)
 library(gt)
 set.seed(1)
 
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  i_res_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {
 i_res_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
-
+}
 questions <- as.character(i_res_headers[1,])
 
 answer_choices <- as.character(i_res_headers[2,])
@@ -39,7 +43,12 @@ questions_filled <- na.locf(ifelse(questions == "" | is.na(questions), NA, quest
 
 clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
+
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  i_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+} else {
 i_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+}
 i_res <- i_res_raw %>%
   select(c(10:ncol(i_res_raw)))
 
@@ -86,8 +95,12 @@ i_res_coalesced <- i_res_q %>%
 ```
 
 ```{r, echo = FALSE}
-i_dir_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/i_directors.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  i_dir_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Program Director.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+} else {
+i_dir_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/i_directors.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
+}
 questions_dir <- as.character(i_dir_headers[1,])
 
 answer_choices_dir <- as.character(i_dir_headers[2,])
@@ -96,7 +109,11 @@ questions_filled_dir <- na.locf(ifelse(questions_dir == "" | is.na(questions_dir
 
 clean_headers_dir <- paste(questions_filled_dir, answer_choices_dir, sep = "_")
 
-i_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/i_directors.csv", skip = 2, col_names = clean_headers_dir, show_col_types = FALSE)
+if (Sys.info()[["user"]] == "gregorymatthews"){
+  i_dir_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Program Director.csv", skip = 2, col_names = clean_headers_dir, show_col_types = FALSE)
+} else {
+  i_dir_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/i_directors.csv", skip = 2, col_names = clean_headers_dir, show_col_types = FALSE)
+}
 i_dir <- i_dir_raw %>%
   select(c(10:ncol(i_dir_raw)))
 
