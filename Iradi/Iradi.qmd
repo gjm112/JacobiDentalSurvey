@@ -23,7 +23,7 @@ For questions that had multiple parts, we had to split them into individual ques
 
 Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For the specific 2x11x12 question, a visualization of the regression model was created to show the probability of a resident continuing in their program after finishing residency. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message=FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
@@ -31,7 +31,7 @@ library(gt)
 set.seed(1)
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
-  i_res_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
+  i_res_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
 } else {
 i_res_headers <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", n_max = 2, col_names = FALSE, show_col_types = FALSE)
 }
@@ -45,7 +45,7 @@ clean_headers <- paste(questions_filled, answer_choices, sep = "_")
 
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
-  i_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey", skip = 2, col_names = clean_headers, show_col_types = FALSE)
+  i_res_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Resident Survey.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
 } else {
 i_res_raw <- read_csv("/Users/jdumanski24/Desktop/CDSC/Levine/CSV/res_survey.csv", skip = 2, col_names = clean_headers, show_col_types = FALSE)
 }
@@ -94,7 +94,7 @@ i_res_coalesced <- i_res_q %>%
   select(110:135)
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message=FALSE}
 
 if (Sys.info()[["user"]] == "gregorymatthews"){
   i_dir_headers <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Iradi/Program Director.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
@@ -177,24 +177,82 @@ i_res_coalesced <- i_res_coalesced %>%
     Q15 == ">10" ~ "10+"
   ))
 i_dir_coalesced <- i_dir_coalesced %>%
-  mutate(Q21_new = case_when(
+  mutate(Q21 = case_when(
     Q21 == "3-Jan" ~ "1-3",
     Q21 == "6-Apr" ~ "4-6",
     Q21 == "10-Jul" ~ "7-10",
     Q21 == ">10" ~ "10+"
   ))
 
+i_dir_coalesced <- i_dir_coalesced %>%
+  mutate(Q13 = sub("\\s*\\(.*", "", Q13))
+
+cats11 <- c("Disagree","Agree", "Strongly Agree")
+i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats11)
+i_dir_coalesced$Q11b <- factor(i_dir_coalesced$Q11b, levels = cats11)
+i_dir_coalesced$Q11c <- factor(i_dir_coalesced$Q11c, levels = cats11)
+i_dir_coalesced$Q11d <- factor(i_dir_coalesced$Q11d, levels = cats11)
+
 cats8 <- c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree", "Strongly Agree")
-
-i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats8)
-i_dir_coalesced$Q11b <- factor(i_dir_coalesced$Q11b, levels = cats8)
-i_dir_coalesced$Q11c <- factor(i_dir_coalesced$Q11c, levels = cats8)
-i_dir_coalesced$Q11d <- factor(i_dir_coalesced$Q11d, levels = cats8)
-
 i_res_coalesced$Q8a <- factor(i_res_coalesced$Q8a, levels = cats8)
 i_res_coalesced$Q8b <- factor(i_res_coalesced$Q8b, levels = cats8)
 i_res_coalesced$Q8c <- factor(i_res_coalesced$Q8c, levels = cats8)
 i_res_coalesced$Q8d <- factor(i_res_coalesced$Q8d, levels = cats8)
+
+cats15 <- c("1-3","4-6","7-10","10+")
+i_res_coalesced$Q15 <- factor(i_res_coalesced$Q15, levels = cats15)
+
+cats21 <- c("1-3","4-6","7-10","10+")
+i_dir_coalesced$Q21 <- factor(i_dir_coalesced$Q21, levels = cats21)
+
+```
+## Table 1 - Directors
+```{r echo = FALSE, message = FALSE}
+library(table1)
+form_dir <- reformulate(paste0("Q", c(1:4,6,8:9,
+                                  paste0(10,letters[1:4]),
+                                  paste0(11,letters[1:4]),
+                                  12:15,
+                                  paste0(16,letters[1:4]),
+                                  17:21)))
+tab1_dir <- table1(form_dir , data = i_dir_coalesced)
+table1::t1kable(tab1_dir)  %>% 
+kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+# library(gtsummary)
+# 
+# tbl_dir <- i_dir_coalesced |>
+#   tbl_summary(include = paste0("Q", c(1:9,
+#                                   paste0(10,letters[1:4]),
+#                                   paste0(11,letters[1:4]),
+#                                   12:15,
+#                                   paste0(16,letters[1:4]),
+#                                   17:21, "21_new")))
+# 
+# tbl_dir
+```
+
+## Table 1 - Residents
+
+```{r echo = FALSE, message = FALSE}
+library(table1)
+library(kableExtra)
+form_res <- reformulate(paste0("Q", c(1:6,paste0(7,letters[1:4]),
+                                  paste0(8,letters[1:4]),9,
+                                  paste0(10,letters[1:5]),
+                                  11:15)))
+tab1_res <- table1(form_res, data = i_res_coalesced)
+table1::t1kable(tab1_res)   %>% 
+kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+
+# tbl_res <- i_res_coalesced |>
+#   tbl_summary(include = paste0("Q", c(1:6,paste0(7,letters[1:4]),
+#                                    paste0(8,letters[1:4]),9,
+#                                    paste0(10,letters[1:5]),
+#                                    11:15)))
+# 
+# tbl_res
 
 ```
 
@@ -300,7 +358,7 @@ cleft_null <- glm(cleft_response ~ 1, family = "binomial", data = cleft_program)
 common_qs_res <- c("Q2", "Q3", "Q4", "Q6", "Q7a", "Q7b", "Q7c", "Q7d","Q8a","Q8b", "Q8c", "Q8d", "Q5", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q10e", "Q12", "Q13", "Q14", "Q15",
                    "role")
 common_qs_dir <- c("Q2", "Q3", "Q4", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q11a","Q11b","Q11c", "Q11d", "Q12", "Q13", "Q16a", "Q16b", "Q16c", "Q16d", "Q16e", "Q18", "Q19", "Q20",
-                 "Q21_new",   "role")
+                 "Q21",   "role")
 q_dic <- data.frame(common_qs_res, common_qs_dir)
 
 res_common <- i_res_coalesced %>%
