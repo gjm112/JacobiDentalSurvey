@@ -537,7 +537,22 @@ Q2x11x12: Association with cleft center/desire to be involved in cleft care post
 We see from this model summary that we have one parameter that is particularly significant (being at a hospital-based program), but in total, the model predicts desire to be involved in cleft care more significantly than a model without any predictors (essentially, it's much better than random chance). Our coefficient for hospital-based programs is -1.635, which translates to saying that if a resident is in a hospital-based program, the odds of them NOT wanting to continue into cleft care is \~5 times the odds of a resident in a hybrid program.
 
 ```{r, echo = FALSE}
-modelsummary(cleft_glm)
+modelsummary(models = list(cleft_glm),
+             stars = T,
+             gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c("(Intercept)" = "Intercept",
+               "cleft_centerYes"  = "Cleft Center (Yes)" ,
+            "programHospital-based" = "Program (Hospital Based)",
+              "programUniversity" =  "Program (University)"
+                 ), 
+  title = "JACK, ADD TITLE HERE"
+             ) %>% style_tt(
+    align = "c",
+    fontsize = 0.9,
+    bootstrap_class = "table caption-top"
+  )
+
 ```
 
 ## Cross-Comparison Significance
