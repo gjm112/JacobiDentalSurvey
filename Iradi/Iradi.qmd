@@ -11,17 +11,15 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, we found 8/23 comparisons to be significant, 5 after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). This means that at least 5 questions saw significant evidence of being answered differently for residents and directors. All tests will be reported in the significant findings section, and their significance before and after adjustment will be noted. It should be noted that some questions were requested specifically from the program director survey, but those comparisons were covered by comparing each resident/director combination in the cross-comparison section, and their significance will be reported in the significant findings section as well.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, 4 to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) at 0.05.  All tests results are reported in the significant findings section, and their significance before and after adjustment is presented.
 
 # Methods
 
-For our methodology, we conducted Fisher exact tests, which can calculate exact probabilities to see if there's a non-random association between groups. A low p-value (after adjustment) translates to having significant evidence for there existing some association between questions.
+We conducted Fisher tests due to low expected cell counts in contingency tables. p-values were computed via simulation to reduce computational time.  For cross referencing 2x11x12, we performed a logistic regression model to predict the probability of answering "Yes" on Q2 with Q11 and Q12 as predictor variables.  
 
-For cross referencing 2x11x12, we had to run a regression model, where there were multiple questions being compared with the response variable, which in this case was whether a resident was likely to continue their practices after residency, and this model was also found to be significant.
+For questions that had multiple parts, we had to split them into individual questions (e.g. 11a, 11b, 11c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc.
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 11a, 11b, 11c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. In practice, this saw us, for example, analyzing whether directors perceive residents having knowledge on related, but separate, types of care. This example came from data from question 11 on the director's survey to illustrate the complexity of certain questions.
-
-Then, to visualize the difference, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For the specific 2x11x12 question, a visualization of the regression model was created to show the probability of a resident continuing in their program after finishing residency. For resident/director comparison, this shows side-by-side plots of the residents' response to a question versus the directors'. Noticeable/interesting plots and findings were placed in the "significant findings" section of this writeup and all plots, significant or not, are in the appendix.
+To visualize differences, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For the specific 2x11x12 question, a visualization of the regression model was created to show the probability of a resident continuing in their program after finishing residency. For resident/director comparison, side-by-side plots of the residents' response to a question versus the directors' are shown. Noticeable/interesting plots and findings were placed in the "significant findings" section. All plots, significant or not, along with the full code for generating this report can be found in the appendix.
 
 ```{r, echo = FALSE, message=FALSE}
 library(tidyverse)
@@ -176,6 +174,14 @@ i_res_coalesced <- i_res_coalesced %>%
     Q15 == "10-Jul" ~ "7-10",
     Q15 == ">10" ~ "10+"
   ))
+
+i_dir_coalesced <- i_dir_coalesced %>%
+  mutate(Q15 = case_when(
+    Q15 == "10-Jan" ~ "1-10",
+    Q15 == "11 or more" ~ "11+",
+    Q15 == "Unsure" ~ "Unsure"
+  ))
+
 i_dir_coalesced <- i_dir_coalesced %>%
   mutate(Q21 = case_when(
     Q21 == "3-Jan" ~ "1-3",
@@ -184,8 +190,11 @@ i_dir_coalesced <- i_dir_coalesced %>%
     Q21 == ">10" ~ "10+"
   ))
 
-i_dir_coalesced <- i_dir_coalesced %>%
+i_res_coalesced <- i_res_coalesced %>%
   mutate(Q13 = sub("\\s*\\(.*", "", Q13))
+
+i_dir_coalesced <- i_dir_coalesced %>%
+  mutate(Q19 = sub("\\s*\\(.*", "", Q19))
 
 cats11 <- c("Disagree","Agree", "Strongly Agree")
 i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats11)
@@ -316,6 +325,7 @@ question2s <- c(rep("Q2", 10))
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
+
 
 ```{r, echo = FALSE}
 validation <- function(question1, question2, data){
@@ -544,8 +554,6 @@ i_dir_coalesced <- i_dir_coalesced %>%
 i_dir_coalesced %>% ggplot(aes(x = Q19,fill = Q19)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 ```
 
-# 
-
 # Results Tables
 
 ## Residents Results
@@ -565,26 +573,32 @@ res_dir_results
 
 ## Residents Significance
 
-The following question combinations were found significant between questions in the residents survey. Their contexts and plots will be noted below:
+The following question combinations were found significant after correcting for multiple hypothesis testing:
 
-Q8a/b/c/d & 2: Feel prepared to:
+ - Q2 vs Q8a
+ - Q2 vs Q8b
+ - Q2 vs Q8c
+ - Q2 vs Q8d
+ 
 
-a)  provide appropriate care for a patient with a cleft or craniofacial...
+The levels of Question 8a-d are: Feel prepared to:
 
-b\) identify and collaborate with the appropriate specialists as part of a cleft...
+ a\)  provide appropriate care for a patient with a cleft or craniofacial...
 
-c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
+ b\) identify and collaborate with the appropriate specialists as part of a cleft...
 
-d\) manage behavioral and psychosocial considerations when providing care to patients...
+ c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
+
+ d\) manage behavioral and psychosocial considerations when providing care to patients...
 
 ```{r, echo = FALSE}
 sig_res_plots <- plots_res[c(5, 6, 7, 8)]
 walk(sig_res_plots, print)
 ```
 
-Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
+## Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
 
-We see from this model summary that we have one parameter that is particularly significant (being at a hospital-based program), but in total, the model predicts desire to be involved in cleft care more significantly than a model without any predictors (essentially, it's much better than random chance). Our coefficient for hospital-based programs is -1.635, which translates to saying that if a resident is in a hospital-based program, the odds of them NOT wanting to continue into cleft care is \~5 times the odds of a resident in a hybrid program. This comes from exponentiating our parameter $e^{-1.635} \approx 5$.
+For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is -1.635, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are 5.13 (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.635} =  5.129$)
 
 ```{r, echo = FALSE}
 library(tinytable)
@@ -609,24 +623,20 @@ modelsummary(models = list(cleft_glm),
 
 ## Cross-Comparison Significance
 
-Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
+Again, Fisher exact tests were performed to look for differences between directors and resident.  A few questions were found to be significant different: 
 
-Q6: Instruction in all aspects of cleft reconstruction
-
-Q7b: Level of education in the appropriate timing of palatal closure
-
-Q8a/b/c: Feel prepared to:
-
-a\) provide appropriate care for a patient with a cleft or craniofacial...
-
-b\) identify and collaborate with the appropriate specialists as part of a cleft...
-
-c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
+ - Q6: Instruction in all aspects of cleft reconstruction
+ - Q7b: Level of education in the appropriate timing of palatal closure
+ - Q8a/c: Feel prepared to:
+    - a\) provide appropriate care for a patient with a cleft or craniofacial...
+    - c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
 
 ```{r, echo = FALSE}
 plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
 walk(plots_comp_sig, print)
 ```
+
+
 
 # Appendix A i) Residents Visualization (all plots)
 
