@@ -206,28 +206,51 @@ cats21 <- c("1-3","4-6","7-10","10+")
 i_dir_coalesced$Q21 <- factor(i_dir_coalesced$Q21, levels = cats21)
 
 ```
+
 ## Table 1 - Directors
+
 ```{r echo = FALSE, message = FALSE}
 library(table1)
-form_dir <- reformulate(paste0("Q", c(1:4,6,8:9,
-                                  paste0(10,letters[1:4]),
-                                  paste0(11,letters[1:4]),
-                                  12:15,
-                                  paste0(16,letters[1:4]),
-                                  17:21)))
-tab1_dir <- table1(form_dir , data = i_dir_coalesced)
-table1::t1kable(tab1_dir)  %>% 
+# form_dir <- reformulate(paste0("Q", c(1:4,6,8:9,
+#                                   paste0(10,letters[1:4]),
+#                                   paste0(11,letters[1:4]),
+#                                   12:15,
+#                                   paste0(16,letters[1:4]),
+#                                   17:21)))
+# tab1_dir <- table1(form_dir , data = i_dir_coalesced)
+# table1::t1kable(tab1_dir)  %>% 
+# kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir1 <- reformulate(paste0("Q", c(1:4,6,8:9)))
+tab1_dir1 <- table1(form_dir1 , data = i_dir_coalesced[,c(1:4,6,8:9)])
+table1::t1kable(tab1_dir1)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir2 <- reformulate(colnames(i_dir_coalesced[,10:17]))
+
+tab1_dir2 <- table1(form_dir2 , data = i_dir_coalesced[,c(10:17)])
+table1::t1kable(tab1_dir2)  %>%
 kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-# library(gtsummary)
-# 
+form_dir3 <- reformulate(colnames(i_dir_coalesced[,18:25]))
+
+tab1_dir3 <- table1(form_dir3 , data = i_dir_coalesced[,c(18:25)])
+table1::t1kable(tab1_dir3)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir4 <- reformulate(colnames(i_dir_coalesced[,26:32]))
+
+tab1_dir4 <- table1(form_dir4 , data = i_dir_coalesced[,c(26:32)])
+table1::t1kable(tab1_dir4)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
 # tbl_dir <- i_dir_coalesced |>
 #   tbl_summary(include = paste0("Q", c(1:9,
 #                                   paste0(10,letters[1:4]),
 #                                   paste0(11,letters[1:4]),
 #                                   12:15,
 #                                   paste0(16,letters[1:4]),
-#                                   17:21, "21_new")))
+#                                   17:21)))
 # 
 # tbl_dir
 ```
@@ -237,14 +260,41 @@ kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width
 ```{r echo = FALSE, message = FALSE}
 library(table1)
 library(kableExtra)
-form_res <- reformulate(paste0("Q", c(1:6,paste0(7,letters[1:4]),
-                                  paste0(8,letters[1:4]),9,
-                                  paste0(10,letters[1:5]),
-                                  11:15)))
-tab1_res <- table1(form_res, data = i_res_coalesced)
-table1::t1kable(tab1_res)   %>% 
-kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+# form_res <- reformulate(paste0("Q", c(1:6,paste0(7,letters[1:4]),
+#                                   paste0(8,letters[1:4]),9,
+#                                   paste0(10,letters[1:5]),
+#                                   11:15)))
+# tab1_res <- table1(form_res, data = i_res_coalesced)
+# table1::t1kable(tab1_res)   %>% 
+# kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+form_res1 <- reformulate(colnames(i_res_coalesced[c(1:6)]))
+tab1_res1 <- table1(form_res1 , data = i_res_coalesced[,c(1:6)])
+table1::t1kable(tab1_res1)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
+form_res2 <- reformulate(colnames(i_res_coalesced[,7:14]))
+
+tab1_res2 <- table1(form_res2 , data = i_res_coalesced[,c(7:14)])
+table1::t1kable(tab1_res2)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res3 <- reformulate(colnames(i_res_coalesced[,15:19]))
+
+tab1_res3 <- table1(form_res3 , data = i_res_coalesced[,c(15:19)])
+table1::t1kable(tab1_res3)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res4 <- reformulate(colnames(i_res_coalesced[,20:23]))
+
+tab1_res4 <- table1(form_res4 , data = i_res_coalesced[,c(20:23)])
+table1::t1kable(tab1_res4)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res5 <- reformulate(colnames(i_res_coalesced[,24:26]))
+
+tab1_res5 <- table1(form_res5 , data = i_res_coalesced[,c(24:26)])
+table1::t1kable(tab1_res5)  %>%
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 # tbl_res <- i_res_coalesced |>
 #   tbl_summary(include = paste0("Q", c(1:6,paste0(7,letters[1:4]),
@@ -534,9 +584,11 @@ walk(sig_res_plots, print)
 
 Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
 
-We see from this model summary that we have one parameter that is particularly significant (being at a hospital-based program), but in total, the model predicts desire to be involved in cleft care more significantly than a model without any predictors (essentially, it's much better than random chance). Our coefficient for hospital-based programs is -1.635, which translates to saying that if a resident is in a hospital-based program, the odds of them NOT wanting to continue into cleft care is \~5 times the odds of a resident in a hybrid program.
+We see from this model summary that we have one parameter that is particularly significant (being at a hospital-based program), but in total, the model predicts desire to be involved in cleft care more significantly than a model without any predictors (essentially, it's much better than random chance). Our coefficient for hospital-based programs is -1.635, which translates to saying that if a resident is in a hospital-based program, the odds of them NOT wanting to continue into cleft care is \~5 times the odds of a resident in a hybrid program. This comes from exponentiating our parameter $e^{-1.635} \approx 5$.
 
 ```{r, echo = FALSE}
+library(tinytable)
+library(modelsummary)
 modelsummary(models = list(cleft_glm),
              stars = T,
              gof_omit = ".",
@@ -546,7 +598,7 @@ modelsummary(models = list(cleft_glm),
             "programHospital-based" = "Program (Hospital Based)",
               "programUniversity" =  "Program (University)"
                  ), 
-  title = "JACK, ADD TITLE HERE"
+  title = "Logistic Regression Summary: Predicting Desired Involvement in Cleft Care"
              ) %>% style_tt(
     align = "c",
     fontsize = 0.9,
