@@ -11,7 +11,7 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant. When cross-comparing the groups on each common question, 4 to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) at 0.05.  All tests results are reported in the significant findings section, and their significance before and after adjustment is presented.
+In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant controlling the FDR at 0.05. When cross-comparing the groups on each common question, 4 of the 23 test were found to be significant after adjusting for multiple hypothesis testing.  FDR was controlled via the Benjamini-Hochberg (BH) procedure at the 0.05 rate.  All tests results are reported in the significant findings section, and their significance before and after adjustment is presented.
 
 # Methods
 
