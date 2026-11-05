@@ -25,7 +25,7 @@ For questions with multiple parts, we split them into individual questions (e.g.
 
 Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix.
 
-```{r packages, echo = FALSE, warnings = FALSE}
+```{r packages, echo = FALSE, warnings = FALSE, message = FALSE}
 library(tidyverse)
 library(zoo)
 library(stringr)
@@ -384,7 +384,7 @@ f_res_coalesced %>% ggplot(aes(x = Q9,fill = Q9)) + geom_bar() +  theme(axis.tex
 
 ```
 
-## Directors Deomgraphics
+## Directors Demographics
 
 ```{r eda-directors, echo = FALSE, warning = FALSE}
 f_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
@@ -608,7 +608,7 @@ The following relationships were found to be significant:
 - Q17/Q10: On call days/month and quality of life
 
 ```{r, echo = FALSE}
-plots_res_sig <- plots_res[c(22, 49, 73, 75, 79)]
+plots_res_sig <- plots_res[c(25, 49, 79, 73, 75)]
 walk(plots_res_sig, print)
 ```
 
@@ -641,8 +641,8 @@ Many questions were found to be significant between residents and directors, and
 - Q26: Setting for screening (Anonymously vs Confidentially)
 
 ```{r}
-plots_res_sig <- plots_res[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
-walk(plots_res_sig, print)
+plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
+walk(plots_comp_sig, print)
 ```
 
 # Appendix A i) Residents Plots + Table:
