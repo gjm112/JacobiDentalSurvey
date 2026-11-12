@@ -26,6 +26,8 @@ For questions with multiple parts, we split them into individual questions (e.g.
 Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix.
 
 ```{r packages, echo = FALSE, warnings = FALSE, message = FALSE}
+library(psych)
+library(likert)
 library(tidyverse)
 library(zoo)
 library(stringr)
@@ -304,6 +306,150 @@ cats18 <- c("Never","A few times in the year","Once a month","Once a week","Dail
 f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
 
 ```
+
+```{r renaming, echo = FALSE}
+
+colnames_f_res <- c(
+  "program_type",
+                    "PGY_level",
+                    "gender",
+                    "age",
+                    "marital_status",
+                    "children",
+                    "num_residents",
+                    "region",
+                    "call_years",
+                    "call_days_per_month",
+                    "working_hours_per_week",
+                    "rec_time_per_week",
+                    "feel_drained", "feel_fatigued", "feel_strained", "feel_depersonalization", "feel_callousness", "feel_carelessness", "feel_pos_influence", "feel_exhilaration", "feel_confidence",
+                    "neg_impact_relationship", "neg_impact_health", "neg_impact_control", "neg_impact_balance",
+                    "discrim_gender", "discrim_race", "discrim_ethnicity", "exper_verbal_abuse",
+                    "exper_emotional_abuse", "exper_physical_abuse", "exper_sexual_harassment",
+                    "quality_life", 
+                    "consider_quitting", 
+                    "freq_dir_meets",
+                    "discuss_burnout", "discuss_depression", "discuss_suicide", "discuss_quitting",
+                    "standardized_screening",
+                    "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide",
+                    "agree_screen_burnout", "agree_dir_screen_res_burnout", "agree_screen_MH", "agree_dir_screen_res_MH",
+                    "dir_concern_res_harm_MH", "dir_concern_pat_harm_MH", "dir_concern_coworker_harm_MH", "dir_concern_future", "dir_concern_MH_care", "dir_concern_FP_result",
+                    "freq_screening_MH", 
+                    "screen_setting",
+                    "resources",
+                    "addtl",
+                    "role") 
+
+colnames_f_dir <- c(
+  "director",
+  "program_type",
+  "yrs", 
+  "gender",
+  "age",
+  "num_residents",
+  "region",
+  "call_years",
+  "call_days_per_month",
+  "working_hours_per_week",
+  "rec_time_per_week",
+  "feel_drained", "feel_fatigued", "feel_strained", "feel_depersonalization", "feel_callousness", "feel_carelessness", "feel_pos_influence", "feel_exhilaration", "feel_confidence",
+  "neg_impact_relationship", "neg_impact_health", "neg_impact_control", "neg_impact_balance",
+  "discrim_gender", "discrim_race", "discrim_ethnicity",
+  "exper_verbal_abuse", "exper_emotional_abuse", "exper_physical_abuse", "exper_sexual_harassment",
+  "quality_life",
+  "consider_quitting",
+  "freq_dir_meets",
+  "discuss_burnout", "discuss_depression", "discuss_suicide", "discuss_quitting",
+  "standardized_screening",
+  "wellness_trn_prov_dir",
+  "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide",
+  "agree_screen_burnout", "agree_dir_screen_res_burnout", "agree_screen_MH", "agree_dir_screen_res_MH",
+  
+"dir_concern_res_harm_MH", "dir_concern_pat_harm_MH", "dir_concern_coworker_harm_MH", "dir_concern_future", "dir_concern_MH_care", "dir_concern_FP_result",
+"freq_screening_MH",
+"screen_setting",
+"resources",
+"addtl",
+"role")
+
+colnames(f_dir_coalesced) <- colnames_f_dir
+
+full_named <- bind_rows(f_res_coalesced, f_dir_coalesced)
+```
+
+```{r likert practice, echo = FALSE}
+
+# Q13 <- f_res_coalesced[, 13:21]
+# likert_levels <- c("Never", "A few times in a year", "Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
+# 
+# clean_data13 <- Q13 %>%
+#   mutate(across(
+#     everything(),
+#     ~ factor(as.character(.x),
+#              levels = likert_levels,
+#              ordered = TRUE)
+#   )) %>%
+#   as.data.frame()
+# 
+# likert_results13 <- likert(clean_data13)
+# 
+# plot(likert_results13)
+```
+
+# Cronbach's Alpha 
+
+```{r alpha, echo = FALSE}
+exhaustion <- full_named %>% select(feel_strained, feel_fatigued, feel_drained)
+depersonalization <- full_named %>% select(feel_depersonalization, feel_carelessness, feel_callousness)
+accomplishment <- full_named %>% select(feel_confidence, feel_exhilaration, feel_pos_influence)
+
+levels_feel <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
+
+exhaustion <- exhaustion %>% mutate(across(.cols = c(feel_strained, feel_fatigued, feel_drained), .fns = ~  case_when(
+  .x == "Never" ~ 1, 
+  .x == "A few times in a year" ~ 2, 
+  .x == "Once per month or less" ~ 3, 
+  .x == "A few times in a month" ~ 4, 
+  .x == "A few times in a week" ~ 5, 
+  .x == "Once per week" ~ 6, 
+  .x == "Every day" ~ 7
+)))
+cor(exhaustion, use = "complete.obs")
+
+depersonalization <- depersonalization %>% mutate(across(.cols = c(feel_depersonalization, feel_carelessness, feel_callousness), .fns = ~  case_when(
+  .x == "Never" ~ 1, 
+  .x == "A few times in a year" ~ 2, 
+  .x == "Once per month or less" ~ 3, 
+  .x == "A few times in a month" ~ 4, 
+  .x == "A few times in a week" ~ 5, 
+  .x == "Once per week" ~ 6, 
+  .x == "Every day" ~ 7
+)))
+
+accomplishment <- accomplishment %>% mutate(across(.cols = c(feel_confidence, feel_pos_influence, feel_exhilaration), .fns = ~  case_when(
+  .x == "Never" ~ 1, 
+  .x == "A few times in a year" ~ 2, 
+  .x == "Once per month or less" ~ 3, 
+  .x == "A few times in a month" ~ 4, 
+  .x == "A few times in a week" ~ 5, 
+  .x == "Once per week" ~ 6, 
+  .x == "Every day" ~ 7
+)))
+
+print("Alpha Exhaustion Group")
+print(alpha(exhaustion %>% drop_na())$total[1])
+print("Alpha Depersonalization Group")
+print(alpha(depersonalization %>% drop_na())$total[1])
+print("Alpha Personal Accomplishment Group")
+print(alpha(accomplishment %>% drop_na())$total[1])
+print("Item-total correlations Exhaustion Group")
+print(alpha(exhaustion %>% drop_na())$item.stats)
+print("Item-total correlations Depersonalization Group")
+print(alpha(depersonalization %>% drop_na())$item.stats)
+print("Item-total correlations Personal Accomplishment Group")
+print(alpha(accomplishment %>% drop_na())$item.stats)
+```
+
 
 ```{r residents-dictionary, echo=FALSE}
 
@@ -664,9 +810,4 @@ walk(plots_dir, print)
 ```{r, echo = FALSE}
 res_dir_results
 walk(plots_comp, print)
-```
-
-# Appendix B: Code
-
-```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
