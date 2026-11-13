@@ -396,15 +396,22 @@ full_named <- bind_rows(f_res_coalesced, f_dir_coalesced)
 # plot(likert_results13)
 ```
 
-# Cronbach's Alpha 
+# Cronbach's Alpha for burnout-related questions in residents
 
 ```{r alpha, echo = FALSE}
-exhaustion <- full_named %>% select(feel_strained, feel_fatigued, feel_drained)
-depersonalization <- full_named %>% select(feel_depersonalization, feel_carelessness, feel_callousness)
-accomplishment <- full_named %>% select(feel_confidence, feel_exhilaration, feel_pos_influence)
+#exhaustion related questions + new comparisons 
+exhaustion <- f_res_coalesced %>% select(PGY_level, gender, program_type, working_hours_per_week, call_days_per_month, quality_life, consider_quitting, feel_strained, feel_fatigued, feel_drained)
 
+#depersonalization related questions + new comparisons 
+depersonalization <- f_res_coalesced %>% select(PGY_level, gender, program_type, working_hours_per_week, call_days_per_month, quality_life, consider_quitting, feel_depersonalization, feel_carelessness, feel_callousness)
+
+#personal accomplishment related questions + new comparisons 
+accomplishment <- f_res_coalesced %>% select(PGY_level, gender, program_type, working_hours_per_week, call_days_per_month, quality_life, consider_quitting, feel_confidence, feel_exhilaration, feel_pos_influence)
+
+# levels for this question
 levels_feel <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
 
+# creating likert scale values 
 exhaustion <- exhaustion %>% mutate(across(.cols = c(feel_strained, feel_fatigued, feel_drained), .fns = ~  case_when(
   .x == "Never" ~ 1, 
   .x == "A few times in a year" ~ 2, 
@@ -414,7 +421,6 @@ exhaustion <- exhaustion %>% mutate(across(.cols = c(feel_strained, feel_fatigue
   .x == "Once per week" ~ 6, 
   .x == "Every day" ~ 7
 )))
-cor(exhaustion, use = "complete.obs")
 
 depersonalization <- depersonalization %>% mutate(across(.cols = c(feel_depersonalization, feel_carelessness, feel_callousness), .fns = ~  case_when(
   .x == "Never" ~ 1, 
@@ -437,17 +443,57 @@ accomplishment <- accomplishment %>% mutate(across(.cols = c(feel_confidence, fe
 )))
 
 print("Alpha Exhaustion Group")
-print(alpha(exhaustion %>% drop_na())$total[1])
+print(alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$total)
+
 print("Alpha Depersonalization Group")
-print(alpha(depersonalization %>% drop_na())$total[1])
+print(alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$total)
+
 print("Alpha Personal Accomplishment Group")
-print(alpha(accomplishment %>% drop_na())$total[1])
+print(alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total)
+
 print("Item-total correlations Exhaustion Group")
-print(alpha(exhaustion %>% drop_na())$item.stats)
+print(alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$item.stats)
+
 print("Item-total correlations Depersonalization Group")
-print(alpha(depersonalization %>% drop_na())$item.stats)
+print(alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$item.stats)
+
 print("Item-total correlations Personal Accomplishment Group")
-print(alpha(accomplishment %>% drop_na())$item.stats)
+print(alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$item.stats)
+```
+
+# Additional Composite Score Analysis 
+
+```{r composite-score-analysis}
+
+exhaustion <- exhaustion %>% mutate(score = feel_drained + feel_strained + feel_fatigued)
+
+depersonalization <- depersonalization %>% mutate(score = feel_depersonalization + feel_carelessness + feel_callousness)
+
+#"accomplishment" proved to be insignificant based on the cronbach's alpha value 
+
+#accomplishment <- accomplishment %>% mutate(score = feel_confidence + feel_pos_influence + feel_exhilaration)
+
+ggplot(exhaustion, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(depersonalization, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
+
+kruskal.test(score ~ PGY_level, data = exhaustion)$p.value
+kruskal.test(score ~ gender, data = exhaustion)$p.value
+kruskal.test(score ~ program_type, data = exhaustion)$p.value
+kruskal.test(score ~ working_hours_per_week, data = exhaustion)$p.value
+kruskal.test(score ~ call_days_per_month, data = exhaustion)$p.value
+kruskal.test(score ~ quality_life, data = exhaustion)$p.value
+kruskal.test(score ~ consider_quitting, data = exhaustion)$p.value
+
+kruskal.test(score ~ PGY_level, data = depersonalization)$p.value
+kruskal.test(score ~ gender, data = depersonalization)$p.value
+kruskal.test(score ~ program_type, data = depersonalization)$p.value
+kruskal.test(score ~ working_hours_per_week, data = depersonalization)$p.value
+kruskal.test(score ~ call_days_per_month, data = depersonalization)$p.value
+kruskal.test(score ~ quality_life, data = depersonalization)$p.value
+kruskal.test(score ~ consider_quitting, data = depersonalization)$p.value
+
+
 ```
 
 
@@ -508,52 +554,51 @@ validation <- function(question1, question2, data){
 ## Resident Demographics
 
 ```{r eda-residents, echo = FALSE, warning = FALSE}
-f_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
+f_res_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
 
-f_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents PGY Level")
+f_res_coalesced %>% ggplot(aes(x = PGY_level,fill = PGY_level)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents PGY Level")
 
-f_res_coalesced %>% ggplot(aes(x = Q3,fill = Q3)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
+f_res_coalesced %>% ggplot(aes(x = gender,fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
 
-f_res_coalesced$Q4[f_res_coalesced$Q4 == "30 :("] <- 30
-f_res_coalesced$Q4 <- as.numeric(f_res_coalesced$Q4)
-f_res_coalesced %>% ggplot(aes(x = Q4)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
+f_res_coalesced$age[f_res_coalesced$age == "30 :("] <- 30
+f_res_coalesced$age <- as.numeric(f_res_coalesced$age)
+f_res_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
 
-f_res_coalesced %>% ggplot(aes(x = Q5,fill = Q5)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
+f_res_coalesced %>% ggplot(aes(x = marital_status,fill = marital_status)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
 
 
 f_res_coalesced <- f_res_coalesced %>%
-  mutate(Q8 = str_trim(str_extract(Q8, "^[^(]+")))
+  mutate(region = str_trim(str_extract(region, "^[^(]+")))
 
-f_res_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
+f_res_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
 
-f_res_coalesced %>% ggplot(aes(x = Q9,fill = Q9)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
+f_res_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
 
 ```
 
 ## Directors Demographics
 
 ```{r eda-directors, echo = FALSE, warning = FALSE}
-f_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors")
+f_dir_coalesced %>% ggplot(aes(x = director,fill = director)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
 
-f_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Program")
+f_dir_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Program")
 
-f_dir_coalesced$Q3[f_dir_coalesced$Q3 == "13 years"] <- "13"
-f_dir_coalesced$Q3 <- as.numeric(f_dir_coalesced$Q3)
-f_dir_coalesced %>% ggplot(aes(x = Q3)) + geom_histogram(bins = 10) + ggtitle("Directors Years of Service")
+f_dir_coalesced$yrs[f_dir_coalesced$yrs == "13 years"] <- "13"
+f_dir_coalesced$yrs <- as.numeric(f_dir_coalesced$yrs)
+f_dir_coalesced %>% ggplot(aes(x = yrs)) + geom_histogram(bins = 10) + ggtitle("Directors Years of Service")
 
-f_dir_coalesced %>% ggplot(aes(x = Q4, fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors Gender") 
+f_dir_coalesced %>% ggplot(aes(x = gender, fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors Gender") 
 
-
-f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "61 years"] <- "61"
-f_dir_coalesced$Q5[f_dir_coalesced$Q5 == "50's"] <- "55"
-f_dir_coalesced$Q5 <- as.numeric(f_dir_coalesced$Q5)
-f_dir_coalesced %>% ggplot(aes(x = Q5)) + geom_histogram(bins = 10) +  ggtitle("Directors Age")
+f_dir_coalesced$age[f_dir_coalesced$age == "61 years"] <- "61"
+f_dir_coalesced$age[f_dir_coalesced$age == "50's"] <- "55"
+f_dir_coalesced$age <- as.numeric(f_dir_coalesced$age)
+f_dir_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10) +  ggtitle("Directors Age")
 
 f_dir_coalesced <- f_dir_coalesced %>%
-  mutate(Q7 = str_trim(str_extract(Q7, "^[^(]+")))
-f_dir_coalesced %>% ggplot(aes(x = Q7,fill = Q7)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
+  mutate(region = str_trim(str_extract(region, "^[^(]+")))
+f_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 
-f_dir_coalesced %>% ggplot(aes(x = Q8,fill = Q8)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
+f_dir_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
 ```
 
 # Results Tables
