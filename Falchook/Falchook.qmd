@@ -372,10 +372,122 @@ colnames_f_dir <- c(
 "addtl",
 "role")
 
+colnames(f_res_coalesced) <- colnames_f_res
+
+f_res_coalesced <- f_res_coalesced %>%
+  mutate(region = sub("\\s*\\(.*", "", region))
+
 colnames(f_dir_coalesced) <- colnames_f_dir
+
+f_dir_coalesced <- f_dir_coalesced %>%
+  mutate(region = sub("\\s*\\(.*", "", region))
 
 full_named <- bind_rows(f_res_coalesced, f_dir_coalesced)
 ```
+
+# Table 1 --- Residents
+
+```{r, echo = FALSE, message = FALSE}
+library(table1)
+
+form_res1 <- reformulate(colnames(f_res_coalesced)[c(1:3, 5:6, 8)])
+tab1_res1 <- table1(form_res1 , data = f_res_coalesced[c(1:3, 5:6, 8)])
+table1::t1kable(tab1_res1)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res2 <- reformulate(colnames(f_res_coalesced)[c(10:13)])
+tab1_res2 <- table1(form_res2 , data = f_res_coalesced[c(10:13)])
+table1::t1kable(tab1_res2)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res3 <- reformulate(colnames(f_res_coalesced)[c(14:18)])
+tab1_res3 <- table1(form_res3 , data = f_res_coalesced[c(14:18)])
+table1::t1kable(tab1_res3)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res4 <- reformulate(colnames(f_res_coalesced)[c(19:23)])
+tab1_res4 <- table1(form_res4 , data = f_res_coalesced[c(19:23)])
+table1::t1kable(tab1_res4)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res5 <- reformulate(colnames(f_res_coalesced)[c(24:29)])
+tab1_res5 <- table1(form_res5 , data = f_res_coalesced[c(24:29)])
+table1::t1kable(tab1_res5)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res6 <- reformulate(colnames(f_res_coalesced)[c(30:36)])
+tab1_res6 <- table1(form_res6 , data = f_res_coalesced[c(30:36)])
+table1::t1kable(tab1_res6)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res7 <- reformulate(colnames(f_res_coalesced)[c(37:44)])
+tab1_res7 <- table1(form_res7 , data = f_res_coalesced[c(37:44)])
+table1::t1kable(tab1_res7)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res8 <- reformulate(colnames(f_res_coalesced)[c(45:50)])
+tab1_res8 <- table1(form_res8 , data = f_res_coalesced[c(45:50)])
+table1::t1kable(tab1_res8)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_res9 <- reformulate(colnames(f_res_coalesced)[c(51:55)])
+tab1_res9 <- table1(form_res9 , data = f_res_coalesced[c(51:55)])
+table1::t1kable(tab1_res9)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+```
+
+# Table 1 --- Directors
+
+```{r}
+
+form_dir1 <- reformulate(colnames(f_dir_coalesced)[c(1:2, 4,7, 9)])
+tab1_dir1 <- table1(form_dir1 , data = f_dir_coalesced[c(1:2, 4:7, 9)])
+table1::t1kable(tab1_dir1)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir2 <- reformulate(colnames(f_dir_coalesced)[c(10:13)])
+tab1_dir2 <- table1(form_dir2 , data = f_dir_coalesced[c(10:13)])
+table1::t1kable(tab1_dir2)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir3 <- reformulate(colnames(f_dir_coalesced)[c(14:18)])
+tab1_dir3 <- table1(form_dir3 , data = f_dir_coalesced[c(14:18)])
+table1::t1kable(tab1_dir3)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir4 <- reformulate(colnames(f_dir_coalesced)[c(19:23)])
+tab1_dir4 <- table1(form_dir4 , data = f_dir_coalesced[c(19:23)])
+table1::t1kable(tab1_dir4)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir5 <- reformulate(colnames(f_dir_coalesced)[c(24:29)])
+tab1_dir5 <- table1(form_dir5 , data = f_dir_coalesced[c(24:29)])
+table1::t1kable(tab1_dir5)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir6 <- reformulate(colnames(f_dir_coalesced)[c(30:36)])
+tab1_dir6 <- table1(form_dir6, data = f_dir_coalesced[c(30:36)])
+table1::t1kable(tab1_dir6)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir7 <- reformulate(colnames(f_dir_coalesced)[c(37:44)])
+tab1_dir7 <- table1(form_dir7, data = f_dir_coalesced[c(37:44)])
+table1::t1kable(tab1_dir7)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir8 <- reformulate(colnames(f_dir_coalesced)[c(45:50)])
+tab1_dir8 <- table1(form_dir8 , data = f_dir_coalesced[c(45:50)])
+table1::t1kable(tab1_dir8)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+form_dir9 <- reformulate(colnames(f_dir_coalesced)[c(51:55)])
+tab1_dir9 <- table1(form_dir9 , data = f_dir_coalesced[c(51:55)])
+table1::t1kable(tab1_dir9)  %>% 
+  kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
+
+```
+
 
 ```{r likert practice, echo = FALSE}
 
@@ -443,25 +555,25 @@ accomplishment <- accomplishment %>% mutate(across(.cols = c(feel_confidence, fe
 )))
 
 print("Alpha Exhaustion Group")
-print(alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$total)
+print(psych::alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$total)
 
 print("Alpha Depersonalization Group")
-print(alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$total)
+print(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$total)
 
 print("Alpha Personal Accomplishment Group")
-print(alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total)
+print(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total)
 
 print("Item-total correlations Exhaustion Group")
-print(alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$item.stats)
+print(psych::alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$item.stats)
 
 print("Item-total correlations Depersonalization Group")
-print(alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$item.stats)
+print(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$item.stats)
 
 print("Item-total correlations Personal Accomplishment Group")
-print(alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$item.stats)
+print(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$item.stats)
 ```
 
-# Additional Composite Score Analysis 
+# Additional Composite Score Analysis
 
 ```{r composite-score-analysis}
 
@@ -496,11 +608,10 @@ kruskal.test(score ~ consider_quitting, data = depersonalization)$p.value
 
 ```
 
-
 ```{r residents-dictionary, echo=FALSE}
 
-question1s <- c("Q11", rep("Q13a", 6), rep("Q13b", 6), rep("Q13c", 6), rep("Q13d", 6), rep("Q13e", 6), rep("Q13f", 6), rep("Q13g", 6), rep("Q13h", 6), rep("Q13i", 6), rep("Q14a", 2), rep("Q14b", 2), rep("Q14c", 2), rep("Q14d", 2), "Q15a", "Q15b", "Q15c", rep("Q16a", 2), rep("Q16b", 2), rep("Q16c", 2), rep("Q16d", 2), rep("Q17", 3), rep("Q18", 4))
-question2s <- c("Q1", rep(c("Q10", "Q11", "Q12", "Q1", "Q5", "Q2"), 9), rep(c("Q5", "Q3"), 4), rep("Q3", 3), rep(c("Q3", "Q1"), 4),"Q10", "Q11", "Q1", "Q10", "Q11", "Q1", "Q2")
+question1s <- c("working_hours_per_week", rep("feel_drained", 6), rep("feel_fatigued", 6), rep("feel_strained", 6), rep("feel_depersonalization", 6), rep("feel_callousness", 6), rep("feel_carelessness", 6), rep("feel_pos_influence", 6), rep("feel_exhilaration", 6), rep("feel_confidence", 6), rep("neg_impact_relationship", 2), rep("neg_impact_health", 2), rep("neg_impact_control", 2), rep("neg_impact_balance", 2), "discrim_gender", "discrim_race", "discrim_ethnicity", rep("exper_verbal_abuse", 2), rep("exper_emotional_abuse", 2), rep("exper_physical_abuse", 2), rep("exper_sexual_harassment", 2), rep("quality_life", 3), rep("consider_quitting", 4))
+question2s <- c("program_type", rep(c("call_days_per_month", "working_hours_per_week", "rec_time_per_week", "program_type", "marital_status", "gender"), 9), rep(c("marital_status", "gender"), 4), rep("gender", 3), rep(c("gender", "gender"), 4),"call_days_per_month", "working_hours_per_week", "program_type", "call_days_per_month", "working_hours_per_week", "program_type", "PGY_level")
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
@@ -515,15 +626,26 @@ validation <- function(question1, question2, data){
     ) %>%
     drop_na()
   
-  comparison_res <- df %>%
-    group_by(response1, response2) %>%
-    summarize(counts = n(), .groups = "drop") %>%
-    group_by(response2) %>%
-    mutate(percent = counts / sum(counts) * 100) %>%
-    ungroup()
+  
+  # comparison_res <- df %>%
+  #   group_by(response1, response2) %>%
+  #   summarize(counts = n(), .groups = "drop") %>%
+  #   group_by(response2) %>%
+  #   mutate(percent = counts / sum(counts) * 100) %>%
+  #   ungroup()
 
   table_comparison <- table(df$response2, df$response1)
-#table_hours
+  
+   if (nrow(table_comparison) < 2 | ncol(table_comparison) < 2) {
+    return(tibble(
+      Question1 = question1,
+      Question2 = question2,
+      P_value = NA_real_,
+      Significant = NA,
+      test = "insufficient categories"
+    ))
+  }
+
   test <- suppressWarnings(chisq.test(table_comparison))
   
   if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
@@ -635,8 +757,9 @@ res_results
 ```
 
 ```{r directors-dictionary, echo=FALSE}
-question1s_dir <- c("Q10", "Q12a", "Q12b", "Q12c", "Q12d", "Q12e", "Q12f", "Q12g", "Q12h", "Q12i", "Q21", "Q22a", "Q22b", "Q22c")
-question2s_dir <- c(rep("Q2",14))
+question1s_dir <- c("working_hours_per_week", "feel_drained", "feel_fatigued", "feel_strained", "feel_depersonalization", "feel_callousness", "feel_carelessness", "feel_pos_influence", "feel_exhilaration", "feel_confidence", "wellness_trn_prov_dir", "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide")
+
+question2s_dir <- c(rep("program_type",14))
 
 question_dic_dir <- data.frame(question1s_dir, question2s_dir)
 ```
@@ -668,26 +791,26 @@ dir_results <- dir_results %>%
     Question2 = question_dic_dir$question2s
   ) %>% arrange(Adj_P)
 dir_results
+
 ```
 
 ```{r full-dictionary,echo=FALSE}
-common_qs_res <- c("Q1", "Q3", "Q8", "Q9", "Q10", "Q11", "Q12", "Q13a", "Q13b","Q13c","Q13d", "Q13e", "Q13f", "Q13g", "Q13h", "Q13i","Q14a" ,"Q14b", "Q14c" ,"Q14d", "Q15a" ,"Q15b" ,"Q15c",
-"Q16a", "Q16b", "Q16c", "Q16d", "Q17",  "Q18",  "Q19",  "Q20a", "Q20b", "Q20c", "Q20d", "Q21", "Q22a", "Q22b","Q22c", "Q23a", "Q23b", "Q23c", "Q23d", "Q24a", "Q24b", "Q24c", "Q24d", "Q24e", "Q24f", "Q25",  "Q26",  "Q27", "role")
-common_qs_dir <- c("Q2", "Q4", "Q7", "Q8", "Q9", "Q10", "Q11", "Q12a", "Q12b","Q12c","Q12d", "Q12e", "Q12f", "Q12g", "Q12h", "Q12i","Q13a" ,"Q13b", "Q13c" ,"Q13d", "Q14a" ,"Q14b" ,"Q14c",
-"Q15a", "Q15b", "Q15c", "Q15d", "Q16",  "Q17",  "Q18",  "Q19a", "Q19b", "Q19c", "Q19d", "Q20", "Q22a", "Q22b","Q22c", "Q23a", "Q23b", "Q23c", "Q23d", "Q24a", "Q24b", "Q24c", "Q24d", "Q24e", "Q24f", "Q25",  "Q26",  "Q27", "role")
+excluded <- c("PGY_level", "marital_status", "children", "resources", "addtl", "role", "director", "yrs", "wellness_trn_prov_dir")
+common_qs <- setdiff(colnames(full_named), excluded)
+role <- rep("role", length(common_qs))
 
-full_dic <- data.frame(common_qs_res, common_qs_dir)
+full_dic <- data.frame(common_qs, role)
 
-res_common <- f_res_coalesced %>%
-  select(all_of(common_qs_res))
-
-dir_common <- f_dir_coalesced %>%
-  select(all_of(common_qs_dir)) %>%
-  setNames(common_qs_res)
-res_dir <- bind_rows(
-  res_common,
-  dir_common
-)
+# res_common <- full_named %>%
+#   select(all_of(common_qs_res))
+# 
+# dir_common <- f_dir_coalesced %>%
+#   select(all_of(common_qs_dir)) %>%
+#   setNames(common_qs_res)
+# res_dir <- bind_rows(
+#   res_common,
+#   dir_common
+# )
 ```
 
 ## Cross-Comparison Results Table
@@ -701,12 +824,11 @@ res_dir_results <- data.frame(
   test = character()
 )
 
-for (i in seq_len(ncol(res_dir)-1)) {
-
+for (i in seq_len(nrow(full_dic))){
   res_dir_results[i, ] <- validation(
-    question1 = colnames(res_dir)[i],
-    question2 = colnames(res_dir)[52],
-    data = res_dir
+    question1 = full_dic$common_qs[i],
+    question2 = full_dic$role[i],
+    data = full_named
   )
 }
 
@@ -714,9 +836,10 @@ res_dir_results <- res_dir_results %>%
   mutate(
     Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
     Sig_Adj = Adj_P <= 0.05,
-    Question1 = colnames(res_dir)[1:51], 
-    Question2 = "role"
+    Question1 = full_dic$common_qs, 
+    Question2 = full_dic$role
   ) %>% arrange(Adj_P)
+
 res_dir_results
 ```
 
@@ -748,38 +871,32 @@ stack_bar <- function(q_reference, q_group, data){
 ```
 
 ```{r plots, echo=FALSE, fig.width=8, fig.height=5}
-plots_res <- pmap(question_dic_res, 
-              function(question1s, question2s){
-                stack_bar(
-                  q_reference = question1s, 
-                  q_group = question2s,
-                  data = f_res_coalesced
-                )
-              })
-
-plots_dir <- pmap(question_dic_dir, 
-                  function(question1s_dir, question2s_dir){
-                    stack_bar(
-                      q_reference = question1s_dir, 
-                      q_group = question2s_dir,
-                      data = f_dir_coalesced
-                    )
-                  })
-
-
-question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
-                                   , question2s_res_dir = rep("role", ncol(res_dir)))
-question_dic_res_dir <- question_dic_res_dir %>%
-  filter(question1s_res_dir != "role") 
-plots_comp <- pmap(question_dic_res_dir, 
-                  function(question1s_res_dir, question2s_res_dir){
-                    stack_bar(
-                      q_reference = question1s_res_dir, 
-                      q_group = question2s_res_dir,
-                      data = res_dir
-                    )
-                  })
-
+# plots_res <- pmap(question_dic_res, 
+#               function(question1s, question2s){
+#                 stack_bar(
+#                   q_reference = question1s, 
+#                   q_group = question2s,
+#                   data = f_res_coalesced
+#                 )
+#               })
+# 
+# plots_dir <- pmap(question_dic_dir, 
+#                   function(question1s_dir, question2s_dir){
+#                     stack_bar(
+#                       q_reference = question1s_dir, 
+#                       q_group = question2s_dir,
+#                       data = f_dir_coalesced
+#                     )
+#                   })
+# 
+# plots_comp <- pmap(full_dic, 
+#                   function(common_qs, role){
+#                     stack_bar(
+#                       q_reference = common_qs, 
+#                       q_group = role,
+#                       data = full_named
+#                     )
+#                   })
 ```
 
 # Significant Findings
@@ -799,8 +916,8 @@ The following relationships were found to be significant:
 - Q17/Q10: On call days/month and quality of life
 
 ```{r, echo = FALSE}
-plots_res_sig <- plots_res[c(25, 49, 79, 73, 75)]
-walk(plots_res_sig, print)
+# plots_res_sig <- plots_res[c(25, 49, 79, 73, 75)]
+# walk(plots_res_sig, print)
 ```
 
 ## Directors Significance
@@ -832,27 +949,27 @@ Many questions were found to be significant between residents and directors, and
 - Q26: Setting for screening (Anonymously vs Confidentially)
 
 ```{r}
-plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
-walk(plots_comp_sig, print)
+# plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
+# walk(plots_comp_sig, print)
 ```
 
 # Appendix A i) Residents Plots + Table:
 
 ```{r, echo = FALSE}
-res_results
-walk(plots_res, print)
+# res_results
+# walk(plots_res, print)
 ```
 
 # Appendix A ii) Directors Plots + Table:
 
 ```{r, echo = FALSE}
-dir_results
-walk(plots_dir, print)
+# dir_results
+# walk(plots_dir, print)
 ```
 
 # Appendix A iii) Cross Comparison Plots + Table:
 
 ```{r, echo = FALSE}
-res_dir_results
-walk(plots_comp, print)
+# res_dir_results
+# walk(plots_comp, print)
 ```
