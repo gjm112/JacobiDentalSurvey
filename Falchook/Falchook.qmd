@@ -144,31 +144,80 @@ f_res_coalesced <- f_res_coalesced %>%
   Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
   ))
 
+#######################
+### Common Factor Levels
+
+
+cats12 <- c("Never","A few times in a year","Once per month or less","A few times in a month","Once per week","A few times in a week", "Every day")
+cats13 <- c("Never","Rarely","Sometimes","Often","Always")
+cats16 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
+cats17 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
+cats18 <- c("Never", "Once a year", "A couple of times a year", "Once a month", "A couple of times a month", "Once a week")
+cats22 <- c("Very Unsatisfied", "Somewhat Unsatisfied","Neither Unsatisfied nor Satisfied", "Somewhat Satisfied", "Very Satisfied")
+cats23 <- c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Somewhat Agree","Strongly Agree")
+cats24 <- c("Not Concerned at all","Somewhat Not Concerned","Neither Concerned or Not Concerned", "Somewhat Concerned", "Very Concerned")
+cats25 <- c("3 months","6 months","12 months")
+
+#######################
+
 f_res_coalesced$Q10 <- factor(f_res_coalesced$Q10, levels = c("0 days","1-7 days","8-15 days","16-23 days","24-31 days"))
 
-cats13 <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
-f_res_coalesced$Q13a <- factor(f_res_coalesced$Q13a, levels = cats13)
-f_res_coalesced$Q13b <- factor(f_res_coalesced$Q13b, levels = cats13)
-f_res_coalesced$Q13c <- factor(f_res_coalesced$Q13c, levels = cats13)
-f_res_coalesced$Q13d <- factor(f_res_coalesced$Q13d, levels = cats13)
-f_res_coalesced$Q13e <- factor(f_res_coalesced$Q13e, levels = cats13)
-f_res_coalesced$Q13f <- factor(f_res_coalesced$Q13f, levels = cats13)
-f_res_coalesced$Q13g <- factor(f_res_coalesced$Q13g, levels = cats13)
-f_res_coalesced$Q13h <- factor(f_res_coalesced$Q13h, levels = cats13)
-f_res_coalesced$Q13i <- factor(f_res_coalesced$Q13i, levels = cats13)
+f_res_coalesced$Q11 <- factor(f_res_coalesced$Q11, levels = c("Less than 40 hours", "41-50 hours", "51-60 hours", "61-70 hours", "71-80 hours", "More than 81 hours"))
 
-cats16 <- c("Never","Rarely","Sometimes","Often")
-f_res_coalesced$Q16a <- factor(f_res_coalesced$Q16a, levels = cats16)
-f_res_coalesced$Q16b <- factor(f_res_coalesced$Q16b, levels = cats16)
-f_res_coalesced$Q16c <- factor(f_res_coalesced$Q16c, levels = cats16)
-f_res_coalesced$Q16d <- factor(f_res_coalesced$Q16d, levels = cats16)
+f_res_coalesced$Q12 <- factor(f_res_coalesced$Q12, levels = c("1 hour or less", "2 to 3 hours", "4 to 6 hours", "7 hours or more"))
 
-cats17 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
-f_res_coalesced$Q17 <- factor(f_res_coalesced$Q17, levels = cats17)
+f_res_coalesced$Q13a <- factor(f_res_coalesced$Q13a, levels = cats12)
+f_res_coalesced$Q13b <- factor(f_res_coalesced$Q13b, levels = cats12)
+f_res_coalesced$Q13c <- factor(f_res_coalesced$Q13c, levels = cats12)
+f_res_coalesced$Q13d <- factor(f_res_coalesced$Q13d, levels = cats12)
+f_res_coalesced$Q13e <- factor(f_res_coalesced$Q13e, levels = cats12)
+f_res_coalesced$Q13f <- factor(f_res_coalesced$Q13f, levels = cats12)
+f_res_coalesced$Q13g <- factor(f_res_coalesced$Q13g, levels = cats12)
+f_res_coalesced$Q13h <- factor(f_res_coalesced$Q13h, levels = cats12)
+f_res_coalesced$Q13i <- factor(f_res_coalesced$Q13i, levels = cats12)
 
-cats18 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
-f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
+f_res_coalesced$Q14a <- factor(f_res_coalesced$Q14a, levels = cats13)
+f_res_coalesced$Q14b <- factor(f_res_coalesced$Q14b, levels = cats13)
+f_res_coalesced$Q14c <- factor(f_res_coalesced$Q14c, levels = cats13)
+f_res_coalesced$Q14d <- factor(f_res_coalesced$Q14d, levels = cats13)
 
+f_res_coalesced$Q15a <- factor(f_res_coalesced$Q15a, levels = cats13)
+f_res_coalesced$Q15b <- factor(f_res_coalesced$Q15b, levels = cats13)
+f_res_coalesced$Q15c <- factor(f_res_coalesced$Q15c, levels = cats13)
+
+f_res_coalesced$Q16a <- factor(f_res_coalesced$Q16a, levels = cats13)
+f_res_coalesced$Q16b <- factor(f_res_coalesced$Q16b, levels = cats13)
+f_res_coalesced$Q16c <- factor(f_res_coalesced$Q16c, levels = cats13)
+f_res_coalesced$Q16d <- factor(f_res_coalesced$Q16d, levels = cats13)
+
+f_res_coalesced$Q17 <- factor(f_res_coalesced$Q17, levels = cats16)
+
+f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats17)
+
+f_res_coalesced$Q19 <- factor(f_res_coalesced$Q19, levels = cats18)
+
+f_res_coalesced$Q20a <- factor(f_res_coalesced$Q20a, levels = cats13)
+f_res_coalesced$Q20b <- factor(f_res_coalesced$Q20b, levels = cats13)
+f_res_coalesced$Q20c <- factor(f_res_coalesced$Q20c, levels = cats13)
+f_res_coalesced$Q20d <- factor(f_res_coalesced$Q20d, levels = cats13)
+
+f_res_coalesced$Q22a <- factor(f_res_coalesced$Q22a, levels = cats22)
+f_res_coalesced$Q22b <- factor(f_res_coalesced$Q22b, levels = cats22)
+f_res_coalesced$Q22c <- factor(f_res_coalesced$Q22c, levels = cats22)
+
+f_res_coalesced$Q23a <- factor(f_res_coalesced$Q23a, levels = cats23)
+f_res_coalesced$Q23b <- factor(f_res_coalesced$Q23b, levels = cats23)
+f_res_coalesced$Q23c <- factor(f_res_coalesced$Q23c, levels = cats23)
+f_res_coalesced$Q23d <- factor(f_res_coalesced$Q23d, levels = cats23)
+
+f_res_coalesced$Q24a <- factor(f_res_coalesced$Q24a, levels = cats24)
+f_res_coalesced$Q24b <- factor(f_res_coalesced$Q24b, levels = cats24)
+f_res_coalesced$Q24c <- factor(f_res_coalesced$Q24c, levels = cats24)
+f_res_coalesced$Q24d <- factor(f_res_coalesced$Q24d, levels = cats24)
+f_res_coalesced$Q24e <- factor(f_res_coalesced$Q24e, levels = cats24)
+f_res_coalesced$Q24f <- factor(f_res_coalesced$Q24f, levels = cats24)
+
+f_res_coalesced$Q25 <- factor(f_res_coalesced$Q25, levels = cats25)
 
 #################################
 #Directors
@@ -271,17 +320,21 @@ f_dir_coalesced <- f_dir_coalesced_partial %>%
   mutate(Q8 = pmap_chr(select(., 8:11), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
   mutate(Q27 = pmap_chr(select(., 59:69), ~ paste(na.omit(c(...)), collapse = "; "))) %>%
   select(1:7, 71, 12:58, 72, 70)
+
 f_dir_coalesced$role <- "Director"
+
 f_dir_coalesced <- f_dir_coalesced %>%
   mutate(Q26 = case_when(
   Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
   Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
   ))
 
-
 f_dir_coalesced$Q9 <- factor(f_dir_coalesced$Q9, levels = c("0 days","1-7 days","8-15 days","16-23 days","24-31 days"))
 
-cats12 <- c("Never","A few times in a year","Once per month or less","A few times in a month","A few times in a week","Once per week","Every day")
+f_dir_coalesced$Q10 <- factor(f_dir_coalesced$Q10, levels = c("Less than 40 hours", "41-50 hours", "51-60 hours", "61-70 hours", "71-80 hours", "More than 81 hours"))
+
+f_dir_coalesced$Q11 <- factor(f_dir_coalesced$Q11, levels = c("1 hour or less", "2 to 3 hours", "4 to 6 hours", "7 hours or more"))
+
 f_dir_coalesced$Q12a <- factor(f_dir_coalesced$Q12a, levels = cats12)
 f_dir_coalesced$Q12b <- factor(f_dir_coalesced$Q12b, levels = cats12)
 f_dir_coalesced$Q12c <- factor(f_dir_coalesced$Q12c, levels = cats12)
@@ -292,18 +345,48 @@ f_dir_coalesced$Q12g <- factor(f_dir_coalesced$Q12g, levels = cats12)
 f_dir_coalesced$Q12h <- factor(f_dir_coalesced$Q12h, levels = cats12)
 f_dir_coalesced$Q12i <- factor(f_dir_coalesced$Q12i, levels = cats12)
 
-cats13 <- c("Never","Rarely","Sometimes","Often","I don't know")
 f_dir_coalesced$Q13a <- factor(f_dir_coalesced$Q13a, levels = cats13)
 f_dir_coalesced$Q13b <- factor(f_dir_coalesced$Q13b, levels = cats13)
 f_dir_coalesced$Q13c <- factor(f_dir_coalesced$Q13c, levels = cats13)
 f_dir_coalesced$Q13d <- factor(f_dir_coalesced$Q13d, levels = cats13)
 
-cats16 <- c("As bad as it can be","Pretty bad","Neutral","Pretty good","As good as it can be")
+f_dir_coalesced$Q14a <- factor(f_dir_coalesced$Q14a, levels = cats13)
+f_dir_coalesced$Q14b <- factor(f_dir_coalesced$Q14b, levels = cats13)
+f_dir_coalesced$Q14c <- factor(f_dir_coalesced$Q14c, levels = cats13)
+
+f_dir_coalesced$Q15a <- factor(f_dir_coalesced$Q15a, levels = cats13)
+f_dir_coalesced$Q15b <- factor(f_dir_coalesced$Q15b, levels = cats13)
+f_dir_coalesced$Q15c <- factor(f_dir_coalesced$Q15c, levels = cats13)
+f_dir_coalesced$Q15d <- factor(f_dir_coalesced$Q15d, levels = cats13)
+
 f_dir_coalesced$Q16 <- factor(f_dir_coalesced$Q16, levels = cats16)
-
-
-cats18 <- c("Never","A few times in the year","Once a month","Once a week","Daily")
+f_dir_coalesced$Q17 <- factor(f_dir_coalesced$Q17, levels = cats17)
 f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
+
+f_dir_coalesced$Q19a <- factor(f_dir_coalesced$Q19a, levels = cats13)
+f_dir_coalesced$Q19b <- factor(f_dir_coalesced$Q19b, levels = cats13)
+f_dir_coalesced$Q19c <- factor(f_dir_coalesced$Q19c, levels = cats13)
+f_dir_coalesced$Q19d <- factor(f_dir_coalesced$Q19d, levels = cats13)
+
+f_dir_coalesced$Q21 <- factor(f_dir_coalesced$Q21, levels = c("No", "Yes"))
+
+f_dir_coalesced$Q22a <- factor(f_dir_coalesced$Q22a, levels = cats22)
+f_dir_coalesced$Q22b <- factor(f_dir_coalesced$Q22b, levels = cats22)
+f_dir_coalesced$Q22c <- factor(f_dir_coalesced$Q22c, levels = cats22)
+
+f_dir_coalesced$Q23a <- factor(f_dir_coalesced$Q23a, levels = cats23)
+f_dir_coalesced$Q23b <- factor(f_dir_coalesced$Q23b, levels = cats23)
+f_dir_coalesced$Q23c <- factor(f_dir_coalesced$Q23c, levels = cats23)
+f_dir_coalesced$Q23d <- factor(f_dir_coalesced$Q23d, levels = cats23)
+
+f_dir_coalesced$Q24a <- factor(f_dir_coalesced$Q24a, levels = cats24)
+f_dir_coalesced$Q24b <- factor(f_dir_coalesced$Q24b, levels = cats24)
+f_dir_coalesced$Q24c <- factor(f_dir_coalesced$Q24c, levels = cats24)
+f_dir_coalesced$Q24d <- factor(f_dir_coalesced$Q24d, levels = cats24)
+f_dir_coalesced$Q24e <- factor(f_dir_coalesced$Q24e, levels = cats24)
+f_dir_coalesced$Q24f <- factor(f_dir_coalesced$Q24f, levels = cats24)
+
+f_dir_coalesced$Q25 <- factor(f_dir_coalesced$Q25, levels = cats25)
 
 ```
 
@@ -364,8 +447,7 @@ colnames_f_dir <- c(
   "wellness_trn_prov_dir",
   "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide",
   "agree_screen_burnout", "agree_dir_screen_res_burnout", "agree_screen_MH", "agree_dir_screen_res_MH",
-  
-"dir_concern_res_harm_MH", "dir_concern_pat_harm_MH", "dir_concern_coworker_harm_MH", "dir_concern_future", "dir_concern_MH_care", "dir_concern_FP_result",
+  "dir_concern_res_harm_MH", "dir_concern_pat_harm_MH", "dir_concern_coworker_harm_MH", "dir_concern_future", "dir_concern_MH_care", "dir_concern_FP_result",
 "freq_screening_MH",
 "screen_setting",
 "resources",
@@ -381,6 +463,8 @@ colnames(f_dir_coalesced) <- colnames_f_dir
 
 f_dir_coalesced <- f_dir_coalesced %>%
   mutate(region = sub("\\s*\\(.*", "", region))
+
+#### Combining data 
 
 full_named <- bind_rows(f_res_coalesced, f_dir_coalesced)
 ```
@@ -415,75 +499,74 @@ tab1_res5 <- table1(form_res5 , data = f_res_coalesced[c(24:29)])
 table1::t1kable(tab1_res5)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_res6 <- reformulate(colnames(f_res_coalesced)[c(30:36)])
-tab1_res6 <- table1(form_res6 , data = f_res_coalesced[c(30:36)])
+form_res6 <- reformulate(colnames(f_res_coalesced)[c(30:35)])
+tab1_res6 <- table1(form_res6 , data = f_res_coalesced[c(30:35)])
 table1::t1kable(tab1_res6)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_res7 <- reformulate(colnames(f_res_coalesced)[c(37:44)])
-tab1_res7 <- table1(form_res7 , data = f_res_coalesced[c(37:44)])
+form_res7 <- reformulate(colnames(f_res_coalesced)[c(36:42)])
+tab1_res7 <- table1(form_res7 , data = f_res_coalesced[c(36:42)])
 table1::t1kable(tab1_res7)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_res8 <- reformulate(colnames(f_res_coalesced)[c(45:50)])
-tab1_res8 <- table1(form_res8 , data = f_res_coalesced[c(45:50)])
+form_res8 <- reformulate(colnames(f_res_coalesced)[c(43:48)])
+tab1_res8 <- table1(form_res8 , data = f_res_coalesced[c(43:48)])
 table1::t1kable(tab1_res8)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_res9 <- reformulate(colnames(f_res_coalesced)[c(51:55)])
-tab1_res9 <- table1(form_res9 , data = f_res_coalesced[c(51:55)])
+form_res9 <- reformulate(colnames(f_res_coalesced)[49:55])
+tab1_res9 <- table1(form_res9 , data = f_res_coalesced[,49:55])
 table1::t1kable(tab1_res9)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
-
 ```
 
 # Table 1 --- Directors
 
-```{r}
+```{r, echo = FALSE}
 
 form_dir1 <- reformulate(colnames(f_dir_coalesced)[c(1:2, 4,7, 9)])
 tab1_dir1 <- table1(form_dir1 , data = f_dir_coalesced[c(1:2, 4:7, 9)])
-table1::t1kable(tab1_dir1)  %>% 
+table1::t1kable(tab1_dir1)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir2 <- reformulate(colnames(f_dir_coalesced)[c(10:13)])
 tab1_dir2 <- table1(form_dir2 , data = f_dir_coalesced[c(10:13)])
-table1::t1kable(tab1_dir2)  %>% 
+table1::t1kable(tab1_dir2)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir3 <- reformulate(colnames(f_dir_coalesced)[c(14:18)])
 tab1_dir3 <- table1(form_dir3 , data = f_dir_coalesced[c(14:18)])
-table1::t1kable(tab1_dir3)  %>% 
+table1::t1kable(tab1_dir3)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir4 <- reformulate(colnames(f_dir_coalesced)[c(19:23)])
 tab1_dir4 <- table1(form_dir4 , data = f_dir_coalesced[c(19:23)])
-table1::t1kable(tab1_dir4)  %>% 
+table1::t1kable(tab1_dir4)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir5 <- reformulate(colnames(f_dir_coalesced)[c(24:29)])
 tab1_dir5 <- table1(form_dir5 , data = f_dir_coalesced[c(24:29)])
-table1::t1kable(tab1_dir5)  %>% 
+table1::t1kable(tab1_dir5)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir6 <- reformulate(colnames(f_dir_coalesced)[c(30:36)])
 tab1_dir6 <- table1(form_dir6, data = f_dir_coalesced[c(30:36)])
-table1::t1kable(tab1_dir6)  %>% 
+table1::t1kable(tab1_dir6)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_dir7 <- reformulate(colnames(f_dir_coalesced)[c(37:44)])
-tab1_dir7 <- table1(form_dir7, data = f_dir_coalesced[c(37:44)])
-table1::t1kable(tab1_dir7)  %>% 
+form_dir7 <- reformulate(colnames(f_dir_coalesced)[c(37:43)])
+tab1_dir7 <- table1(form_dir7, data = f_dir_coalesced[c(37:43)])
+table1::t1kable(tab1_dir7)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_dir8 <- reformulate(colnames(f_dir_coalesced)[c(45:50)])
-tab1_dir8 <- table1(form_dir8 , data = f_dir_coalesced[c(45:50)])
-table1::t1kable(tab1_dir8)  %>% 
+form_dir8 <- reformulate(colnames(f_dir_coalesced)[c(44:49)])
+tab1_dir8 <- table1(form_dir8 , data = f_dir_coalesced[c(44:49)])
+table1::t1kable(tab1_dir8)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_dir9 <- reformulate(colnames(f_dir_coalesced)[c(51:55)])
-tab1_dir9 <- table1(form_dir9 , data = f_dir_coalesced[c(51:55)])
-table1::t1kable(tab1_dir9)  %>% 
+form_dir9 <- reformulate(colnames(f_dir_coalesced)[c(50:55)])
+tab1_dir9 <- table1(form_dir9 , data = f_dir_coalesced[c(50:55)])
+table1::t1kable(tab1_dir9)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 ```
@@ -573,9 +656,11 @@ print("Item-total correlations Personal Accomplishment Group")
 print(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$item.stats)
 ```
 
-# Additional Composite Score Analysis
+# Additional Composite Score Analysis 
 
-```{r composite-score-analysis}
+For the exhaustion and depersonalization groups, we created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values are recorded below. 
+
+```{r composite-score-analysis, echo = TRUE}
 
 exhaustion <- exhaustion %>% mutate(score = feel_drained + feel_strained + feel_fatigued)
 
@@ -586,8 +671,25 @@ depersonalization <- depersonalization %>% mutate(score = feel_depersonalization
 #accomplishment <- accomplishment %>% mutate(score = feel_confidence + feel_pos_influence + feel_exhilaration)
 
 ggplot(exhaustion, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
-
 ggplot(depersonalization, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
 
 kruskal.test(score ~ PGY_level, data = exhaustion)$p.value
 kruskal.test(score ~ gender, data = exhaustion)$p.value
@@ -614,6 +716,22 @@ question1s <- c("working_hours_per_week", rep("feel_drained", 6), rep("feel_fati
 question2s <- c("program_type", rep(c("call_days_per_month", "working_hours_per_week", "rec_time_per_week", "program_type", "marital_status", "gender"), 9), rep(c("marital_status", "gender"), 4), rep("gender", 3), rep(c("gender", "gender"), 4),"call_days_per_month", "working_hours_per_week", "program_type", "call_days_per_month", "working_hours_per_week", "program_type", "PGY_level")
 
 question_dic_res <- data.frame(question1s, question2s)
+```
+
+```{r directors-dictionary, echo=FALSE}
+question1s_dir <- c("working_hours_per_week", "feel_drained", "feel_fatigued", "feel_strained", "feel_depersonalization", "feel_callousness", "feel_carelessness", "feel_pos_influence", "feel_exhilaration", "feel_confidence", "wellness_trn_prov_dir", "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide")
+
+question2s_dir <- c(rep("program_type",14))
+
+question_dic_dir <- data.frame(question1s_dir, question2s_dir)
+```
+
+```{r full-dictionary,echo=FALSE}
+excluded <- c("PGY_level", "marital_status", "children", "resources", "addtl", "role", "director", "yrs", "wellness_trn_prov_dir")
+common_qs <- setdiff(colnames(full_named), excluded)
+role <- rep("role", length(common_qs))
+
+full_dic <- data.frame(common_qs, role)
 ```
 
 ```{r validation-function, echo=FALSE}
@@ -656,7 +774,7 @@ validation <- function(question1, question2, data){
    else {
       significant <- FALSE
    }
-    return(c("question1", "question2", round(fish_test$p.value, digits = 4), significant, "fisher"))
+    return(c("question1", "question2", round(fish_test$p.value, digits = 4), significant,"fisher"))
   }
   else{
     if (test$p.value <= 0.05){
@@ -669,6 +787,130 @@ validation <- function(question1, question2, data){
   return(c("question1", "question2", round(test$p.value, digits = 4), significant, "chisq"))
 }
 
+```
+
+# Likert Scale Analysis 
+
+We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there exists conclusions to make on the directionality of the significance. 
+
+## Residents Likert Analysis
+
+```{r likert-function, echo = FALSE}
+likert_analysis <- function(factor_var, grouping_var, data){
+  df <- data %>%
+    transmute(
+      factor_var = as.numeric(.data[[factor_var]]),
+      grouping_var = .data[[grouping_var]]
+    ) %>%
+    drop_na()
+  kw <- kruskal.test(factor_var ~ grouping_var, data = df)
+  return(c("factor_var", "grouping_var", round(kw$p.value, digits = 4)))
+}
+```
+
+```{r res-likert-results, echo = FALSE}
+res_likert_results <- data.frame(
+  factor_var = character(),
+  grouping_var = character(),
+  P_value = numeric()
+)
+
+for (i in seq_len(nrow(question_dic_res))) {
+  res_likert_results[i, ] <- likert_analysis(
+    factor_var = question_dic_res$question1s[i],
+    grouping_var = question_dic_res$question2s[i],
+    data = f_res_coalesced
+  )
+}
+
+res_likert_results <- res_likert_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    factor_var = question_dic_res$question1s, 
+    grouping_var = question_dic_res$question2s
+  ) %>% arrange(Adj_P)
+res_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
+```
+
+## Directors Likert Analysis 
+
+```{r dir-likert-analysis, echo = FALSE}
+dir_likert_results <- data.frame(
+  factor_var = character(),
+  grouping_var = character(),
+  P_value = numeric()
+)
+
+for (i in seq_len(nrow(question_dic_dir))) {
+  dir_likert_results[i, ] <- likert_analysis(
+    factor_var = question_dic_dir$question1s[i],
+    grouping_var = question_dic_dir$question2s[i],
+    data = f_dir_coalesced
+  )
+}
+
+dir_likert_results <- dir_likert_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    factor_var = question_dic_dir$question1s, 
+    grouping_var = question_dic_dir$question2s
+  ) %>% arrange(Adj_P)
+dir_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
+```
+
+## Cross-comparison Likert Analysis
+
+For the cross-comparison, we are not conducting the same test for each comparison. Since we're comparing the residents and directors' responses, both variables will be the same class (Likert or Categorical), so we will conduct the correct test accordingly: Fisher's Exact Test for categorical variables, and T-tests for Likert variables.
+
+```{r cross-comp-function, echo = FALSE}
+cross_validation_analysis <- function(question1, question2, data){
+   df <- data %>%
+    transmute(
+      question1 = .data[[question1]],
+      question2 = .data[[question2]]
+    ) %>%
+    drop_na()
+   
+   if (class(df$question1) == "character"){
+     table_comparison <- table(df$question2, df$question1)
+     fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
+     return(c("question1", "question2", round(fish_test$p.value, digits = 4), "fisher"))
+   }
+   else if (class(df$question1) == "factor"){
+     df <- df %>%
+    mutate(question1 = as.numeric(question1))
+    t_test <- t.test(x = df$question1[df$question2 == "Director"], y = df$question1[df$question2 == "Resident"], alternative = "two.sided")
+     return(c("question1", "question2", round(t_test$p.value, digits = 4), "t_test"))
+   }
+}
+```
+
+```{r cross-analysis, echo = FALSE}
+cross_results <- data.frame(
+  question1 = character(),
+  question2 = character(),
+  P_value = numeric(), 
+  test = character()
+)
+
+for (i in seq_len(nrow(full_dic))) {
+  cross_results[i, ] <- cross_validation_analysis(
+    question1 = full_dic$common_qs[i],
+    question2 = full_dic$role[i],
+    data = full_named
+  )
+}
+
+cross_results <- cross_results %>%
+  mutate(
+    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
+    Sig_Adj = Adj_P <= 0.05,
+    question1 = full_dic$common_qs, 
+    question2 = full_dic$role
+  ) %>% arrange(Adj_P)
+cross_results %>% select(question1, question2, Sig_Adj, Adj_P, test)
 ```
 
 # Summary Statistics
@@ -688,14 +930,12 @@ f_res_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10)  + ggtitle(
 
 f_res_coalesced %>% ggplot(aes(x = marital_status,fill = marital_status)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
 
-
 f_res_coalesced <- f_res_coalesced %>%
   mutate(region = str_trim(str_extract(region, "^[^(]+")))
 
 f_res_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
 
 f_res_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
-
 ```
 
 ## Directors Demographics
@@ -723,9 +963,9 @@ f_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(
 f_dir_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
 ```
 
-# Results Tables
+# Categorical Results Tables
 
-## Residents Results Table
+## Residents Categorical Results Table
 
 ```{r residents-running, echo=FALSE}
 
@@ -753,18 +993,10 @@ res_results <- res_results %>%
     Question1 = question_dic_res$question1s, 
     Question2 = question_dic_res$question2s
   ) %>% arrange(Adj_P)
-res_results
+res_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
 ```
 
-```{r directors-dictionary, echo=FALSE}
-question1s_dir <- c("working_hours_per_week", "feel_drained", "feel_fatigued", "feel_strained", "feel_depersonalization", "feel_callousness", "feel_carelessness", "feel_pos_influence", "feel_exhilaration", "feel_confidence", "wellness_trn_prov_dir", "satisfied_manage_burnout", "satisfied_manage_depression", "satisfied_manage_suicide")
-
-question2s_dir <- c(rep("program_type",14))
-
-question_dic_dir <- data.frame(question1s_dir, question2s_dir)
-```
-
-## Directors Results Table
+## Directors Categorical Results Table
 
 ```{r directors-running, echo=FALSE}
 dir_results <- data.frame(
@@ -790,30 +1022,11 @@ dir_results <- dir_results %>%
     Question1 = question_dic_dir$question1s, 
     Question2 = question_dic_dir$question2s
   ) %>% arrange(Adj_P)
-dir_results
+dir_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
 
 ```
 
-```{r full-dictionary,echo=FALSE}
-excluded <- c("PGY_level", "marital_status", "children", "resources", "addtl", "role", "director", "yrs", "wellness_trn_prov_dir")
-common_qs <- setdiff(colnames(full_named), excluded)
-role <- rep("role", length(common_qs))
-
-full_dic <- data.frame(common_qs, role)
-
-# res_common <- full_named %>%
-#   select(all_of(common_qs_res))
-# 
-# dir_common <- f_dir_coalesced %>%
-#   select(all_of(common_qs_dir)) %>%
-#   setNames(common_qs_res)
-# res_dir <- bind_rows(
-#   res_common,
-#   dir_common
-# )
-```
-
-## Cross-Comparison Results Table
+## Cross-Comparison Categorical Results Table
 
 ```{r full-running, echo=FALSE}
 res_dir_results <- data.frame(
@@ -840,7 +1053,7 @@ res_dir_results <- res_dir_results %>%
     Question2 = full_dic$role
   ) %>% arrange(Adj_P)
 
-res_dir_results
+res_dir_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
 ```
 
 ```{r barplot-function, echo=FALSE}
@@ -899,9 +1112,9 @@ stack_bar <- function(q_reference, q_group, data){
 #                   })
 ```
 
-# Significant Findings
+# Significant Categorical Findings
 
-## Residents Significance
+## Residents Categorical Significance
 
 The following relationships were found to be significant:
 
@@ -920,11 +1133,11 @@ The following relationships were found to be significant:
 # walk(plots_res_sig, print)
 ```
 
-## Directors Significance
+## Directors Categorical Significance
 
 No tests in this group were found to be significant.
 
-## Cross-Comparison Significance
+## Cross-Comparison Categorical Significance
 
 Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
 
@@ -948,7 +1161,7 @@ Many questions were found to be significant between residents and directors, and
 
 - Q26: Setting for screening (Anonymously vs Confidentially)
 
-```{r}
+```{r, echo = FALSE}
 # plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
 # walk(plots_comp_sig, print)
 ```
