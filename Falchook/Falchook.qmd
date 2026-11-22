@@ -571,7 +571,6 @@ table1::t1kable(tab1_dir9)  %>%
 
 ```
 
-
 ```{r likert practice, echo = FALSE}
 
 # Q13 <- f_res_coalesced[, 13:21]
@@ -637,30 +636,38 @@ accomplishment <- accomplishment %>% mutate(across(.cols = c(feel_confidence, fe
   .x == "Every day" ~ 7
 )))
 
-print("Alpha Exhaustion Group")
-print(psych::alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$total)
+df_cronbach <- data.frame(Groups = c("Exhaustion", "Depersonalization", "Personal Accomplishment"), Alpha = c(
+  as.numeric(psych::alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$total[1]),
 
-print("Alpha Depersonalization Group")
-print(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$total)
+as.numeric(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$total[1]),
 
-print("Alpha Personal Accomplishment Group")
-print(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total)
+as.numeric(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total[1])
+))
 
-print("Item-total correlations Exhaustion Group")
-print(psych::alpha(exhaustion[,c("feel_strained", "feel_fatigued", "feel_drained")] %>% drop_na())$item.stats)
+df_cronbach <- df_cronbach %>% mutate(Significant = Alpha > 0.7)
 
-print("Item-total correlations Depersonalization Group")
-print(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_carelessness", "feel_callousness")] %>% drop_na())$item.stats)
-
-print("Item-total correlations Personal Accomplishment Group")
-print(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$item.stats)
 ```
 
-# Additional Composite Score Analysis 
+# Item-total correlations for burnout-related subgroups 
 
-For the exhaustion and depersonalization groups, we created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values are recorded below. 
+Notable strength of correlation exists between feeling drained and strained (0.701), feeling callousness and depersonalization (0.674), feeling depersonalization and carelessness (0.599), and feeling callousness and carelessness (0.583). None of the personal accomplishment correlations were notably strong. These numbers were calculated exclusively from the residents response to burnout-related questions. 
 
-```{r composite-score-analysis, echo = TRUE}
+```{r, echo = FALSE}
+print("Item-total correlations Exhaustion Group")
+cor(exhaustion %>% drop_na() %>% select(feel_strained, feel_fatigued, feel_drained))
+
+print("Item-total correlations Depersonalization Group")
+cor(depersonalization %>% drop_na() %>% select(feel_depersonalization, feel_carelessness, feel_callousness))
+
+print("Item-total correlations Personal Accomplishment Group")
+cor(accomplishment %>% drop_na() %>% select(feel_confidence, feel_pos_influence, feel_exhilaration))
+```
+
+# Composite Score Analysis
+
+For the exhaustion and depersonalization groups, we created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values are recorded below. Notable box plots are included below, but all are reported in the appendix. 
+
+```{r composite-score-analysis, echo = FALSE}
 
 exhaustion <- exhaustion %>% mutate(score = feel_drained + feel_strained + feel_fatigued)
 
@@ -669,15 +676,6 @@ depersonalization <- depersonalization %>% mutate(score = feel_depersonalization
 #"accomplishment" proved to be insignificant based on the cronbach's alpha value 
 
 #accomplishment <- accomplishment %>% mutate(score = feel_confidence + feel_pos_influence + feel_exhilaration)
-
-ggplot(exhaustion, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
-
-ggplot(exhaustion, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
-
-ggplot(exhaustion, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
 
 ggplot(exhaustion, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
 ggplot(depersonalization, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
@@ -691,23 +689,74 @@ ggplot(depersonalization, aes(x = quality_life, y = score)) + geom_boxplot() + t
 ggplot(exhaustion, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
 ggplot(depersonalization, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
 
-kruskal.test(score ~ PGY_level, data = exhaustion)$p.value
-kruskal.test(score ~ gender, data = exhaustion)$p.value
-kruskal.test(score ~ program_type, data = exhaustion)$p.value
-kruskal.test(score ~ working_hours_per_week, data = exhaustion)$p.value
-kruskal.test(score ~ call_days_per_month, data = exhaustion)$p.value
-kruskal.test(score ~ quality_life, data = exhaustion)$p.value
-kruskal.test(score ~ consider_quitting, data = exhaustion)$p.value
-
-kruskal.test(score ~ PGY_level, data = depersonalization)$p.value
-kruskal.test(score ~ gender, data = depersonalization)$p.value
-kruskal.test(score ~ program_type, data = depersonalization)$p.value
-kruskal.test(score ~ working_hours_per_week, data = depersonalization)$p.value
-kruskal.test(score ~ call_days_per_month, data = depersonalization)$p.value
-kruskal.test(score ~ quality_life, data = depersonalization)$p.value
-kruskal.test(score ~ consider_quitting, data = depersonalization)$p.value
+kruskal_df_exhaustion <- data.frame(Group = c(rep("Exhaustion", 7)), 
+                         Score = c(rep("score", 7)), 
+                         Comparison = c("PGY_level", "Gender", "Program Type", "Working Hours per Week", "Call Days per Month", "Quality of Life", "Consider Quitting"), 
+                         P_values = c(
+kruskal.test(score ~ PGY_level, data = exhaustion)$p.value,
+kruskal.test(score ~ gender, data = exhaustion)$p.value,
+kruskal.test(score ~ program_type, data = exhaustion)$p.value,
+kruskal.test(score ~ working_hours_per_week, data = exhaustion)$p.value,
+kruskal.test(score ~ call_days_per_month, data = exhaustion)$p.value,
+kruskal.test(score ~ quality_life, data = exhaustion)$p.value,
+kruskal.test(score ~ consider_quitting, data = exhaustion)$p.value))
 
 
+kruskal_df_depersonalization <- data.frame(Group = c(rep("Depersonalization", 7)), 
+                         Score = c(rep("score", 7)), 
+                         Comparison = c("PGY_level", "Gender", "Program Type", "Working Hours per Week", "Call Days per Month", "Quality of Life", "Consider Quitting"), 
+                         P_values = c(
+kruskal.test(score ~ PGY_level, data = depersonalization)$p.value,
+kruskal.test(score ~ gender, data = depersonalization)$p.value,
+kruskal.test(score ~ program_type, data = depersonalization)$p.value,
+kruskal.test(score ~ working_hours_per_week, data = depersonalization)$p.value,
+kruskal.test(score ~ call_days_per_month, data = depersonalization)$p.value,
+kruskal.test(score ~ quality_life, data = depersonalization)$p.value,
+kruskal.test(score ~ consider_quitting, data = depersonalization)$p.value))
+
+kruskal_df_exhaustion <- kruskal_df_exhaustion %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05)
+
+kruskal_df_depersonalization <- kruskal_df_depersonalization %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05)
+
+kruskal_df_exhaustion %>% select(Group, Score, Comparison, Adj_P, Significant) %>% arrange(Adj_P)
+
+kruskal_df_depersonalization %>% select(Group, Score, Comparison, Adj_P, Significant) %>% arrange(Adj_P)
+```
+
+# Additional correlation analysis 
+
+We are now treating variables "quality_life", "working_hours_per_week", "call_days_per_month", and "consider_quitting" as likert variables to determine if there is any correlation between them that wasn't detected with other testing. This way, we can easily interpret the directionality of the association.
+
+* do we report pvals, rho, both, even if correlation is very low? * 
+
+```{r Spearman-cor-test, echo = FALSE}
+
+plot(as.numeric(exhaustion$quality_life), exhaustion$score)
+cor.test(as.numeric(exhaustion$quality_life), exhaustion$score, method = "spearman")
+
+plot(as.numeric(exhaustion$working_hours_per_week), exhaustion$score)
+cor.test(as.numeric(exhaustion$working_hours_per_week), exhaustion$score, method = "spearman")$estimate
+
+plot(as.numeric(exhaustion$call_days_per_month), exhaustion$score)
+cor.test(as.numeric(exhaustion$call_days_per_month), exhaustion$score, method = "spearman")
+
+plot(as.numeric(exhaustion$consider_quitting), exhaustion$score)
+cor.test(as.numeric(exhaustion$consider_quitting), exhaustion$score, method = "spearman")
+
+
+plot(as.numeric(depersonalization$quality_life), depersonalization$score)
+cor.test(as.numeric(depersonalization$quality_life), depersonalization$score, method = "spearman")
+
+plot(as.numeric(depersonalization$working_hours_per_week), depersonalization$score)
+cor.test(as.numeric(depersonalization$working_hours_per_week), depersonalization$score, method = "spearman")
+
+plot(as.numeric(depersonalization$call_days_per_month), depersonalization$score)
+cor.test(as.numeric(depersonalization$call_days_per_month), depersonalization$score, method = "spearman")
+
+plot(as.numeric(depersonalization$consider_quitting), depersonalization$score)
+cor.test(as.numeric(depersonalization$consider_quitting), depersonalization$score, method = "spearman")
+
+depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_point() + labs(title = "Composite score for depersonalization vs frequency of considering quitting", x = "Frequency of considering quitting", y = "Composite Score") + theme_bw()
 ```
 
 ```{r residents-dictionary, echo=FALSE}
@@ -789,9 +838,9 @@ validation <- function(question1, question2, data){
 
 ```
 
-# Likert Scale Analysis 
+# Likert Scale Analysis
 
-We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there exists conclusions to make on the directionality of the significance. 
+We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there exists conclusions to make on the directionality of the significance.
 
 ## Residents Likert Analysis
 
@@ -833,7 +882,7 @@ res_likert_results <- res_likert_results %>%
 res_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
 ```
 
-## Directors Likert Analysis 
+## Directors Likert Analysis
 
 ```{r dir-likert-analysis, echo = FALSE}
 dir_likert_results <- data.frame(
@@ -1168,7 +1217,33 @@ Many questions were found to be significant between residents and directors, and
 
 # Appendix A i) Residents Plots + Table:
 
+## Also included: the additional composite score analysis plots 
+
+* add the correlation plots too, with the interesting ones above * 
+
 ```{r, echo = FALSE}
+
+ggplot(exhaustion, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw() 
+ggplot(depersonalization, aes(x = PGY_level, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = gender, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = program_type, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
+
+ggplot(exhaustion, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
+ggplot(depersonalization, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
+
 # res_results
 # walk(plots_res, print)
 ```
