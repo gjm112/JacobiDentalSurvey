@@ -601,6 +601,7 @@ f_res_coalesced %>% ggplot(aes(x = PGY_level,fill = PGY_level)) + geom_bar() +  
 
 f_res_coalesced %>% ggplot(aes(x = gender,fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
 
+#Can a resident really be 18?  
 f_res_coalesced$age[f_res_coalesced$age == "30 :("] <- 30
 f_res_coalesced$age <- as.numeric(f_res_coalesced$age)
 f_res_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
@@ -640,18 +641,19 @@ f_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(
 f_dir_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
 ```
 
-# Cronbach's Alpha for burnout-related questions in residents
+# Cronbach's $\alpha$ for burnout-related questions in residents
 
-We conducted Cronbach's Alpha analysis for burnout-related questions featured in question 13 on the residents survey (12 on directors survey) in order to gauge the internal consistency of subquestions. 
+We computed Cronbach's $\alpha$ for burnout-related questions featured in question 13 on the residents survey (12 on directors survey) in order to gauge the internal consistency of subquestions. 
 
 We split the nine subquestions into three groupings: 
-- Exhaustion, comprised of feeling emotionally drained, fatigued, and strained
-- Depersonalization, comprised of feeling depersonalization, callousness, and carelessness
-- Personal accomplishment, comprised of feeling positive influence, confidence, and exhilaration.
 
-When running Cronbach's alpha, the exhaustion and depersonalization groups came back as significant (alpha > 0.8), while the personal accomplishment category did not (alpha = 0.509).
+ 1. Exhaustion, comprised of feeling emotionally drained, fatigued, and strained
+ 2. Depersonalization, comprised of feeling depersonalization, callousness, and carelessness
+ 3. Personal accomplishment, comprised of feeling positive influence, confidence, and exhilaration.
 
-The exact alpha values and groupings are reported below: 
+When running Cronbach's $\alpha$, the exhaustion and depersonalization groups both had $\alpha$ > 0.8, while the personal accomplishment category was much lower at $\alpha$ = 0.509. 
+
+The exact $\alpha$ values and groupings are reported below: 
 
 ```{r alpha, echo = FALSE}
 #exhaustion related questions + new comparisons 
@@ -710,22 +712,37 @@ df_cronbach
 
 ## Item-total correlations for burnout-related subgroups 
 
-Notable strength of correlation exists between feeling drained and strained (0.701), feeling callousness and depersonalization (0.674), feeling depersonalization and carelessness (0.599), and feeling callousness and carelessness (0.583). None of the personal accomplishment correlations were notably strong. These numbers were calculated exclusively from the residents response to burnout-related questions. Each correlation structure is reported below:
-
 ```{r, echo = FALSE}
 print("Item-total correlations Exhaustion Group")
-cor(exhaustion %>% drop_na() %>% select(feel_strained, feel_fatigued, feel_drained))
+cor_exhaust <- cor(exhaustion %>% drop_na() %>% select(feel_strained, feel_fatigued, feel_drained), method = "spearman")
+cor_exhaust
 
 print("Item-total correlations Depersonalization Group")
-cor(depersonalization %>% drop_na() %>% select(feel_depersonalization, feel_carelessness, feel_callousness))
+cor_deperson <- cor(depersonalization %>% drop_na() %>% select(feel_depersonalization, feel_carelessness, feel_callousness), method = "spearman")
+cor_deperson
 
 print("Item-total correlations Personal Accomplishment Group")
-cor(accomplishment %>% drop_na() %>% select(feel_confidence, feel_pos_influence, feel_exhilaration))
+cor_accomp <- cor(accomplishment %>% drop_na() %>% select(feel_confidence, feel_pos_influence, feel_exhilaration), method = "spearman")
+cor_accomp 
 ```
+<!-- I think we want to use spearman correlation here -->
+
+Notable strength of correlation exists between feeling drained and strained (`r cor_exhaust["feel_strained","feel_drained"] %>% round(3)`), feeling callousness and depersonalization (`r cor_deperson["feel_callousness","feel_depersonalization"] %>% round(3)`), feeling depersonalization and carelessness (`r cor_deperson["feel_carelessness","feel_depersonalization"] %>% round(3)`), and feeling callousness and carelessness (`r cor_deperson["feel_callousness","feel_carelessness"] %>% round(3)`). None of the personal accomplishment correlations were notably strong. These numbers were calculated exclusively from the residents response to burnout-related questions. Each correlation structure is reported below:
+
+<!-- ```{r, echo = FALSE} -->
+<!-- print("Item-total correlations Exhaustion Group") -->
+<!-- cor(exhaustion %>% drop_na() %>% select(feel_strained, feel_fatigued, feel_drained), method = "spearman") -->
+
+<!-- print("Item-total correlations Depersonalization Group") -->
+<!-- cor(depersonalization %>% drop_na() %>% select(feel_depersonalization, feel_carelessness, feel_callousness), method = "spearman") -->
+
+<!-- print("Item-total correlations Personal Accomplishment Group") -->
+<!-- cor(accomplishment %>% drop_na() %>% select(feel_confidence, feel_pos_influence, feel_exhilaration), method = "spearman") -->
+<!-- ``` -->
 
 # Composite Score Analysis
 
-For the exhaustion and depersonalization groups, since they saw a significant Cronbach's alpha value, we constructed a composite score by using a likert scale for each subquestion and adding up the responses for each resident. We then compared the composite score variable to PGY level, gender, program type, weekly working hours, number of call days per month, overall quality of life, and frequency of considering quitting residency.
+For the exhaustion and depersonalization groups, since they saw a large Cronbach's $\alpha$ value, we constructed a composite score by using a likert scale for each subquestion and adding up the responses for each resident. We then compared the composite score variable to PGY level, gender, program type, weekly working hours, number of call days per month, overall quality of life, and frequency of considering quitting residency.
 
 We then created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values, as well as the interpretations for significant comparisons are recorded below. 
 
