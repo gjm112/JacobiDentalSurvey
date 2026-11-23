@@ -590,7 +590,68 @@ table1::t1kable(tab1_dir9)  %>%
 # plot(likert_results13)
 ```
 
+# Summary Statistics
+
+## Resident Demographics
+
+```{r eda-residents, echo = FALSE, warning = FALSE}
+f_res_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
+
+f_res_coalesced %>% ggplot(aes(x = PGY_level,fill = PGY_level)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents PGY Level")
+
+f_res_coalesced %>% ggplot(aes(x = gender,fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
+
+f_res_coalesced$age[f_res_coalesced$age == "30 :("] <- 30
+f_res_coalesced$age <- as.numeric(f_res_coalesced$age)
+f_res_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
+
+f_res_coalesced %>% ggplot(aes(x = marital_status,fill = marital_status)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
+
+f_res_coalesced <- f_res_coalesced %>%
+  mutate(region = str_trim(str_extract(region, "^[^(]+")))
+
+f_res_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
+
+f_res_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
+```
+
+## Directors Demographics
+
+```{r eda-directors, echo = FALSE, warning = FALSE}
+f_dir_coalesced %>% ggplot(aes(x = director,fill = director)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
+
+f_dir_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Program")
+
+f_dir_coalesced$yrs[f_dir_coalesced$yrs == "13 years"] <- "13"
+f_dir_coalesced$yrs <- as.numeric(f_dir_coalesced$yrs)
+f_dir_coalesced %>% ggplot(aes(x = yrs)) + geom_histogram(bins = 10) + ggtitle("Directors Years of Service")
+
+f_dir_coalesced %>% ggplot(aes(x = gender, fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors Gender") 
+
+f_dir_coalesced$age[f_dir_coalesced$age == "61 years"] <- "61"
+f_dir_coalesced$age[f_dir_coalesced$age == "50's"] <- "55"
+f_dir_coalesced$age <- as.numeric(f_dir_coalesced$age)
+f_dir_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10) +  ggtitle("Directors Age")
+
+f_dir_coalesced <- f_dir_coalesced %>%
+  mutate(region = str_trim(str_extract(region, "^[^(]+")))
+f_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
+
+f_dir_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
+```
+
 # Cronbach's Alpha for burnout-related questions in residents
+
+We conducted Cronbach's Alpha analysis for burnout-related questions featured in question 13 on the residents survey (12 on directors survey) in order to gauge the internal consistency of subquestions. 
+
+We split the nine subquestions into three groupings: 
+- Exhaustion, comprised of feeling emotionally drained, fatigued, and strained
+- Depersonalization, comprised of feeling depersonalization, callousness, and carelessness
+- Personal accomplishment, comprised of feeling positive influence, confidence, and exhilaration.
+
+When running Cronbach's alpha, the exhaustion and depersonalization groups came back as significant (alpha > 0.8), while the personal accomplishment category did not (alpha = 0.509).
+
+The exact alpha values and groupings are reported below: 
 
 ```{r alpha, echo = FALSE}
 #exhaustion related questions + new comparisons 
@@ -644,13 +705,12 @@ as.numeric(psych::alpha(depersonalization[,c("feel_depersonalization", "feel_car
 as.numeric(psych::alpha(accomplishment[,c("feel_confidence", "feel_pos_influence", "feel_exhilaration")] %>% drop_na())$total[1])
 ))
 
-df_cronbach <- df_cronbach %>% mutate(Significant = Alpha > 0.7)
-
+df_cronbach
 ```
 
-# Item-total correlations for burnout-related subgroups 
+## Item-total correlations for burnout-related subgroups 
 
-Notable strength of correlation exists between feeling drained and strained (0.701), feeling callousness and depersonalization (0.674), feeling depersonalization and carelessness (0.599), and feeling callousness and carelessness (0.583). None of the personal accomplishment correlations were notably strong. These numbers were calculated exclusively from the residents response to burnout-related questions. 
+Notable strength of correlation exists between feeling drained and strained (0.701), feeling callousness and depersonalization (0.674), feeling depersonalization and carelessness (0.599), and feeling callousness and carelessness (0.583). None of the personal accomplishment correlations were notably strong. These numbers were calculated exclusively from the residents response to burnout-related questions. Each correlation structure is reported below:
 
 ```{r, echo = FALSE}
 print("Item-total correlations Exhaustion Group")
@@ -665,29 +725,31 @@ cor(accomplishment %>% drop_na() %>% select(feel_confidence, feel_pos_influence,
 
 # Composite Score Analysis
 
-For the exhaustion and depersonalization groups, we created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values are recorded below. Notable box plots are included below, but all are reported in the appendix. 
+For the exhaustion and depersonalization groups, since they saw a significant Cronbach's alpha value, we constructed a composite score by using a likert scale for each subquestion and adding up the responses for each resident. We then compared the composite score variable to PGY level, gender, program type, weekly working hours, number of call days per month, overall quality of life, and frequency of considering quitting residency.
 
-```{r composite-score-analysis, echo = FALSE}
+We then created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values, as well as the interpretations for significant comparisons are recorded below. 
+
+Notable box plots are included below, and all are reported in the appendix. 
+
+```{r composite-score-analysis, echo = FALSE, warning = FALSE}
 
 exhaustion <- exhaustion %>% mutate(score = feel_drained + feel_strained + feel_fatigued)
 
 depersonalization <- depersonalization %>% mutate(score = feel_depersonalization + feel_carelessness + feel_callousness)
 
-#"accomplishment" proved to be insignificant based on the cronbach's alpha value 
-
 #accomplishment <- accomplishment %>% mutate(score = feel_confidence + feel_pos_influence + feel_exhilaration)
 
-ggplot(exhaustion, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = working_hours_per_week, y = score)) + geom_boxplot() + theme_bw()
+exhaustion %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Call days per month", ylab = "Composite Score", xlab = "Call days per month", caption = "16-23 days is much higher than all previous groupings, 
+                                                                                                                  with a median score 4 points higher than all previous responses")
 
-ggplot(exhaustion, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw()
+depersonalization %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Call days per month", ylab = "Composite Score", xlab = "Call days per month", caption = "16-23 days is much higher than all previous groupings, 
+                                                                                                                  with a median score 7 points higher than all previous responses")
 
-ggplot(exhaustion, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw()
+exhaustion %>% drop_na() %>% ggplot(aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Quality of life", ylab = "Composite Score", xlab = "Quality of life", caption = "Score decreases as quality of life increases")
 
-ggplot(exhaustion, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
-ggplot(depersonalization, aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw()
+exhaustion %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Frequency of considering quitting", ylab = "Composite Score", xlab = "Frequency of considering quitting", caption = "Frequency of considering quitting increases as score increases")
+
+depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Frequency of considering quitting", ylab = "Composite Score", xlab = "Frequency of considering quitting", caption = "Frequency of considering quitting increases as score increases")
 
 kruskal_df_exhaustion <- data.frame(Group = c(rep("Exhaustion", 7)), 
                          Score = c(rep("score", 7)), 
@@ -731,38 +793,48 @@ We are now treating variables "quality_life", "working_hours_per_week", "call_da
 
 ```{r Spearman-cor-test, echo = FALSE}
 
-plot(as.numeric(exhaustion$quality_life), exhaustion$score)
 cor.test(as.numeric(exhaustion$quality_life), exhaustion$score, method = "spearman")
-
-plot(as.numeric(exhaustion$working_hours_per_week), exhaustion$score)
-cor.test(as.numeric(exhaustion$working_hours_per_week), exhaustion$score, method = "spearman")$estimate
-
-plot(as.numeric(exhaustion$call_days_per_month), exhaustion$score)
+cor.test(as.numeric(exhaustion$working_hours_per_week), exhaustion$score, method = "spearman")
 cor.test(as.numeric(exhaustion$call_days_per_month), exhaustion$score, method = "spearman")
-
-plot(as.numeric(exhaustion$consider_quitting), exhaustion$score)
 cor.test(as.numeric(exhaustion$consider_quitting), exhaustion$score, method = "spearman")
-
-
-plot(as.numeric(depersonalization$quality_life), depersonalization$score)
 cor.test(as.numeric(depersonalization$quality_life), depersonalization$score, method = "spearman")
-
-plot(as.numeric(depersonalization$working_hours_per_week), depersonalization$score)
 cor.test(as.numeric(depersonalization$working_hours_per_week), depersonalization$score, method = "spearman")
-
-plot(as.numeric(depersonalization$call_days_per_month), depersonalization$score)
 cor.test(as.numeric(depersonalization$call_days_per_month), depersonalization$score, method = "spearman")
-
-plot(as.numeric(depersonalization$consider_quitting), depersonalization$score)
 cor.test(as.numeric(depersonalization$consider_quitting), depersonalization$score, method = "spearman")
 
-depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_point() + labs(title = "Composite score for depersonalization vs frequency of considering quitting", x = "Frequency of considering quitting", y = "Composite Score") + theme_bw()
+plot(as.numeric(exhaustion$quality_life), exhaustion$score)
+
+plot(as.numeric(exhaustion$working_hours_per_week), exhaustion$score)
+
+plot(as.numeric(exhaustion$call_days_per_month), exhaustion$score)
+
+plot(as.numeric(exhaustion$consider_quitting), exhaustion$score)
+
+plot(as.numeric(depersonalization$quality_life), depersonalization$score)
+
+plot(as.numeric(depersonalization$working_hours_per_week), depersonalization$score)
+
+plot(as.numeric(depersonalization$call_days_per_month), depersonalization$score)
+
+plot(as.numeric(depersonalization$consider_quitting), depersonalization$score)
+
+depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_point() + labs(title = "Composite Depersonalization score vs freq. of considering quitting", x = "Frequency of considering quitting", y = "Composite Score") + theme_bw()
 ```
 
 ```{r residents-dictionary, echo=FALSE}
 
-question1s <- c("working_hours_per_week", rep("feel_drained", 6), rep("feel_fatigued", 6), rep("feel_strained", 6), rep("feel_depersonalization", 6), rep("feel_callousness", 6), rep("feel_carelessness", 6), rep("feel_pos_influence", 6), rep("feel_exhilaration", 6), rep("feel_confidence", 6), rep("neg_impact_relationship", 2), rep("neg_impact_health", 2), rep("neg_impact_control", 2), rep("neg_impact_balance", 2), "discrim_gender", "discrim_race", "discrim_ethnicity", rep("exper_verbal_abuse", 2), rep("exper_emotional_abuse", 2), rep("exper_physical_abuse", 2), rep("exper_sexual_harassment", 2), rep("quality_life", 3), rep("consider_quitting", 4))
-question2s <- c("program_type", rep(c("call_days_per_month", "working_hours_per_week", "rec_time_per_week", "program_type", "marital_status", "gender"), 9), rep(c("marital_status", "gender"), 4), rep("gender", 3), rep(c("gender", "gender"), 4),"call_days_per_month", "working_hours_per_week", "program_type", "call_days_per_month", "working_hours_per_week", "program_type", "PGY_level")
+question1s <- c("working_hours_per_week",
+                rep("feel_drained", 6), rep("feel_fatigued", 6), rep("feel_strained", 6), rep("feel_depersonalization", 6), rep("feel_callousness", 6), rep("feel_carelessness", 6), rep("feel_pos_influence", 6), rep("feel_exhilaration", 6), rep("feel_confidence", 6),
+                rep("neg_impact_relationship", 2), rep("neg_impact_health", 2), rep("neg_impact_control", 2), rep("neg_impact_balance", 2),
+                "discrim_gender", "discrim_race", "discrim_ethnicity", rep("exper_verbal_abuse", 2), rep("exper_emotional_abuse", 2), rep("exper_physical_abuse", 2), rep("exper_sexual_harassment", 2), rep("quality_life", 3), rep("consider_quitting", 4))
+
+question2s <- c("program_type", 
+                rep(c("call_days_per_month", "working_hours_per_week", "rec_time_per_week", "program_type", "marital_status", "PGY_level"), 9),
+                rep(c("marital_status", "gender"), 4),
+                rep("gender", 3), 
+                rep(c("program_type", "gender"), 4),
+                "call_days_per_month", "working_hours_per_week", "program_type",
+                "call_days_per_month", "working_hours_per_week", "program_type", "PGY_level")
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
@@ -777,7 +849,9 @@ question_dic_dir <- data.frame(question1s_dir, question2s_dir)
 
 ```{r full-dictionary,echo=FALSE}
 excluded <- c("PGY_level", "marital_status", "children", "resources", "addtl", "role", "director", "yrs", "wellness_trn_prov_dir")
+
 common_qs <- setdiff(colnames(full_named), excluded)
+
 role <- rep("role", length(common_qs))
 
 full_dic <- data.frame(common_qs, role)
@@ -840,9 +914,11 @@ validation <- function(question1, question2, data){
 
 # Likert Scale Analysis
 
-We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there exists conclusions to make on the directionality of the significance.
+We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there are apparent conclusions to make on the directionality of the significance. 
 
-## Residents Likert Analysis
+## Initial Residents Likert Analysis
+
+We can see from the table below that the only significant variables had to do with gender, comparing it to experiencing sexual harassment and physical abuse. 
 
 ```{r likert-function, echo = FALSE}
 likert_analysis <- function(factor_var, grouping_var, data){
@@ -880,6 +956,17 @@ res_likert_results <- res_likert_results %>%
     grouping_var = question_dic_res$question2s
   ) %>% arrange(Adj_P)
 res_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
+
+kruskal.test(as.numeric(exper_physical_abuse) ~ gender, data = f_res_coalesced)
+library(rstatix)
+
+# 2. Post-hoc Dunn's test to see which pairs differ
+
+male_female <- f_res_coalesced %>% filter(gender != "Prefer not to answer")
+dunn_test(data = male_female, exper_physical_abuse ~ gender, p.adjust.method = "holm")
+
+wilcox.test(as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Female"]), as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Male"]))
+
 ```
 
 ## Directors Likert Analysis
@@ -960,56 +1047,6 @@ cross_results <- cross_results %>%
     question2 = full_dic$role
   ) %>% arrange(Adj_P)
 cross_results %>% select(question1, question2, Sig_Adj, Adj_P, test)
-```
-
-# Summary Statistics
-
-## Resident Demographics
-
-```{r eda-residents, echo = FALSE, warning = FALSE}
-f_res_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Program")
-
-f_res_coalesced %>% ggplot(aes(x = PGY_level,fill = PGY_level)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents PGY Level")
-
-f_res_coalesced %>% ggplot(aes(x = gender,fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Gender")
-
-f_res_coalesced$age[f_res_coalesced$age == "30 :("] <- 30
-f_res_coalesced$age <- as.numeric(f_res_coalesced$age)
-f_res_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10)  + ggtitle("Residents Age")
-
-f_res_coalesced %>% ggplot(aes(x = marital_status,fill = marital_status)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Marriage Status")
-
-f_res_coalesced <- f_res_coalesced %>%
-  mutate(region = str_trim(str_extract(region, "^[^(]+")))
-
-f_res_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
-
-f_res_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Call Years")
-```
-
-## Directors Demographics
-
-```{r eda-directors, echo = FALSE, warning = FALSE}
-f_dir_coalesced %>% ggplot(aes(x = director,fill = director)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
-
-f_dir_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Program")
-
-f_dir_coalesced$yrs[f_dir_coalesced$yrs == "13 years"] <- "13"
-f_dir_coalesced$yrs <- as.numeric(f_dir_coalesced$yrs)
-f_dir_coalesced %>% ggplot(aes(x = yrs)) + geom_histogram(bins = 10) + ggtitle("Directors Years of Service")
-
-f_dir_coalesced %>% ggplot(aes(x = gender, fill = gender)) + geom_bar() +  theme(axis.text.x = element_blank())  + ggtitle("Directors Gender") 
-
-f_dir_coalesced$age[f_dir_coalesced$age == "61 years"] <- "61"
-f_dir_coalesced$age[f_dir_coalesced$age == "50's"] <- "55"
-f_dir_coalesced$age <- as.numeric(f_dir_coalesced$age)
-f_dir_coalesced %>% ggplot(aes(x = age)) + geom_histogram(bins = 10) +  ggtitle("Directors Age")
-
-f_dir_coalesced <- f_dir_coalesced %>%
-  mutate(region = str_trim(str_extract(region, "^[^(]+")))
-f_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
-
-f_dir_coalesced %>% ggplot(aes(x = call_years,fill = call_years)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors: Call Years for Residents")
 ```
 
 # Categorical Results Tables
@@ -1115,7 +1152,7 @@ stack_bar <- function(q_reference, q_group, data){
     mutate(percent = counts / sum(counts) * 100) %>%
     ungroup()
   
-  p <- ggplot(bar_df, aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
+  p <- bar_df %>% drop_na() %>% ggplot(aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
     geom_col() +
     facet_wrap(vars(.data[[q_group]])) +
     labs(
@@ -1212,7 +1249,7 @@ Many questions were found to be significant between residents and directors, and
 
 ```{r, echo = FALSE}
 # plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
-# walk(plots_comp_sig, print)
+# walk(plots_comp_sig, print) 
 ```
 
 # Appendix A i) Residents Plots + Table:
