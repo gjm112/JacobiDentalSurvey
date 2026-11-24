@@ -13,11 +13,11 @@ format:
         \usepackage{authblk}
 ---
 
-<!-- # Summary -->
+# Summary
 
 <!-- In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level. However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses. When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted. -->
 
-<!-- # Methods -->
+# Methods
 
 <!-- We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests. Low p-value's indicate significant results. -->
 
@@ -35,7 +35,7 @@ library(gt)
 set.seed(1)
 ```
 
-```{r cleaning, echo=FALSE}
+```{r cleaning, echo=FALSE, warning = FALSE, message = FALSE}
 if (Sys.info()[["user"]] == "gregorymatthews"){
   headers_raw <- read_csv("/Users/gregorymatthews/Dentist Survey Levine/Falchook/Resident Expanded.csv",  n_max = 2, col_names = FALSE, show_col_types = FALSE)
 } else {
@@ -143,6 +143,9 @@ f_res_coalesced <- f_res_coalesced %>%
   Q26 == "Confidentially (one-on-one meetings)" ~ "Confidentially",
   Q26 == "Anonymously (online questionnaire)" ~ "Anonymously"
   ))
+
+
+
 
 #######################
 ### Common Factor Levels
@@ -313,6 +316,7 @@ f_dir_q <- f_dir %>%
   #mutate(Q27 = do.call(coalesce, pick(282:292))) %>%
   mutate(Q28 = do.call(coalesce, pick(293:293))) 
 
+
 f_dir_coalesced_partial <- f_dir_q %>%
   select(294:300, 17:20, 301:347, 282:292, 348)
 
@@ -361,7 +365,7 @@ f_dir_coalesced$Q15d <- factor(f_dir_coalesced$Q15d, levels = cats13)
 
 f_dir_coalesced$Q16 <- factor(f_dir_coalesced$Q16, levels = cats16)
 f_dir_coalesced$Q17 <- factor(f_dir_coalesced$Q17, levels = cats17)
-f_res_coalesced$Q18 <- factor(f_res_coalesced$Q18, levels = cats18)
+f_dir_coalesced$Q18 <- factor(f_dir_coalesced$Q18, levels = cats18)
 
 f_dir_coalesced$Q19a <- factor(f_dir_coalesced$Q19a, levels = cats13)
 f_dir_coalesced$Q19b <- factor(f_dir_coalesced$Q19b, levels = cats13)
@@ -464,9 +468,19 @@ colnames(f_dir_coalesced) <- colnames_f_dir
 f_dir_coalesced <- f_dir_coalesced %>%
   mutate(region = sub("\\s*\\(.*", "", region))
 
+#### Fixing age
+f_res_coalesced$age <- as.numeric(substring(f_res_coalesced$age,1,2))
+f_dir_coalesced$age <- as.numeric(substring(f_dir_coalesced$age,1,2))
+
+f_res_coalesced$num_residents <- as.numeric(substring(f_res_coalesced$num_residents,1,2))
+f_dir_coalesced$num_residents <- as.numeric(substring(f_dir_coalesced$num_residents,1,2))
+
+
 #### Combining data 
 
 full_named <- bind_rows(f_res_coalesced, f_dir_coalesced)
+
+
 ```
 
 # Table 1 --- Residents
@@ -808,7 +822,7 @@ kruskal_df_depersonalization %>% select(Group, Score, Comparison, Adj_P, Signifi
 
 We are now treating variables "quality_life", "working_hours_per_week", "call_days_per_month", and "consider_quitting" as continuous on a Likert scale allowing us to interpret the directionality of the association.
 
-* do we report pvals, rho, both, even if correlation is very low? * 
+<!-- * do we report pvals, rho, both, even if correlation is very low? *  -->
 
 ```{r Spearman-cor-test, echo = FALSE, warning=FALSE, message = FALSE}
 library(dplyr)
@@ -1002,6 +1016,7 @@ We can see from the table below that the only significant variables had to do wi
 
 ```{r likert-function, echo = FALSE}
 likert_analysis <- function(factor_var, grouping_var, data){
+  if (grouping_var == "gender"){data <- data %>% filter(gender != "Prefer not to answer")}
   df <- data %>%
     transmute(
       factor_var = as.numeric(.data[[factor_var]]),
@@ -1038,44 +1053,8 @@ res_likert_results <- res_likert_results %>%
 res_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
 ```
 
+<!-- #Make a note that this was being driven by "prefer not to answer". -->
 
-
-```{r}
-#Physical abuse
-temp_pa <- f_res_coalesced %>% filter(f_res_coalesced$gender != "Prefer not to answer" & !is.na(exper_physical_abuse))
-
-t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$conf.int
-
-#Sexual harassment
-temp_sh <- f_res_coalesced %>% filter(f_res_coalesced$gender != "Prefer not to answer" & !is.na(exper_sexual_harassment))
-
-t.test(as.numeric(temp_sh$exper_sexual_harassment) ~ temp_sh$gender)$conf.int
-
-f_res_coalesced %>% ggplot(aes(x = gender, y = as.numeric(exper_sexual_harassment))) + geom_boxplot() + theme_bw()
-
-f_res_coalesced %>% group_by(gender) %>%  summarize(median =median(as.numeric(exper_sexual_harassment), na.rm = T), n = n())
-```
-
-Sexual abuse is significantly different between men and women with an estimated difference of `r `-diff(t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$estimate)` and 95% confidence interval `r t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$conf.int`
-
-Sexual harassment is significantly different between the genders, but this is being driven entirely by the single observation that reported gender as "Prefer not to answer".  When males were tested against females only, no significant difference was found.  
-
-
-
-<!-- ```{r} -->
-<!-- #  -->
-<!-- # kruskal.test(as.numeric(exper_physical_abuse) ~ gender, data = f_res_coalesced) -->
-<!-- # library(rstatix) -->
-<!-- #  -->
-<!-- # # 2. Post-hoc Dunn's test to see which pairs differ -->
-<!-- #  -->
-<!-- # male_female <- f_res_coalesced %>% filter(gender != "Prefer not to answer") -->
-<!-- # dunn_test(data = male_female, exper_physical_abuse ~ gender, p.adjust.method = "holm") -->
-<!-- #  -->
-<!-- # wilcox.test(as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Female"]), as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Male"])) -->
-<!-- #  -->
-
-<!-- ``` -->
 
 ## Directors Likert Analysis
 
@@ -1106,7 +1085,7 @@ dir_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
 
 ## Cross-comparison Likert Analysis
 
-For the cross-comparison, we are not conducting the same test for each comparison. Since we're comparing the residents and directors' responses, both variables will be the same type (Likert or Categorical), so we will conduct the correct test accordingly: Fisher's Exact Test for categorical variables, and T-tests for Likert variables.
+For the cross-comparison, we are not conducting the same test for each comparison. Since we're comparing the residents and directors' responses, both variables will be the same type (Likert or Categorical), so we will conduct the correct test accordingly: Fisher's Exact Test for categorical variables, and t-tests for Likert variables.
 
 ```{r cross-comp-function, echo = FALSE}
 cross_validation_analysis <- function(question1, question2, data){
@@ -1117,26 +1096,32 @@ cross_validation_analysis <- function(question1, question2, data){
     ) %>%
     drop_na()
    
-   if (class(df$question1) == "character"){
+   if (is.character(df$question1)){
      table_comparison <- table(df$question2, df$question1)
      fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
-     return(c("question1", "question2", round(fish_test$p.value, digits = 4), "fisher"))
+     return(c("question1", "question2", round(fish_test$p.value, digits = 4), "fisher", NA, NA, NA))
    }
-   else if (class(df$question1) == "factor"){
+   else if (is.factor(df$question1) | is.numeric(df$question1)){
      df <- df %>%
     mutate(question1 = as.numeric(question1))
     t_test <- t.test(x = df$question1[df$question2 == "Director"], y = df$question1[df$question2 == "Resident"], alternative = "two.sided")
-     return(c("question1", "question2", round(t_test$p.value, digits = 4), "t_test"))
+     
+    return(c("question1", "question2", round(t_test$p.value, digits = 4), "t_test", round(t_test$estimate[1],1),round(t_test$estimate[2],1), paste0(round(t_test$conf.int,2), collapse = ",")))
    }
 }
 ```
 
 ```{r cross-analysis, echo = FALSE}
+
 cross_results <- data.frame(
   question1 = character(),
   question2 = character(),
   P_value = numeric(), 
-  test = character()
+  test = character(), 
+  mean_dir = numeric(),
+  mean_res = numeric(), 
+  CI_diff = character()
+  
 )
 
 for (i in seq_len(nrow(full_dic))) {
@@ -1154,211 +1139,9 @@ cross_results <- cross_results %>%
     question1 = full_dic$common_qs, 
     question2 = full_dic$role
   ) %>% arrange(Adj_P)
-cross_results %>% select(question1, question2, Sig_Adj, Adj_P, test)
+cross_results %>% select(question1, question2, Adj_P, test, mean_dir, mean_res, CI_diff)
 ```
 
-# Categorical Results Tables
-
-## Residents Categorical Results Table
-
-```{r residents-running, echo=FALSE}
-
-res_results <- data.frame(
-  Question1 = character(),
-  Question2 = character(),
-  P_value = numeric(),
-  Significant = logical(), 
-  test = character()
-)
-
-for (i in seq_len(nrow(question_dic_res))) {
-
-  res_results[i, ] <- validation(
-    question1 = question_dic_res$question1s[i],
-    question2 = question_dic_res$question2s[i],
-    data = f_res_coalesced
-  )
-}
-
-res_results <- res_results %>%
-  mutate(
-    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
-    Sig_Adj = Adj_P <= 0.05,
-    Question1 = question_dic_res$question1s, 
-    Question2 = question_dic_res$question2s
-  ) %>% arrange(Adj_P)
-res_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
-```
-
-## Directors Categorical Results Table
-
-```{r directors-running, echo=FALSE}
-dir_results <- data.frame(
-  Question1 = character(),
-  Question2 = character(),
-  P_value = numeric(),
-  Significant = logical(), 
-  test = character()
-)
-
-for (i in seq_len(nrow(question_dic_dir))) {
-  dir_results[i, ] <- validation(
-    question1 = question_dic_dir$question1s_dir[i],
-    question2 = question_dic_dir$question2s_dir[i],
-    data = f_dir_coalesced
-  )
-}
-
-dir_results <- dir_results %>%
-  mutate(
-    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
-    Sig_Adj = Adj_P <= 0.05,
-    Question1 = question_dic_dir$question1s, 
-    Question2 = question_dic_dir$question2s
-  ) %>% arrange(Adj_P)
-dir_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
-
-```
-
-## Cross-Comparison Categorical Results Table
-
-```{r full-running, echo=FALSE}
-res_dir_results <- data.frame(
-  Question1 = character(),
-  Question2 = character(),
-  P_value = numeric(),
-  Significant = logical(), 
-  test = character()
-)
-
-for (i in seq_len(nrow(full_dic))){
-  res_dir_results[i, ] <- validation(
-    question1 = full_dic$common_qs[i],
-    question2 = full_dic$role[i],
-    data = full_named
-  )
-}
-
-res_dir_results <- res_dir_results %>%
-  mutate(
-    Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
-    Sig_Adj = Adj_P <= 0.05,
-    Question1 = full_dic$common_qs, 
-    Question2 = full_dic$role
-  ) %>% arrange(Adj_P)
-
-res_dir_results %>% select(Question1, Question2, Sig_Adj, Adj_P)
-```
-
-```{r barplot-function, echo=FALSE}
-stack_bar <- function(q_reference, q_group, data){
-  bar_df <- data %>%
-    group_by(.data[[q_reference]], .data[[q_group]]) %>%
-    summarize(counts = n(), .groups = "drop") %>%
-    drop_na() %>%
-    group_by(.data[[q_group]]) %>%
-    mutate(percent = counts / sum(counts) * 100) %>%
-    ungroup()
-  
-  p <- bar_df %>% drop_na() %>% ggplot(aes(x = .data[[q_reference]], y = percent, fill = .data[[q_reference]])) +
-    geom_col() +
-    facet_wrap(vars(.data[[q_group]])) +
-    labs(
-      title = paste(q_reference, "vs", q_group, sep = " "),
-      x = NULL,
-      y = "Percent of responses"
-    ) +
-    theme(
-      axis.text.x = element_blank(),
-      axis.ticks.x = element_blank()
-    )
-  return(p)
-}
-
-```
-
-```{r plots, echo=FALSE, fig.width=8, fig.height=5}
-# plots_res <- pmap(question_dic_res, 
-#               function(question1s, question2s){
-#                 stack_bar(
-#                   q_reference = question1s, 
-#                   q_group = question2s,
-#                   data = f_res_coalesced
-#                 )
-#               })
-# 
-# plots_dir <- pmap(question_dic_dir, 
-#                   function(question1s_dir, question2s_dir){
-#                     stack_bar(
-#                       q_reference = question1s_dir, 
-#                       q_group = question2s_dir,
-#                       data = f_dir_coalesced
-#                     )
-#                   })
-# 
-# plots_comp <- pmap(full_dic, 
-#                   function(common_qs, role){
-#                     stack_bar(
-#                       q_reference = common_qs, 
-#                       q_group = role,
-#                       data = full_named
-#                     )
-#                   })
-```
-
-# Significant Categorical Findings
-
-## Residents Categorical Significance
-
-The following relationships were found to be significant:
-
-- Q13d/Q2: Treating patients as impersonal objects and PGY level
-
-- Q13h/Q2: Not caring about what happens to certain patients and PGY level
-
-- Q18/Q11: Working hours/week and desire to quit residency training
-
-- Q16d/Q3: Experiencing sexual harassment and gender
-
-- Q17/Q10: On call days/month and quality of life
-
-```{r, echo = FALSE}
-# plots_res_sig <- plots_res[c(25, 49, 79, 73, 75)]
-# walk(plots_res_sig, print)
-```
-
-## Directors Categorical Significance
-
-No tests in this group were found to be significant.
-
-## Cross-Comparison Categorical Significance
-
-Many questions were found to be significant between residents and directors, and below are all the questions that they responded significantly differently to:
-
-- Q3: Gender
-
-- Q12: Recreation hours per week
-
-- Q13a/b/c/f: Feeling emotionally drained, fatigued, strained at work, not caring about what happens to patients
-
-- Q14a/b: Negative impact on marriage, personal healthcare
-
-- Q15a: Experienced discrimination based on gender
-
-- Q19: Frequency of meeting with director
-
-- Q20a/b/d: Frequency of discussing burnout, depression, quitting residency - notably, the only insignificant subquestion concerned suicidal thoughts
-
-- Q21: Presence of standardized criteria for screening burnout & mental health
-
-- Q22a/b/c: Satisfaction with how program manages burnout, depression, suicide
-
-- Q26: Setting for screening (Anonymously vs Confidentially)
-
-```{r, echo = FALSE}
-# plots_comp_sig <- plots_comp[c(2, 7, 8, 9, 10, 13, 17, 18, 21, 30, 31, 32, 34, 35, 36, 37, 38, 50)]
-# walk(plots_comp_sig, print) 
-```
 
 # Appendix A i) Residents Plots + Table:
 
@@ -1393,16 +1176,3 @@ ggplot(depersonalization, aes(x = consider_quitting, y = score)) + geom_boxplot(
 # walk(plots_res, print)
 ```
 
-# Appendix A ii) Directors Plots + Table:
-
-```{r, echo = FALSE}
-# dir_results
-# walk(plots_dir, print)
-```
-
-# Appendix A iii) Cross Comparison Plots + Table:
-
-```{r, echo = FALSE}
-# res_dir_results
-# walk(plots_comp, print)
-```
