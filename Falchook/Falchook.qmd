@@ -4,7 +4,7 @@ author:
   - "Jack Dumanski and Gregory J. Matthews"
   - "Center for Data Science and Consulting"
   - "Loyola University Chicago"
-date: "October 27, 2026"
+date: "November 24, 2026"
 editor: visual
 format: 
   pdf:
@@ -13,17 +13,17 @@ format:
         \usepackage{authblk}
 ---
 
-# Summary
+<!-- # Summary -->
 
-In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level. However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses. When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted.
+<!-- In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 81 total tests within the residents group, we found 5 to be significant at the $\alpha$ = 0.05 level. However, none of these were found to be significant after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR). Out of 14 tests for directors, nothing was found to be significant either before or after adjustment for multiple hypotheses. When comparing across groups, we found 18 out of the 51 tests performed were significant after the BH adjustment. This means that at least 18 questions saw significant evidence of being answered differently for residents and directors. Results of all tests are reported in the significant findings section, and their significance before and after adjustment will be noted. -->
 
-# Methods
+<!-- # Methods -->
 
-We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests. Low p-value's indicate significant results.
+<!-- We tested for associations between questions and differences in proportions across groups (residents vs directors) using Fisher exact tests. Low p-value's indicate significant results. -->
 
-For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc.
+<!-- For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. -->
 
-Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix.
+<!-- Finally we present data visualizations to summarize the results. Interesting plots and findings were placed in the "significant findings" section with all plots appearing in are in the Appendix. -->
 
 ```{r packages, echo = FALSE, warnings = FALSE, message = FALSE}
 library(psych)
@@ -712,6 +712,8 @@ df_cronbach
 
 ## Item-total correlations for burnout-related subgroups 
 
+Note that Spearman correlation is used here.  Spearman correlation measures the strength of monotonic relationships rather than the strength of linear relationships.  
+
 ```{r, echo = FALSE}
 print("Item-total correlations Exhaustion Group")
 cor_exhaust <- cor(exhaustion %>% drop_na() %>% select(feel_strained, feel_fatigued, feel_drained), method = "spearman")
@@ -742,11 +744,13 @@ Notable strength of correlation exists between feeling drained and strained (`r 
 
 # Composite Score Analysis
 
-For the exhaustion and depersonalization groups, since they saw a large Cronbach's $\alpha$ value, we constructed a composite score by using a likert scale for each subquestion and adding up the responses for each resident. We then compared the composite score variable to PGY level, gender, program type, weekly working hours, number of call days per month, overall quality of life, and frequency of considering quitting residency.
+For the exhaustion and depersonalization groups, since they saw a large Cronbach's $\alpha$ value, we constructed a composite score by placing the data on a Likert scale for each subquestion and summing the responses to each subquestion across each resident. We then compared the composite score to PGY level, gender, program type, weekly working hours, number of call days per month, overall quality of life, and frequency of considering quitting residency.
 
-We then created side-by-side box plots to visualize potential differences in distributions for each grouping variable in question. We then conducted a Kruskal-Wallis test to determine if there was statistical significance, and the p-values, as well as the interpretations for significant comparisons are recorded below. 
+To visualize these relationships, side-by-side box plots were created to visualize potential differences in distributions for each grouping variable in question.  Notable box plots are included here, and all are reported in the appendix.  
 
-Notable box plots are included below, and all are reported in the appendix. 
+To formally check for statitstical differences, We conducted a Kruskal-Wallis test (i.e. nonparametric ANOVA) to determine if there were statistically significant differences between groups.  p-values and interpretations for significant comparisons are recorded below. 
+
+
 
 ```{r composite-score-analysis, echo = FALSE, warning = FALSE}
 
@@ -756,17 +760,15 @@ depersonalization <- depersonalization %>% mutate(score = feel_depersonalization
 
 #accomplishment <- accomplishment %>% mutate(score = feel_confidence + feel_pos_influence + feel_exhilaration)
 
-exhaustion %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Call days per month", ylab = "Composite Score", xlab = "Call days per month", caption = "16-23 days is much higher than all previous groupings, 
-                                                                                                                  with a median score 4 points higher than all previous responses")
+exhaustion %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Call days per month",  caption = "16-23 days is much higher than all previous groupings, with a median score 4 points higher than all previous responses") + ylab("Composite Score") + xlab("Call days per month")
 
-depersonalization %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Call days per month", ylab = "Composite Score", xlab = "Call days per month", caption = "16-23 days is much higher than all previous groupings, 
-                                                                                                                  with a median score 7 points higher than all previous responses")
+depersonalization %>% drop_na() %>% ggplot(aes(x = call_days_per_month, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Call days per month", caption = "16-23 days is much higher than all previous groupings, with a median score 7 points higher than all previous responses") + xlab("Call days per month") + ylab("Composite Score")
 
-exhaustion %>% drop_na() %>% ggplot(aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Quality of life", ylab = "Composite Score", xlab = "Quality of life", caption = "Score decreases as quality of life increases")
+exhaustion %>% drop_na() %>% ggplot(aes(x = quality_life, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Quality of life",  caption = "Score decreases as quality of life increases") + xlab("Quality of life") + ylab("Composite Score")
 
-exhaustion %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Frequency of considering quitting", ylab = "Composite Score", xlab = "Frequency of considering quitting", caption = "Frequency of considering quitting increases as score increases")
+exhaustion %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Exhaustion score vs Frequency of considering quitting", caption = "Frequency of considering quitting increases as score increases") + xlab("Frequency of considering quitting") + ylab("Composite Score")
 
-depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Frequency of considering quitting", ylab = "Composite Score", xlab = "Frequency of considering quitting", caption = "Frequency of considering quitting increases as score increases")
+depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_boxplot() + theme_bw() + labs(title = "Depersonalization score vs Frequency of considering quitting",  caption = "Frequency of considering quitting increases as score increases") + xlab("Frequency of considering quitting") + ylab("Composite Score")
 
 kruskal_df_exhaustion <- data.frame(Group = c(rep("Exhaustion", 7)), 
                          Score = c(rep("score", 7)), 
@@ -793,9 +795,9 @@ kruskal.test(score ~ call_days_per_month, data = depersonalization)$p.value,
 kruskal.test(score ~ quality_life, data = depersonalization)$p.value,
 kruskal.test(score ~ consider_quitting, data = depersonalization)$p.value))
 
-kruskal_df_exhaustion <- kruskal_df_exhaustion %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05)
+kruskal_df_exhaustion <- kruskal_df_exhaustion %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05) 
 
-kruskal_df_depersonalization <- kruskal_df_depersonalization %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05)
+kruskal_df_depersonalization <- kruskal_df_depersonalization %>% mutate(Adj_P = round(p.adjust(P_values, method = "BH"), digits = 4)) %>% mutate(Significant = Adj_P <= 0.05) 
 
 kruskal_df_exhaustion %>% select(Group, Score, Comparison, Adj_P, Significant) %>% arrange(Adj_P)
 
@@ -804,38 +806,99 @@ kruskal_df_depersonalization %>% select(Group, Score, Comparison, Adj_P, Signifi
 
 # Additional correlation analysis 
 
-We are now treating variables "quality_life", "working_hours_per_week", "call_days_per_month", and "consider_quitting" as likert variables to determine if there is any correlation between them that wasn't detected with other testing. This way, we can easily interpret the directionality of the association.
+We are now treating variables "quality_life", "working_hours_per_week", "call_days_per_month", and "consider_quitting" as continuous on a Likert scale allowing us to interpret the directionality of the association.
 
 * do we report pvals, rho, both, even if correlation is very low? * 
 
-```{r Spearman-cor-test, echo = FALSE}
+```{r Spearman-cor-test, echo = FALSE, warning=FALSE, message = FALSE}
+library(dplyr)
+library(broom)
+library(purrr)
 
-cor.test(as.numeric(exhaustion$quality_life), exhaustion$score, method = "spearman")
-cor.test(as.numeric(exhaustion$working_hours_per_week), exhaustion$score, method = "spearman")
-cor.test(as.numeric(exhaustion$call_days_per_month), exhaustion$score, method = "spearman")
-cor.test(as.numeric(exhaustion$consider_quitting), exhaustion$score, method = "spearman")
-cor.test(as.numeric(depersonalization$quality_life), depersonalization$score, method = "spearman")
-cor.test(as.numeric(depersonalization$working_hours_per_week), depersonalization$score, method = "spearman")
-cor.test(as.numeric(depersonalization$call_days_per_month), depersonalization$score, method = "spearman")
-cor.test(as.numeric(depersonalization$consider_quitting), depersonalization$score, method = "spearman")
+variables <- c(
+  "quality_life",
+  "working_hours_per_week",
+  "call_days_per_month",
+  "consider_quitting"
+)
 
-plot(as.numeric(exhaustion$quality_life), exhaustion$score)
+results <- map_dfr(variables, function(v) {
 
-plot(as.numeric(exhaustion$working_hours_per_week), exhaustion$score)
+  exhaustion_test <- cor.test(
+    as.numeric(exhaustion[[v]]),
+    exhaustion$score,
+    method = "spearman"
+  )
 
-plot(as.numeric(exhaustion$call_days_per_month), exhaustion$score)
+  depersonalization_test <- cor.test(
+    as.numeric(depersonalization[[v]]),
+    depersonalization$score,
+    method = "spearman"
+  )
 
-plot(as.numeric(exhaustion$consider_quitting), exhaustion$score)
+  bind_rows(
+    tidy(exhaustion_test) %>%
+      mutate(Outcome = "Exhaustion", Variable = v),
+    tidy(depersonalization_test) %>%
+      mutate(Outcome = "Depersonalization", Variable = v)
+  )
+})
 
-plot(as.numeric(depersonalization$quality_life), depersonalization$score)
+results %>%
+  select(Outcome, Variable, estimate, p.value) %>%
+  rename(
+    `Outcome Measure` = Outcome,
+    `Variable Compared` = Variable,
+    `Spearman's rho` = estimate,
+    `p-value` = p.value
+  ) %>%
+  mutate(
+    `Spearman's rho` = round(`Spearman's rho`, 3),
+    `p-value` = signif(`p-value`, 3)
+  ) %>% arrange(`p-value`) %>% mutate(Adj_p = p.adjust(`p-value`, method = "BH"),
+                                      significant = Adj_p < 0.05)
 
-plot(as.numeric(depersonalization$working_hours_per_week), depersonalization$score)
+# 
+# cor.test(as.numeric(exhaustion$quality_life), exhaustion$score, method = "spearman")
+# 
+# cor.test(as.numeric(exhaustion$working_hours_per_week), exhaustion$score, method = "spearman")
+# 
+# cor.test(as.numeric(exhaustion$call_days_per_month), exhaustion$score, method = "spearman")
+# 
+# cor.test(as.numeric(exhaustion$consider_quitting), exhaustion$score, method = "spearman")
+# 
+# cor.test(as.numeric(depersonalization$quality_life), depersonalization$score, method = "spearman")
+# 
+# cor.test(as.numeric(depersonalization$working_hours_per_week), depersonalization$score, method = "spearman")
+# 
+# cor.test(as.numeric(depersonalization$call_days_per_month), depersonalization$score, method = "spearman")
+# 
+# cor.test(as.numeric(depersonalization$consider_quitting), depersonalization$score, method = "spearman")
 
-plot(as.numeric(depersonalization$call_days_per_month), depersonalization$score)
+data.frame(quality_life = as.numeric(exhaustion$quality_life), exhaustian_score = exhaustion$score) %>% 
+  ggplot(aes(x = quality_life, y = exhaustian_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
 
-plot(as.numeric(depersonalization$consider_quitting), depersonalization$score)
+data.frame(working_hours_per_week = as.numeric(exhaustion$working_hours_per_week), exhaustian_score = exhaustion$score) %>% 
+  ggplot(aes(x = working_hours_per_week, y = exhaustian_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
 
-depersonalization %>% drop_na() %>% ggplot(aes(x = consider_quitting, y = score)) + geom_point() + labs(title = "Composite Depersonalization score vs freq. of considering quitting", x = "Frequency of considering quitting", y = "Composite Score") + theme_bw()
+data.frame(call_days_per_month = as.numeric(exhaustion$call_days_per_month), exhaustian_score = exhaustion$score) %>% 
+  ggplot(aes(x =call_days_per_month, y = exhaustian_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
+data.frame(consider_quitting = as.numeric(exhaustion$consider_quitting), exhaustian_score = exhaustion$score) %>% 
+  ggplot(aes(x =consider_quitting, y = exhaustian_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
+data.frame(quality_life = as.numeric(depersonalization$quality_life), depersonalization_score = depersonalization$score) %>% 
+  ggplot(aes(x =quality_life, y = depersonalization_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
+data.frame(working_hours_per_week = as.numeric(depersonalization$working_hours_per_week), depersonalization_score = depersonalization$score) %>% 
+  ggplot(aes(x =working_hours_per_week, y = depersonalization_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
+data.frame(call_days_per_month = as.numeric(depersonalization$call_days_per_month), depersonalization_score = depersonalization$score) %>% 
+  ggplot(aes(x =call_days_per_month, y = depersonalization_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
+data.frame(consider_quitting = as.numeric(depersonalization$consider_quitting), depersonalization_score = depersonalization$score) %>% 
+  ggplot(aes(x =consider_quitting, y = depersonalization_score)) + geom_point(alpha = 0.2) + geom_smooth() + theme_bw()
+
 ```
 
 ```{r residents-dictionary, echo=FALSE}
@@ -931,7 +994,7 @@ validation <- function(question1, question2, data){
 
 # Likert Scale Analysis
 
-We have now treated each factor-able variable on a likert scale and will conduct Kruskal-Wallis to determine if there are apparent conclusions to make on the directionality of the significance. 
+Factor variables are now treated on a Likert scale and we conduct Kruskal-Wallis to determine if there are apparent conclusions to make on the directionality of the significance. 
 
 ## Initial Residents Likert Analysis
 
@@ -973,18 +1036,46 @@ res_likert_results <- res_likert_results %>%
     grouping_var = question_dic_res$question2s
   ) %>% arrange(Adj_P)
 res_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
-
-kruskal.test(as.numeric(exper_physical_abuse) ~ gender, data = f_res_coalesced)
-library(rstatix)
-
-# 2. Post-hoc Dunn's test to see which pairs differ
-
-male_female <- f_res_coalesced %>% filter(gender != "Prefer not to answer")
-dunn_test(data = male_female, exper_physical_abuse ~ gender, p.adjust.method = "holm")
-
-wilcox.test(as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Female"]), as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Male"]))
-
 ```
+
+
+
+```{r}
+#Physical abuse
+temp_pa <- f_res_coalesced %>% filter(f_res_coalesced$gender != "Prefer not to answer" & !is.na(exper_physical_abuse))
+
+t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$conf.int
+
+#Sexual harassment
+temp_sh <- f_res_coalesced %>% filter(f_res_coalesced$gender != "Prefer not to answer" & !is.na(exper_sexual_harassment))
+
+t.test(as.numeric(temp_sh$exper_sexual_harassment) ~ temp_sh$gender)$conf.int
+
+f_res_coalesced %>% ggplot(aes(x = gender, y = as.numeric(exper_sexual_harassment))) + geom_boxplot() + theme_bw()
+
+f_res_coalesced %>% group_by(gender) %>%  summarize(median =median(as.numeric(exper_sexual_harassment), na.rm = T), n = n())
+```
+
+Sexual abuse is significantly different between men and women with an estimated difference of `r `-diff(t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$estimate)` and 95% confidence interval `r t.test(as.numeric(temp_pa$exper_physical_abuse) ~ temp_pa$gender)$conf.int`
+
+Sexual harassment is significantly different between the genders, but this is being driven entirely by the single observation that reported gender as "Prefer not to answer".  When males were tested against females only, no significant difference was found.  
+
+
+
+<!-- ```{r} -->
+<!-- #  -->
+<!-- # kruskal.test(as.numeric(exper_physical_abuse) ~ gender, data = f_res_coalesced) -->
+<!-- # library(rstatix) -->
+<!-- #  -->
+<!-- # # 2. Post-hoc Dunn's test to see which pairs differ -->
+<!-- #  -->
+<!-- # male_female <- f_res_coalesced %>% filter(gender != "Prefer not to answer") -->
+<!-- # dunn_test(data = male_female, exper_physical_abuse ~ gender, p.adjust.method = "holm") -->
+<!-- #  -->
+<!-- # wilcox.test(as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Female"]), as.numeric(f_res_coalesced$exper_physical_abuse[f_res_coalesced$gender == "Male"])) -->
+<!-- #  -->
+
+<!-- ``` -->
 
 ## Directors Likert Analysis
 
@@ -1015,7 +1106,7 @@ dir_likert_results %>% select(factor_var, grouping_var, Sig_Adj, Adj_P)
 
 ## Cross-comparison Likert Analysis
 
-For the cross-comparison, we are not conducting the same test for each comparison. Since we're comparing the residents and directors' responses, both variables will be the same class (Likert or Categorical), so we will conduct the correct test accordingly: Fisher's Exact Test for categorical variables, and T-tests for Likert variables.
+For the cross-comparison, we are not conducting the same test for each comparison. Since we're comparing the residents and directors' responses, both variables will be the same type (Likert or Categorical), so we will conduct the correct test accordingly: Fisher's Exact Test for categorical variables, and T-tests for Likert variables.
 
 ```{r cross-comp-function, echo = FALSE}
 cross_validation_analysis <- function(question1, question2, data){
