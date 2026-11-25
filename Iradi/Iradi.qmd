@@ -4,7 +4,7 @@ author:
 - "Jack Dumanski and Gregory J. Matthews"
 - "Center for Data Science and Consulting"
 - "Loyola University Chicago"
-date: "October 28, 2026"
+date: "November 25, 2026"
 format: pdf
 editor: visual
 ---
@@ -90,7 +90,27 @@ i_res_q$role <- "Resident"
 
 i_res_coalesced <- i_res_q %>%
   select(110:135)
-```
+
+#Remove anyone who answered "no" to the first question
+i_res_coalesced <- i_res_coalesced %>% filter(Q1 == "Yes")
+
+#Convert Q7 and Q8 to likert scale
+i_res_coalesced <- i_res_coalesced %>% 
+  mutate(Q7a = factor(Q7a, levels = c("Identify","Refer","Manage")),
+         Q7b = factor(Q7b, levels = c("Identify","Refer","Manage")),             Q7c = factor(Q7c, levels = c("Identify","Refer","Manage")),
+         Q7d = factor(Q7d, levels = c("Identify","Refer","Manage")),
+         Q8a = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
+                  Q8b = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
+                  Q8c = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
+                  Q8d = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree"))
+         )
+
+#Composite Scores for Q7 and Q8
+i_res_coalesced <- i_res_coalesced %>% 
+  mutate(Q7_composite = as.numeric(Q7a) + as.numeric(Q7b) + as.numeric(Q7c) + as.numeric(Q7d),
+         Q8_composite = as.numeric(Q8a) + as.numeric(Q8b) + as.numeric(Q8c) + as.numeric(Q8d))
+
+``` 
 
 ```{r, echo = FALSE, message=FALSE}
 
@@ -213,6 +233,10 @@ i_res_coalesced$Q15 <- factor(i_res_coalesced$Q15, levels = cats15)
 
 cats21 <- c("1-3","4-6","7-10","10+")
 i_dir_coalesced$Q21 <- factor(i_dir_coalesced$Q21, levels = cats21)
+
+
+#Remove anyone who answered "no" to the first question
+i_dir_coalesced <- i_dir_coalesced %>% filter(Q1 == "Yes")
 
 ```
 
