@@ -100,9 +100,9 @@ i_res_coalesced <- i_res_coalesced %>%
          Q7b = factor(Q7b, levels = c("Identify","Refer","Manage")),             Q7c = factor(Q7c, levels = c("Identify","Refer","Manage")),
          Q7d = factor(Q7d, levels = c("Identify","Refer","Manage")),
          Q8a = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8b = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8c = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8d = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree"))
+                  Q8b = factor(Q8b, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
+                  Q8c = factor(Q8c, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
+                  Q8d = factor(Q8d, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree"))
          )
 
 #Composite Scores for Q7 and Q8
@@ -339,6 +339,19 @@ table1::t1kable(tab1_res5)  %>%
 
 ```
 
+```{r}
+i_res_coalesced <- i_res_coalesced %>% mutate(Q2 = factor(Q2, levels = c( "No","Yes","Unsure"))) 
+
+i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8a))) + geom_boxplot() + theme_bw()
+
+i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8b))) + geom_boxplot() + theme_bw()
+
+i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8c))) + geom_boxplot() + theme_bw()
+
+i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8d))) + geom_boxplot() + theme_bw()
+```
+
+
 ```{r, echo = FALSE}
 # 2 with 7 and 8
 # 2 with 11
@@ -360,6 +373,12 @@ validation <- function(question1, question2, data){
     ) %>%
     drop_na()
   
+if (question1 %in% c("Q7a","Q7b","Q7c","Q7d","Q8a","Q8b","Q8c","Q8d")){
+  kw_test <- kruskal.test(as.numeric(data[[question1]]) ~ data[[question2]])
+      return(c("question1", "question2", round(kw_test$p.value, digits = 4),  "KW"))
+}
+    
+
   comparison_res <- df %>%
     group_by(response1, response2) %>%
     summarize(counts = n(), .groups = "drop") %>%
@@ -379,7 +398,7 @@ validation <- function(question1, question2, data){
     else {
       significant <- FALSE
     }
-    return(c("question1", "question2", round(fish_test$p.value, digits = 4), significant, "fisher"))
+    return(c("question1", "question2", round(fish_test$p.value, digits = 4),  "fisher"))
   }
   else{
     if (test$p.value <= 0.05){
@@ -389,7 +408,7 @@ validation <- function(question1, question2, data){
       significant <- FALSE
     }
   }
-  return(c("question1", "question2", round(test$p.value, digits = 4), significant, "chisq"))
+  return(c("question1", "question2", round(test$p.value, digits = 4), "chisq"))
 }
 ```
 
@@ -398,7 +417,6 @@ res_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Significant = logical(), 
   Test = character()
 )
 
@@ -421,6 +439,14 @@ res_results <- res_results %>%
   arrange(Adj_P)
 
 ```
+
+
+
+```{r}
+
+``` 
+
+
 
 ```{r, echo = FALSE}
 library(modelsummary)
@@ -584,6 +610,33 @@ i_dir_coalesced %>% ggplot(aes(x = Q19,fill = Q19)) + geom_bar() +  theme(axis.t
 
 ```{r, echo = FALSE}
 res_results
+
+```
+
+## Resident Q8 results
+Looking at the differences just between Yes and No.  Unsure has been dropped.  
+```{r}
+q8_dat <- i_res_coalesced %>% filter(Q2 %in% c("Yes","No"))
+q8a_ttest <- t.test(as.numeric(q8_dat$Q8a)~q8_dat$Q2)
+q8b_ttest <- t.test(as.numeric(q8_dat$Q8b)~q8_dat$Q2)
+q8c_ttest <- t.test(as.numeric(q8_dat$Q8c)~q8_dat$Q2)
+q8d_ttest <- t.test(as.numeric(q8_dat$Q8d)~q8_dat$Q2)
+
+data.frame(question = c("Q8a","Q8b","Q8c","Q8d"),
+  mean_no = round(c(q8a_ttest$estimate[1],
+              q8b_ttest$estimate[1],
+              q8c_ttest$estimate[1],
+              q8d_ttest$estimate[1]),2), 
+  mean_yes = round(c(q8a_ttest$estimate[2],
+               q8b_ttest$estimate[2],
+               q8c_ttest$estimate[2],
+               q8d_ttest$estimate[2]),2), 
+  CI_95pct = c(paste0(round(q8a_ttest$conf.int,2),collapse = ","),
+             paste0(round(q8b_ttest$conf.int,2),collapse = ","),
+             paste0(round(q8c_ttest$conf.int,2),collapse = ","),
+             paste0(round(q8d_ttest$conf.int,2),collapse = ","))
+  ) %>% mutate(diff_means = round(mean_no - mean_yes,2))
+
 
 ```
 
