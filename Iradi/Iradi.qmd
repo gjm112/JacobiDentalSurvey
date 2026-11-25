@@ -11,15 +11,24 @@ editor: visual
 
 # Summary
 
-In this study, we analyzed data within residents and directors, then compared the groups' answer selections, informing the difference that various factors can have on a resident's knowledge and experience in their program, and if the directors have a different perception of what residents face during residency. Out of 10 tests within the residents group, we found 4 to be significant controlling the FDR at 0.05. When cross-comparing the groups on each common question, 4 of the 23 test were found to be significant after adjusting for multiple hypothesis testing.  FDR was controlled via the Benjamini-Hochberg (BH) procedure at the 0.05 rate.  All tests results are reported in the significant findings section, and their significance before and after adjustment is presented.
+In this report, we analyzed data within residents and directors, and then compared the groups' (*i.e.* residents vs directors) to one another. 
+
+We found significant differences primarily in how directors and residents perceive different aspects of technical preparedness after residency, which are outlined further in the cross-comparison results. Analysis within the residents found significance primarily in whether they felt prepared after residency for various techniques based on if they had a cleft center in their program.
+
+Significance was determined by adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) for each family of tests: within-residents and cross-comparing the groups.
 
 # Methods
 
-We conducted Fisher tests due to low expected cell counts in contingency tables. p-values were computed via simulation to reduce computational time.  For cross referencing 2x11x12, we performed a logistic regression model to predict the probability of answering "Yes" on Q2 with Q11 and Q12 as predictor variables.  
+We first tested for associations between questions and differences in means across groups (residents vs directors) using t-tests (for continuous variables) and Fisher exact tests (for categorical variables) depending on the type of question analyzed. Every question that was measured on an ordinal scale was converted to a Likert scale, and t-tests were thus conducted for difference in means. 
 
-For questions that had multiple parts, we had to split them into individual questions (e.g. 11a, 11b, 11c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc.
+We computed Cronbach’s $\alpha$ for preparedness-and-education-related questions featured in question 7 and 8 on the residents survey in order to gauge the internal consistency of subquestions. This was only done within residents.
 
-To visualize differences, we created side-by-side bar charts which plot the distribution of question responses versus the grouping variable. For the specific 2x11x12 question, a visualization of the regression model was created to show the probability of a resident continuing in their program after finishing residency. For resident/director comparison, side-by-side plots of the residents' response to a question versus the directors' are shown. Noticeable/interesting plots and findings were placed in the "significant findings" section. All plots, significant or not, along with the full code for generating this report can be found in the appendix.
+When we found consistency within question categories, we conducted additional analysis to see if median composite scores differed by subgroups. We did this using the Kruskal-Wallis test, a nonparametric version of ANOVA.  
+
+We additionally created a logistic regression model to predict whether residents desire to be involved in cleft care after residency based on their program, the presence of a cleft center, and an interaction between them. 
+
+All results are reported with significance, and when applicable, confidence intervals and plots, within the respective sections of the analysis below.
+
 
 ```{r, echo = FALSE, message=FALSE}
 library(tidyverse)
@@ -357,18 +366,6 @@ table1::t1kable(tab1_res5)  %>%
 
 ```
 
-```{r, echo = FALSE}
-i_res_coalesced$have_cleft_center <- factor(i_res_coalesced$have_cleft_center, levels = c("No","Yes","Unsure"))  
-
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_craniofacial))) + geom_boxplot() + theme_bw()
-
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_collab))) + geom_boxplot() + theme_bw()
-
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_dental))) + geom_boxplot() + theme_bw()
-
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_behavioral))) + geom_boxplot() + theme_bw()
-```
-
 
 ```{r, echo = FALSE}
 # 2 with 7 and 8
@@ -381,7 +378,6 @@ question2s <- c(rep("have_cleft_center", 10))
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
-
 
 ```{r, echo = FALSE}
 validation <- function(question1, question2, data){
@@ -409,7 +405,7 @@ validation <- function(question1, question2, data){
   #table_hours
   test <- suppressWarnings(chisq.test(table_comparison))
   
-  if (mean(test$expected <= 5) > 0.2 | any(test$expected < 1)){
+  if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
     fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
     if (fish_test$p.value <= 0.05){
       significant <- TRUE
@@ -469,16 +465,43 @@ i_common <- i_full_named %>%
   select(all_of(common_qs_res))
 ```
 
+```{r cross-validation, echo = FALSE}
+cross_validation_analysis <- function(question1, question2, data){
+   df <- data %>%
+    transmute(
+      question1 = .data[[question1]],
+      question2 = .data[[question2]]
+    ) %>%
+    drop_na()
+   
+   if (is.character(df$question1)){
+     table_comparison <- table(df$question2, df$question1)
+     fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
+     return(c("question1", "question2", round(fish_test$p.value, digits = 4), "fisher", NA, NA, NA))
+   }
+   else if (is.factor(df$question1) | is.numeric(df$question1)){
+     df <- df %>%
+    mutate(question1 = as.numeric(question1))
+    t_test <- t.test(x = df$question1[df$question2 == "Director"], y = df$question1[df$question2 == "Resident"], alternative = "two.sided")
+     
+    return(c("question1", "question2", round(t_test$p.value, digits = 4), "t_test", round(t_test$estimate[1],1),round(t_test$estimate[2],1), paste0(round(t_test$conf.int,2), collapse = ",")))
+   }
+}
+```
+
 ```{r, echo = FALSE}
 res_dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Test = character()
+  Test = character(), 
+  mean_dir = numeric(), 
+  mean_res = numeric(), 
+  CI_diff = character()
 )
 
 for (i in seq_len(ncol(i_common)-1)) {
-  res_dir_results[i, ] <- validation(
+  res_dir_results[i, ] <- cross_validation_analysis(
     question1 = colnames(i_common)[i],
     question2 = "role",
     data = i_common
@@ -492,6 +515,7 @@ res_dir_results <- res_dir_results %>%
     Question1 = colnames(i_common)[1:(ncol(i_common) -1)], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
+
 ```
 
 ```{r, echo = FALSE}
@@ -588,24 +612,124 @@ i_dir_coalesced %>% ggplot(aes(x = num_residents,fill = num_residents)) + geom_b
 i_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 ```
 
+# Cronbach's Alpha for Residents Q7 and Q8
+
+We tried to combine the subquestions of questions 7 and 8 to see if we could create a composite score for each question, and we used Cronbach's $\alpha$ to gauge if the subquestions were internally consistent enough to do so. Both $\alpha$ values were extremely high, almost to the point of redundancy between questions, meaning that a composite score can be created for each question. The correlations for each question's subquestion are reported below as well. For both questions, each subquestion had a correlation of at least 0.64, showing strong consistency between subquestions.
+
+```{r, echo = FALSE}
+Q7_cronbach <- i_res_coalesced %>% select(education_lip_closure, education_palatal_closure, education_expansion, education_orthodontic, have_cleft_center, res_treat_cleft, res_instructed_all_aspects)
+
+Q7_cronbach <- Q7_cronbach %>% 
+  mutate(education_lip_closure = as.numeric(education_lip_closure), 
+         education_palatal_closure = as.numeric(education_palatal_closure), 
+         education_expansion = as.numeric(education_expansion),
+         education_orthodontic = as.numeric(education_orthodontic))
+
+Q8_cronbach <- i_res_coalesced %>% select(res_prep_craniofacial, res_prep_collab, res_prep_dental, res_prep_behavioral, have_cleft_center, res_treat_cleft, res_instructed_all_aspects)
+
+Q8_cronbach <- Q8_cronbach %>% 
+  mutate(res_prep_craniofacial = as.numeric(res_prep_craniofacial), 
+         res_prep_collab = as.numeric(res_prep_collab), 
+         res_prep_dental = as.numeric(res_prep_dental),
+         res_prep_behavioral = as.numeric(res_prep_behavioral))
+
+df_cronbach <- data.frame(Groups = c("Q7", "Q8"), Alpha = c(
+  as.numeric(psych::alpha(Q7_cronbach[,c("education_lip_closure", "education_palatal_closure", "education_expansion", "education_orthodontic")] %>% drop_na())$total[1]),
+
+as.numeric(psych::alpha(Q8_cronbach[,c("res_prep_craniofacial", "res_prep_collab", "res_prep_dental", "res_prep_behavioral")] %>% drop_na())$total[1])))
+
+df_cronbach
+```
+
+```{r, echo = FALSE}
+print("Item-total correlations Q7")
+cor_Q7 <- cor(Q7_cronbach %>% drop_na() %>% select(education_lip_closure, education_palatal_closure, education_expansion, education_orthodontic), method = "spearman")
+cor_Q7
+
+print("Item-total correlations Q8")
+cor_Q8 <- cor(Q8_cronbach %>% drop_na() %>% select(res_prep_craniofacial, res_prep_collab, res_prep_dental, res_prep_behavioral), method = "spearman")
+cor_Q8
+```
+
 # Results Tables
 
+## Significant Box Plots
+
+As will be described further in the analysis, one of the main significant differences is whether residents are prepared for various tasks (Q8) versus whether they have a cleft center. Below are box plots showing the differences in distributions. Note the differences between the Yes and No groups.
+
+```{r, echo = FALSE}
+i_res_coalesced$have_cleft_center <- factor(i_res_coalesced$have_cleft_center, levels = c("No","Yes","Unsure"))  
+
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_craniofacial))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for craniofacial versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_collab))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for collaboration versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_dental))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for dental versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_behavioral))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for behavioral versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+```
+
+
 ## Residents Results
+
+We found significance between all subquestions of Q8 about being educated on various topics compared to whether a resident's program has a cleft center or not. For each question, the mean difference was negative (see Resident Q8 vs Q2 results --- no composite score), meaning the residents who had a cleft center in their program feel significantly more educated than those who don't.
 
 ```{r, echo = FALSE}
 res_results %>% select(!P_value)
 ```
 
-## Resident Q8 results
-Looking at the differences just between Yes and No.  Unsure has been dropped.  
+### Resident Q7 vs Q2 results --- No composite score
+
+We did not find significance between each subquestion of Q7 versus Q2 within residents, indicated by the small difference in means and the confidence intervals containing the value 0.
+
+```{r, echo = FALSE}
+q7_dat <- i_res_coalesced %>% filter(have_cleft_center %in% c("Yes","No"))
+q7a_ttest <- t.test(as.numeric(q7_dat$education_lip_closure)~q7_dat$have_cleft_center)
+q7b_ttest <- t.test(as.numeric(q7_dat$education_palatal_closure)~q7_dat$have_cleft_center)
+q7c_ttest <- t.test(as.numeric(q7_dat$education_expansion)~q7_dat$have_cleft_center)
+q7d_ttest <- t.test(as.numeric(q7_dat$education_orthodontic)~q7_dat$have_cleft_center)
+
+data.frame(question = c("education_lip_closure", "education_palatal_closure", "education_expansion", "education_orthodontic"),
+  mean_no = round(c(q7a_ttest$estimate[1],
+              q7b_ttest$estimate[1],
+              q7c_ttest$estimate[1],
+              q7d_ttest$estimate[1]),2), 
+  mean_yes = round(c(q7a_ttest$estimate[2],
+               q7b_ttest$estimate[2],
+               q7c_ttest$estimate[2],
+               q7d_ttest$estimate[2]),2), 
+  CI_95pct = c(paste0(round(q7a_ttest$conf.int,2),collapse = ","),
+             paste0(round(q7b_ttest$conf.int,2),collapse = ","),
+             paste0(round(q7c_ttest$conf.int,2),collapse = ","),
+             paste0(round(q7d_ttest$conf.int,2),collapse = ","))
+  ) %>% mutate(diff_means = round(mean_no - mean_yes,2))
+
+
+```
+### Resident Q7 vs Q2 results --- composite score
+
+We did not find significant between the composite score for Q7 versus Q2 within residents.
+
+```{r, echo = FALSE}
+Q7_cronbach <- Q7_cronbach %>% 
+  mutate(comp_score = education_lip_closure + education_palatal_closure + education_expansion +  education_orthodontic) %>% filter(have_cleft_center %in% c("Yes","No"))
+
+print("P-value for Q7 composite score vs Q2")
+t.test(Q7_cronbach$comp_score ~ Q7_cronbach$have_cleft_center)$p.value
+print("Confidence interval for Q7 composite score vs Q2")
+t.test(Q7_cronbach$comp_score ~ Q7_cronbach$have_cleft_center)$conf.int
+```
+
+### Resident Q8 vs Q2 results --- no composite score
+
+Looking at the differences just between Yes and No. Unsure has been dropped.  
+
 ```{r, echo = FALSE}
 q8_dat <- i_res_coalesced %>% filter(have_cleft_center %in% c("Yes","No"))
-q8a_ttest <- t.test(as.numeric(q8_dat$"res_prep_craniofacial")~q8_dat$have_cleft_center)
-q8b_ttest <- t.test(as.numeric(q8_dat$"res_prep_collab")~q8_dat$have_cleft_center)
-q8c_ttest <- t.test(as.numeric(q8_dat$"res_prep_dental")~q8_dat$have_cleft_center)
-q8d_ttest <- t.test(as.numeric(q8_dat$"res_prep_behavioral")~q8_dat$have_cleft_center)
-
-
+q8a_ttest <- t.test(as.numeric(q8_dat$res_prep_craniofacial)~q8_dat$have_cleft_center)
+q8b_ttest <- t.test(as.numeric(q8_dat$res_prep_collab)~q8_dat$have_cleft_center)
+q8c_ttest <- t.test(as.numeric(q8_dat$res_prep_dental)~q8_dat$have_cleft_center)
+q8d_ttest <- t.test(as.numeric(q8_dat$res_prep_behavioral)~q8_dat$have_cleft_center)
 
 data.frame(question = c("res_prep_craniofacial", "res_prep_collab","res_prep_dental" ,"res_prep_behavioral"),
   mean_no = round(c(q8a_ttest$estimate[1],
@@ -625,37 +749,26 @@ data.frame(question = c("res_prep_craniofacial", "res_prep_collab","res_prep_den
 
 ```
 
-## Cross-Comparison Results
+### Residents Q8 vs Q2 results --- composite score
 
 ```{r, echo = FALSE}
-res_dir_results
+Q8_cronbach <- Q8_cronbach %>% 
+  mutate(comp_score = res_prep_craniofacial + res_prep_collab + res_prep_dental + res_prep_behavioral) %>% filter(have_cleft_center %in% c("Yes","No"))
+
+
+print("P-value for Q8 composite score vs Q2")
+t.test(Q8_cronbach$comp_score ~ Q8_cronbach$have_cleft_center)$p.value
+print("Confidence interval for Q8 composite score vs Q2")
+t.test(Q8_cronbach$comp_score ~ Q8_cronbach$have_cleft_center)$conf.int
 ```
 
-# Significant Findings
 
-## Residents Significance
+## Cross-Comparison Results
 
-The following question combinations were found significant after correcting for multiple hypothesis testing:
-
- - Q2 vs Q8a
- - Q2 vs Q8b
- - Q2 vs Q8c
- - Q2 vs Q8d
- 
-
-The levels of Question 8a-d are: Feel prepared to:
-
- a\)  provide appropriate care for a patient with a cleft or craniofacial...
-
- b\) identify and collaborate with the appropriate specialists as part of a cleft...
-
- c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
-
- d\) manage behavioral and psychosocial considerations when providing care to patients...
+When comparing directors and residents responses, the grouping variable was always role: whether they were a resident or director. For each question the surveys had in common, if it could be treated numerically we conducted a Kruskal-Wallis test, and if categorical, a Fisher's exact test. We found that there was a significant difference in how directors and residents felt prepared for all subquestions of Q8. We also found a significant difference in whether residents were instructed in all aspects of cleft reconstruction including appropriate timing. The means and confidence intervals are reported below in the table. For each of the significant questions, the directors perceived residents to be more prepared than the residents responded to have felt, which is why the confidence intervals are all positive.
 
 ```{r, echo = FALSE}
-# sig_res_plots <- plots_res[c(5, 6, 7, 8)]
-# walk(sig_res_plots, print)
+res_dir_results %>% select(Question1, Question2, Adj_P, Test, mean_dir, mean_res, CI_diff)
 ```
 
 ## Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
@@ -674,10 +787,11 @@ cleft_program <- i_res_coalesced %>%
 cleft_glm <- glm(cleft_response ~ cleft_center + program + cleft_center * program, family = "binomial", data = cleft_program)
 
 cleft_no_interaction <- glm(cleft_response ~ cleft_center + program, family = "binomial", data = cleft_program)
-
 ```
 
-For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is -1.635, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are 5.13 (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.635} =  5.129$)
+For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 (above) that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is -1.591, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are 5.13 (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.591} =  4.909$)
+
+We then added an interaction term between having a cleft center and program to see if there was an additional factor driving the signifance, but when adding the term in, the model was no more significant than the model without the interaction term. None of the estimates of the parameters were significant either. Additionally, in the model with the interaction term, the estimate for Program (Hospital Based) became insignificant, despite being so in the previous model. The model summary is reported below.
 
 ```{r, echo = FALSE}
 library(tinytable)
@@ -718,38 +832,3 @@ modelsummary(models = list(cleft_glm),
 )
 
 ```
-
-## Cross-Comparison Significance
-
-Again, Fisher exact tests were performed to look for differences between directors and resident.  A few questions were found to be significant different: 
-
- - Q6: Instruction in all aspects of cleft reconstruction
- - Q7b: Level of education in the appropriate timing of palatal closure
- - Q8a/c: Feel prepared to:
-    - a\) provide appropriate care for a patient with a cleft or craniofacial...
-    - c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
-
-```{r, echo = FALSE}
-# plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
-# walk(plots_comp_sig, print)
-```
-
-
-
-# Appendix A i) Residents Visualization (all plots)
-
-```{r, echo = FALSE}
-# walk(plots_res, print)
-```
-
-# Appendix A ii) Cross-reference visualization (all plots)
-
-```{r, echo = FALSE}
-# walk(plots_comp, print)
-```
-
-# Appendix B: Code
-
-```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
-```
-
