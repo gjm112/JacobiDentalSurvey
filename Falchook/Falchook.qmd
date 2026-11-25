@@ -15,21 +15,21 @@ format:
 
 # Summary
 
-In this report, we analyzed data within residents and directors, then compared the groups' (*i.e.* residents vs directors) answer selections, informing the difference that various factors can have on a resident's wellbeing and experience in their program, and if the directors have a different perception of what residents face during residency.
+In this report, we analyzed data within residents and directors, and then compared the groups' (*i.e.* residents vs directors) to one another. 
 
 We found significant differences primarily in how directors and residents perceive different aspects of burnout, which are outlined further in the analysis. Analysis within the residents and director groups individually found little to no significance. 
 
-We gauged significance after adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) for each family of tests: within-residents, within-directors, and cross-comparing the groups.
+Significance was determined by adjusting for multiple hypothesis testing via the Benjamini-Hochberg (BH) procedure to control false discovery rate (FDR) for each family of tests: within-residents, within-directors, and cross-comparing the groups.
 
 # Methods
 
-We first tested for associations between questions and differences in means across groups (residents vs directors) using t-tests and Fisher exact tests depending on the type of question analyzed. Every question that could be treated on a factor-able scale was treated on a likert scale, and t-tests were thus conducted for difference in means. Low adjusted p-value's indicate significant results.
+We first tested for associations between questions and differences in means across groups (residents vs directors) using t-tests (for continuous variables) and Fisher exact tests (for categorical variables) depending on the type of question analyzed. Every question that was measured on an ordinal scale was converted to a Likert scale, and t-tests were thus conducted for difference in means. 
 
-We computed Cronbach’s𝛼for burnout-related questions featured in question 13 on the residents survey (12 on directors survey) in order to gauge the internal consistency of subquestions. This was only done within residents.
+We computed Cronbach’$\alpha$ for burnout-related questions featured in question 13 on the residents survey (12 on directors survey) in order to gauge the internal consistency of subquestions. This was only done within residents.
 
-When we found consistency within question categories, we conducted additional analysis to see if subgroups (using a composite score from subquestions) informed significance within the residents group specifically, and we did this using the Kruskal-Wallis test, a nonparametric version of the t-test for difference in means.
+When we found consistency within question categories, we conducted additional analysis to see if median composite scores differed by subgroups. We did this using the Kruskal-Wallis test, a nonparametric version of ANOVA.  
 
-After conducting the composite score analysis, we looked to see if treating additional variables as factorable would be telling of correlation between specific groupings, and the significance and directionality of the correlation was reported. 
+After conducting the composite score analysis, we looked to see if treating additional variables on a Likert scale were monotonically correlated with groupings.  Significance and directionality of the correlation was reported. 
 
 <!-- For questions with multiple parts, we split them into individual questions (e.g. 13a, 13b, 13c...) to see if there were specific responses that were influenced by the grouping variable in question, which was the role (being a resident/director) in the case of cross-comparison, or information like program, experience, etc. -->
 
@@ -404,7 +404,7 @@ f_dir_coalesced$Q25 <- factor(f_dir_coalesced$Q25, levels = cats25)
 
 ```
 
-```{r renaming, echo = FALSE, warnings = FALSE}
+```{r renaming, echo = FALSE, warning = FALSE}
 
 colnames_f_res <- c(
   "program_type",
