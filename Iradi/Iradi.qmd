@@ -94,16 +94,19 @@ i_res_coalesced <- i_res_q %>%
 #Remove anyone who answered "no" to the first question
 i_res_coalesced <- i_res_coalesced %>% filter(Q1 == "Yes")
 
-#Convert Q7 and Q8 to likert scale
-i_res_coalesced <- i_res_coalesced %>% 
-  mutate(Q7a = factor(Q7a, levels = c("Identify","Refer","Manage")),
-         Q7b = factor(Q7b, levels = c("Identify","Refer","Manage")),             Q7c = factor(Q7c, levels = c("Identify","Refer","Manage")),
-         Q7d = factor(Q7d, levels = c("Identify","Refer","Manage")),
-         Q8a = factor(Q8a, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8b = factor(Q8b, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8c = factor(Q8c, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree")),
-                  Q8d = factor(Q8d, levels = c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree","Strongly Agree"))
-         )
+cats7 <- c("Identify", "Refer", "Manage")
+
+i_res_coalesced$Q7a <- factor(i_res_coalesced$Q7a, levels = cats7)
+i_res_coalesced$Q7b <- factor(i_res_coalesced$Q7b, levels = cats7)
+i_res_coalesced$Q7c <- factor(i_res_coalesced$Q7c, levels = cats7)
+i_res_coalesced$Q7d <- factor(i_res_coalesced$Q7d, levels = cats7)
+
+cats8 <- c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree", "Strongly Agree")
+
+i_res_coalesced$Q8a <- factor(i_res_coalesced$Q8a, levels = cats8)
+i_res_coalesced$Q8b <- factor(i_res_coalesced$Q8b, levels = cats8)
+i_res_coalesced$Q8c <- factor(i_res_coalesced$Q8c, levels = cats8)
+i_res_coalesced$Q8d <- factor(i_res_coalesced$Q8d, levels = cats8)
 
 #Composite Scores for Q7 and Q8
 i_res_coalesced <- i_res_coalesced %>% 
@@ -187,13 +190,13 @@ i_dir_coalesced <- i_dir_coalesced_partial %>%
 
 i_dir_coalesced$role <- "Director"
 
-i_res_coalesced <- i_res_coalesced %>%
-  mutate(Q15 = case_when(
-    Q15 == "3-Jan" ~ "1-3",
-    Q15 == "6-Apr" ~ "4-6",
-    Q15 == "10-Jul" ~ "7-10",
-    Q15 == ">10" ~ "10+"
-  ))
+# i_res_coalesced <- i_res_coalesced %>%
+#   mutate(Q15 = case_when(
+#     Q15 == "3-Jan" ~ "1-3",
+#     Q15 == "6-Apr" ~ "4-6",
+#     Q15 == "10-Jul" ~ "7-10",
+#     Q15 == ">10" ~ "10+"
+#   ))
 
 i_dir_coalesced <- i_dir_coalesced %>%
   mutate(Q15 = case_when(
@@ -216,27 +219,45 @@ i_res_coalesced <- i_res_coalesced %>%
 i_dir_coalesced <- i_dir_coalesced %>%
   mutate(Q19 = sub("\\s*\\(.*", "", Q19))
 
-cats11 <- c("Disagree","Agree", "Strongly Agree")
-i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats11)
-i_dir_coalesced$Q11b <- factor(i_dir_coalesced$Q11b, levels = cats11)
-i_dir_coalesced$Q11c <- factor(i_dir_coalesced$Q11c, levels = cats11)
-i_dir_coalesced$Q11d <- factor(i_dir_coalesced$Q11d, levels = cats11)
-
-cats8 <- c("Strongly Disagree","Disagree","Neither Disagree nor Agree","Agree", "Strongly Agree")
 i_res_coalesced$Q8a <- factor(i_res_coalesced$Q8a, levels = cats8)
 i_res_coalesced$Q8b <- factor(i_res_coalesced$Q8b, levels = cats8)
 i_res_coalesced$Q8c <- factor(i_res_coalesced$Q8c, levels = cats8)
 i_res_coalesced$Q8d <- factor(i_res_coalesced$Q8d, levels = cats8)
 
+cats9 <- c("2-5 hours", "6-10 hours", "11-20 hours", ">20 hours")
+
+i_dir_coalesced$Q8 <- as.factor(i_dir_coalesced$Q8)
+
+i_dir_coalesced$Q10a <- factor(i_dir_coalesced$Q10a, levels = cats7)
+i_dir_coalesced$Q10b <- factor(i_dir_coalesced$Q10b, levels = cats7)
+i_dir_coalesced$Q10c <- factor(i_dir_coalesced$Q10c, levels = cats7)
+i_dir_coalesced$Q10d <- factor(i_dir_coalesced$Q10d, levels = cats7)
+
+i_dir_coalesced$Q11a <- factor(i_dir_coalesced$Q11a, levels = cats8)
+i_dir_coalesced$Q11b <- factor(i_dir_coalesced$Q11b, levels = cats8)
+i_dir_coalesced$Q11c <- factor(i_dir_coalesced$Q11c, levels = cats8)
+i_dir_coalesced$Q11d <- factor(i_dir_coalesced$Q11d, levels = cats8)
+
 cats15 <- c("1-3","4-6","7-10","10+")
+
 i_res_coalesced$Q15 <- factor(i_res_coalesced$Q15, levels = cats15)
 
-cats21 <- c("1-3","4-6","7-10","10+")
-i_dir_coalesced$Q21 <- factor(i_dir_coalesced$Q21, levels = cats21)
-
+i_dir_coalesced$Q21 <- factor(i_dir_coalesced$Q21, levels = cats15)
 
 #Remove anyone who answered "no" to the first question
 i_dir_coalesced <- i_dir_coalesced %>% filter(Q1 == "Yes")
+
+```
+
+```{r renaming, echo = FALSE}
+colnames_i_dir <- c("director", "have_cleft_center", "refer_craniofacial", "ped_on_cleft", "members_cleft_team", "cleft_setting", "who_provide_instruction", "res_hours_instruction", "res_instructed_all_aspects", "education_lip_closure", "education_palatal_closure", "education_expansion", "education_orthodontic", "res_prep_craniofacial", "res_prep_collab", "res_prep_dental", "res_prep_behavioral", "res_treat_cleft", "freq_res_conf", "mode_res_conf", "num_cleft_patients", "dept_nasoalveolar", "dept_palate", "dept_grafting", "dept_orthodontic", "dept_lip_closure", "grads_involved", "program_type", "region", "location", "num_residents", "role")
+
+colnames_i_res <- c("resident", "have_cleft_center", "refer_craniofacial", "ped_on_cleft", "res_treat_cleft", "res_instructed_all_aspects", "education_lip_closure", "education_palatal_closure", "education_expansion", "education_orthodontic", "res_prep_craniofacial", "res_prep_collab", "res_prep_dental", "res_prep_behavioral", "freq_res_conf", "dept_nasoalveolar", "dept_palate", "dept_grafting", "dept_orthodontic", "dept_lip_closure", "cleft_after_res", "program_type", "region", "location", "num_residents", "role", "Q7_composite", "Q8_composite")
+
+colnames(i_res_coalesced) <- colnames_i_res
+colnames(i_dir_coalesced) <- colnames_i_dir
+
+i_full_named <- bind_rows(i_res_coalesced, i_dir_coalesced)
 
 ```
 
@@ -254,25 +275,22 @@ library(table1)
 # table1::t1kable(tab1_dir)  %>% 
 # kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
-form_dir1 <- reformulate(paste0("Q", c(1:4,6,8:9)))
+form_dir1 <- reformulate(paste0(colnames(i_dir_coalesced)[c(1:4,6,8:9)]))
 tab1_dir1 <- table1(form_dir1 , data = i_dir_coalesced[,c(1:4,6,8:9)])
 table1::t1kable(tab1_dir1)  %>% 
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir2 <- reformulate(colnames(i_dir_coalesced[,10:17]))
-
 tab1_dir2 <- table1(form_dir2 , data = i_dir_coalesced[,c(10:17)])
 table1::t1kable(tab1_dir2)  %>%
 kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir3 <- reformulate(colnames(i_dir_coalesced[,18:25]))
-
 tab1_dir3 <- table1(form_dir3 , data = i_dir_coalesced[,c(18:25)])
 table1::t1kable(tab1_dir3)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
 
 form_dir4 <- reformulate(colnames(i_dir_coalesced[,26:32]))
-
 tab1_dir4 <- table1(form_dir4 , data = i_dir_coalesced[,c(26:32)])
 table1::t1kable(tab1_dir4)  %>%
   kableExtra::column_spec(1, width = "10cm") %>%  kableExtra::column_spec(2, width = "2cm")
@@ -339,16 +357,16 @@ table1::t1kable(tab1_res5)  %>%
 
 ```
 
-```{r}
-i_res_coalesced <- i_res_coalesced %>% mutate(Q2 = factor(Q2, levels = c( "No","Yes","Unsure"))) 
+```{r, echo = FALSE}
+i_res_coalesced$have_cleft_center <- factor(i_res_coalesced$have_cleft_center, levels = c("No","Yes","Unsure"))  
 
-i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8a))) + geom_boxplot() + theme_bw()
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_craniofacial))) + geom_boxplot() + theme_bw()
 
-i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8b))) + geom_boxplot() + theme_bw()
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_collab))) + geom_boxplot() + theme_bw()
 
-i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8c))) + geom_boxplot() + theme_bw()
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_dental))) + geom_boxplot() + theme_bw()
 
-i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8d))) + geom_boxplot() + theme_bw()
+i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_behavioral))) + geom_boxplot() + theme_bw()
 ```
 
 
@@ -356,9 +374,10 @@ i_res_coalesced %>% ggplot(aes(x = Q2, y = as.numeric(Q8d))) + geom_boxplot() + 
 # 2 with 7 and 8
 # 2 with 11
 # 2 with 11 and 12
-question1s <- c("Q7a", "Q7b", "Q7c", "Q7d", "Q8a", "Q8b", "Q8c", "Q8d", "Q11", "Q12")
+question1s <- c("education_lip_closure", "education_palatal_closure",  "education_expansion"       ,"education_orthodontic"      ,"res_prep_craniofacial"  ,    "res_prep_collab" ,          
+"res_prep_dental",            "res_prep_behavioral", "cleft_after_res", "program_type")
 
-question2s <- c(rep("Q2", 10))
+question2s <- c(rep("have_cleft_center", 10))
 
 question_dic_res <- data.frame(question1s, question2s)
 ```
@@ -373,12 +392,12 @@ validation <- function(question1, question2, data){
     ) %>%
     drop_na()
   
-if (question1 %in% c("Q7a","Q7b","Q7c","Q7d","Q8a","Q8b","Q8c","Q8d")){
-  kw_test <- kruskal.test(as.numeric(data[[question1]]) ~ data[[question2]])
-      return(c("question1", "question2", round(kw_test$p.value, digits = 4),  "KW"))
-}
-    
-
+  if (question1 %in% c("education_lip_closure", "education_palatal_closure",  "education_expansion"       ,"education_orthodontic"      ,"res_prep_craniofacial"  ,    "res_prep_collab" ,          
+  "res_prep_dental",            "res_prep_behavioral")){
+   kw_test <- kruskal.test(as.numeric(df$response1) ~ df$response2)  
+   return(c("question1", "question2", round(kw_test$p.value, digits = 4),  "KW"))
+  }
+  
   comparison_res <- df %>%
     group_by(response1, response2) %>%
     summarize(counts = n(), .groups = "drop") %>%
@@ -390,7 +409,7 @@ if (question1 %in% c("Q7a","Q7b","Q7c","Q7d","Q8a","Q8b","Q8c","Q8d")){
   #table_hours
   test <- suppressWarnings(chisq.test(table_comparison))
   
-  if (mean(test$expected <= 5) < 0.8 | any(test$expected < 1)){
+  if (mean(test$expected <= 5) > 0.2 | any(test$expected < 1)){
     fish_test <- fisher.test(table_comparison, simulate.p.value = TRUE)
     if (fish_test$p.value <= 0.05){
       significant <- TRUE
@@ -440,47 +459,14 @@ res_results <- res_results %>%
 
 ```
 
-
-
-```{r}
-
-``` 
-
-
-
 ```{r, echo = FALSE}
-library(modelsummary)
-cleft_program <- i_res_coalesced %>%
-  filter(Q2 != "Unsure") %>%
-  mutate(cleft_response = as.factor(Q11), 
-         program = as.factor(Q12), 
-         cleft_center = as.factor(Q2)) %>%
-  select(cleft_response, cleft_center, program) %>% 
-  drop_na()
-cleft_glm <- glm(cleft_response ~ cleft_center + program, family = "binomial", data = cleft_program)
-cleft_null <- glm(cleft_response ~ 1, family = "binomial", data = cleft_program)
-#logistic regression 
-#use model summary
-# we notice signficance when comparing the model with program and cleft centers to the null model when predicting if residents are interested in continuing cleft care after residency 
-```
+common_qs_res <- c("have_cleft_center", "refer_craniofacial", "ped_on_cleft", "res_instructed_all_aspects", "education_lip_closure",      "education_palatal_closure"  ,"education_expansion"  ,     
+"education_orthodontic","res_prep_craniofacial" ,     "res_prep_collab" ,          
+"res_prep_dental"       ,     "res_prep_behavioral", "res_treat_cleft", "freq_res_conf", "dept_nasoalveolar" ,         "dept_palate"     ,           "dept_grafting" ,            
+"dept_orthodontic"  ,         "dept_lip_closure", "program_type", "region", "location", "num_residents", "role")
 
-```{r, echo = FALSE}
-common_qs_res <- c("Q2", "Q3", "Q4", "Q6", "Q7a", "Q7b", "Q7c", "Q7d","Q8a","Q8b", "Q8c", "Q8d", "Q5", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q10e", "Q12", "Q13", "Q14", "Q15",
-                   "role")
-common_qs_dir <- c("Q2", "Q3", "Q4", "Q9", "Q10a", "Q10b", "Q10c", "Q10d", "Q11a","Q11b","Q11c", "Q11d", "Q12", "Q13", "Q16a", "Q16b", "Q16c", "Q16d", "Q16e", "Q18", "Q19", "Q20",
-                 "Q21",   "role")
-q_dic <- data.frame(common_qs_res, common_qs_dir)
-
-res_common <- i_res_coalesced %>%
+i_common <- i_full_named %>%
   select(all_of(common_qs_res))
-
-dir_common <- i_dir_coalesced %>%
-  select(all_of(common_qs_dir)) %>%
-  setNames(common_qs_res)
-res_dir <- bind_rows(
-  res_common,
-  dir_common
-)
 ```
 
 ```{r, echo = FALSE}
@@ -488,16 +474,14 @@ res_dir_results <- data.frame(
   Question1 = character(),
   Question2 = character(),
   P_value = numeric(),
-  Significant = logical(), 
   Test = character()
 )
 
-for (i in seq_len(ncol(res_dir)-1)) {
-  
+for (i in seq_len(ncol(i_common)-1)) {
   res_dir_results[i, ] <- validation(
-    question1 = colnames(res_dir)[i],
-    question2 = colnames(res_dir)[ncol(res_dir)],
-    data = res_dir
+    question1 = colnames(i_common)[i],
+    question2 = "role",
+    data = i_common
   )
 }
 
@@ -505,7 +489,7 @@ res_dir_results <- res_dir_results %>%
   mutate(
     Adj_P = round(p.adjust(P_value, method = "BH"), digits = 4),
     Sig_Adj = Adj_P <= 0.05,
-    Question1 = colnames(res_dir)[1:(ncol(res_dir) -1)], 
+    Question1 = colnames(i_common)[1:(ncol(i_common) -1)], 
     Question2 = "role"
   ) %>% arrange(Adj_P)
 ```
@@ -537,29 +521,29 @@ stack_bar <- function(q_reference, q_group, data){
 ```
 
 ```{r, echo = FALSE}
-plots_res <- pmap(question_dic_res, 
-                  function(question1s, question2s){
-                    stack_bar(
-                      q_reference = question1s, 
-                      q_group = question2s,
-                      data = i_res_coalesced
-                    )
-                  })
-
-
-question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
-                                   , question2s_res_dir = rep("role", ncol(res_dir)))
-
-question_dic_res_dir <- question_dic_res_dir %>%
-  filter(question1s_res_dir != "role") 
-plots_comp <- pmap(question_dic_res_dir, 
-                   function(question1s_res_dir, question2s_res_dir){
-                     stack_bar(
-                       q_reference = question1s_res_dir, 
-                       q_group = question2s_res_dir,
-                       data = res_dir
-                     )
-                   })
+# plots_res <- pmap(question_dic_res, 
+#                   function(question1s, question2s){
+#                     stack_bar(
+#                       q_reference = question1s, 
+#                       q_group = question2s,
+#                       data = i_res_coalesced
+#                     )
+#                   })
+# 
+# 
+# question_dic_res_dir <- data.frame(question1s_res_dir = colnames(res_dir)
+#                                    , question2s_res_dir = rep("role", ncol(res_dir)))
+# 
+# question_dic_res_dir <- question_dic_res_dir %>%
+#   filter(question1s_res_dir != "role") 
+# plots_comp <- pmap(question_dic_res_dir, 
+#                    function(question1s_res_dir, question2s_res_dir){
+#                      stack_bar(
+#                        q_reference = question1s_res_dir, 
+#                        q_group = question2s_res_dir,
+#                        data = res_dir
+#                      )
+#                    })
 ```
 
 # Summary Statistics
@@ -568,40 +552,40 @@ plots_comp <- pmap(question_dic_res_dir,
 
 ```{r, echo = FALSE}
 
-i_res_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Count")
+i_res_coalesced %>% ggplot(aes(x = resident,fill = resident)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Count")
 
-i_res_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Association With Cleft Center")
+i_res_coalesced %>% ggplot(aes(x = have_cleft_center,fill = have_cleft_center)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Association With Cleft Center")
 
-i_res_coalesced %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents With Pediatric Dentist on Team")
+i_res_coalesced %>% ggplot(aes(x = ped_on_cleft,fill = ped_on_cleft)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents With Pediatric Dentist on Team")
 
-i_res_coalesced %>% ggplot(aes(x = Q12,fill = Q12)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residency Program")
+i_res_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residency Program")
 
-i_res_coalesced %>% ggplot(aes(x = Q15,fill = Q15)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Program")
+i_res_coalesced %>% ggplot(aes(x = num_residents,fill = num_residents)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Program")
 
-i_res_coalesced <- i_res_coalesced %>%
-  mutate(Q6 = str_trim(str_extract(Q13, "^[^(]+")))
+# i_res_coalesced <- i_res_coalesced %>%
+#   mutate(region = str_trim(str_extract(region, "^[^(]+")))
 
-i_res_coalesced %>% ggplot(aes(x = Q13,fill = Q13)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
+i_res_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Residents Region")
 ```
 
 ## Director Demographics
 
 ```{r, echo = FALSE}
 
-i_dir_coalesced %>% ggplot(aes(x = Q1,fill = Q1)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
+i_dir_coalesced %>% ggplot(aes(x = director,fill = director)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Count")
 
-i_dir_coalesced %>% ggplot(aes(x = Q2,fill = Q2)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Cleft Program")
+i_dir_coalesced %>% ggplot(aes(x = have_cleft_center,fill = have_cleft_center)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Cleft Program")
 
-i_dir_coalesced %>% ggplot(aes(x = Q4,fill = Q4)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Pediatric Dentist on Team")
+i_dir_coalesced %>% ggplot(aes(x = ped_on_cleft,fill = ped_on_cleft)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors With Pediatric Dentist on Team")
 
-i_dir_coalesced %>% ggplot(aes(x = Q18,fill = Q18)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Program")
+i_dir_coalesced %>% ggplot(aes(x = program_type,fill = program_type)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Director Program")
 
-i_dir_coalesced %>% ggplot(aes(x = Q21,fill = Q21)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Director's Program")
+i_dir_coalesced %>% ggplot(aes(x = num_residents,fill = num_residents)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Number of Residents in Director's Program")
 
-i_dir_coalesced <- i_dir_coalesced %>%
-  mutate(Q6 = str_trim(str_extract(Q19, "^[^(]+")))
+# i_dir_coalesced <- i_dir_coalesced %>%
+#   mutate(Q6 = str_trim(str_extract(Q19, "^[^(]+")))
 
-i_dir_coalesced %>% ggplot(aes(x = Q19,fill = Q19)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
+i_dir_coalesced %>% ggplot(aes(x = region,fill = region)) + geom_bar() +  theme(axis.text.x = element_blank()) + ggtitle("Directors Region")
 ```
 
 # Results Tables
@@ -609,20 +593,21 @@ i_dir_coalesced %>% ggplot(aes(x = Q19,fill = Q19)) + geom_bar() +  theme(axis.t
 ## Residents Results
 
 ```{r, echo = FALSE}
-res_results
-
+res_results %>% select(!P_value)
 ```
 
 ## Resident Q8 results
 Looking at the differences just between Yes and No.  Unsure has been dropped.  
-```{r}
-q8_dat <- i_res_coalesced %>% filter(Q2 %in% c("Yes","No"))
-q8a_ttest <- t.test(as.numeric(q8_dat$Q8a)~q8_dat$Q2)
-q8b_ttest <- t.test(as.numeric(q8_dat$Q8b)~q8_dat$Q2)
-q8c_ttest <- t.test(as.numeric(q8_dat$Q8c)~q8_dat$Q2)
-q8d_ttest <- t.test(as.numeric(q8_dat$Q8d)~q8_dat$Q2)
+```{r, echo = FALSE}
+q8_dat <- i_res_coalesced %>% filter(have_cleft_center %in% c("Yes","No"))
+q8a_ttest <- t.test(as.numeric(q8_dat$"res_prep_craniofacial")~q8_dat$have_cleft_center)
+q8b_ttest <- t.test(as.numeric(q8_dat$"res_prep_collab")~q8_dat$have_cleft_center)
+q8c_ttest <- t.test(as.numeric(q8_dat$"res_prep_dental")~q8_dat$have_cleft_center)
+q8d_ttest <- t.test(as.numeric(q8_dat$"res_prep_behavioral")~q8_dat$have_cleft_center)
 
-data.frame(question = c("Q8a","Q8b","Q8c","Q8d"),
+
+
+data.frame(question = c("res_prep_craniofacial", "res_prep_collab","res_prep_dental" ,"res_prep_behavioral"),
   mean_no = round(c(q8a_ttest$estimate[1],
               q8b_ttest$estimate[1],
               q8c_ttest$estimate[1],
@@ -669,18 +654,36 @@ The levels of Question 8a-d are: Feel prepared to:
  d\) manage behavioral and psychosocial considerations when providing care to patients...
 
 ```{r, echo = FALSE}
-sig_res_plots <- plots_res[c(5, 6, 7, 8)]
-walk(sig_res_plots, print)
+# sig_res_plots <- plots_res[c(5, 6, 7, 8)]
+# walk(sig_res_plots, print)
 ```
 
 ## Q2x11x12: Association with cleft center/desire to be involved in cleft care post-residency/type of institution
+
+```{r, echo = FALSE, message = FALSE}
+library(modelsummary)
+
+cleft_program <- i_res_coalesced %>%
+  filter(have_cleft_center != "Unsure") %>%
+  mutate(cleft_response = as.factor(cleft_after_res), 
+         program = as.factor(program_type), 
+         cleft_center = as.factor(have_cleft_center)) %>%
+  select(cleft_response, cleft_center, program) %>% 
+  drop_na()
+
+cleft_glm <- glm(cleft_response ~ cleft_center + program + cleft_center * program, family = "binomial", data = cleft_program)
+
+cleft_no_interaction <- glm(cleft_response ~ cleft_center + program, family = "binomial", data = cleft_program)
+
+```
 
 For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is -1.635, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are 5.13 (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.635} =  5.129$)
 
 ```{r, echo = FALSE}
 library(tinytable)
 library(modelsummary)
-modelsummary(models = list(cleft_glm),
+
+modelsummary(models = list(cleft_no_interaction),
              stars = T,
              gof_omit = ".",
   shape = term ~ model + statistic,
@@ -696,6 +699,24 @@ modelsummary(models = list(cleft_glm),
     bootstrap_class = "table caption-top"
   )
 
+modelsummary(models = list(cleft_glm),
+             stars = T,
+             gof_omit = ".",
+             shape = term ~ model + statistic,
+             coef_map = c("(Intercept)" = "Intercept",
+                          "cleft_centerYes"  = "Cleft Center (Yes)" ,
+                          "programHospital-based" = "Program (Hospital Based)",
+                          "programUniversity" =  "Program (University)",
+                          "cleft_centerYes:programHospital-based" = "Cleft Center (Yes) & Program (Hospital Based)",
+                          "cleft_centerYes:programUniversity" = "Cleft Center (Yes) & Program (University)"
+             ), 
+             title = "Predicting Desired Involvement in Cleft Care with Interaction Between Cleft Center and Program"
+) %>% style_tt(
+  align = "c",
+  fontsize = 0.9,
+  bootstrap_class = "table caption-top"
+)
+
 ```
 
 ## Cross-Comparison Significance
@@ -709,8 +730,8 @@ Again, Fisher exact tests were performed to look for differences between directo
     - c\) manage pre-surgical and post-surgical dental care for patients with cleft or...
 
 ```{r, echo = FALSE}
-plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
-walk(plots_comp_sig, print)
+# plots_comp_sig <- plots_comp[c(4, 6, 9, 10, 11)]
+# walk(plots_comp_sig, print)
 ```
 
 
@@ -718,13 +739,13 @@ walk(plots_comp_sig, print)
 # Appendix A i) Residents Visualization (all plots)
 
 ```{r, echo = FALSE}
-walk(plots_res, print)
+# walk(plots_res, print)
 ```
 
 # Appendix A ii) Cross-reference visualization (all plots)
 
 ```{r, echo = FALSE}
-walk(plots_comp, print)
+# walk(plots_comp, print)
 ```
 
 # Appendix B: Code
@@ -732,4 +753,3 @@ walk(plots_comp, print)
 ```{r appendix, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```
 
-# 
