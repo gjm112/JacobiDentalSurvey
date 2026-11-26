@@ -459,7 +459,9 @@ res_results <- res_results %>%
 common_qs_res <- c("have_cleft_center", "refer_craniofacial", "ped_on_cleft", "res_instructed_all_aspects", "education_lip_closure",      "education_palatal_closure"  ,"education_expansion"  ,     
 "education_orthodontic","res_prep_craniofacial" ,     "res_prep_collab" ,          
 "res_prep_dental"       ,     "res_prep_behavioral", "res_treat_cleft", "freq_res_conf", "dept_nasoalveolar" ,         "dept_palate"     ,           "dept_grafting" ,            
-"dept_orthodontic"  ,         "dept_lip_closure", "program_type", "region", "location", "num_residents", "role")
+"dept_orthodontic"  ,         "dept_lip_closure", "program_type", "region", "location", "role")
+
+# "num_residents"
 
 i_common <- i_full_named %>%
   select(all_of(common_qs_res))
@@ -660,13 +662,13 @@ As will be described further in the analysis, one of the main significant differ
 ```{r, echo = FALSE}
 i_res_coalesced$have_cleft_center <- factor(i_res_coalesced$have_cleft_center, levels = c("No","Yes","Unsure"))  
 
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_craniofacial))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for craniofacial versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+i_res_coalesced %>% filter(!is.na(have_cleft_center)) %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_craniofacial))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for craniofacial versus having cleft center", y = "Preparedness score", x = "Has cleft center")
 
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_collab))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for collaboration versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+i_res_coalesced %>%  filter(!is.na(have_cleft_center)) %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_collab))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for collaboration versus having cleft center", y = "Preparedness score", x = "Has cleft center")
 
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_dental))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for dental versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+i_res_coalesced %>% filter(!is.na(have_cleft_center)) %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_dental))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for dental versus having cleft center", y = "Preparedness score", x = "Has cleft center")
 
-i_res_coalesced %>% drop_na() %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_behavioral))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for behavioral versus having cleft center", y = "Preparedness score", x = "Has cleft center")
+i_res_coalesced %>% filter(!is.na(have_cleft_center)) %>% ggplot(aes(x = have_cleft_center, y = as.numeric(res_prep_behavioral))) + geom_boxplot() + theme_bw() + labs(title = "Residents prepared for behavioral versus having cleft center", y = "Preparedness score", x = "Has cleft center")
 ```
 
 
@@ -758,14 +760,16 @@ Q8_cronbach <- Q8_cronbach %>%
 
 print("P-value for Q8 composite score vs Q2")
 t.test(Q8_cronbach$comp_score ~ Q8_cronbach$have_cleft_center)$p.value
-print("Confidence interval for Q8 composite score vs Q2")
+print("group means for Q8 composite score vs Q2")
+t.test(Q8_cronbach$comp_score ~ Q8_cronbach$have_cleft_center)$estimate
+print("Confidence interval for difference between groups for Q8 composite score vs Q2")
 t.test(Q8_cronbach$comp_score ~ Q8_cronbach$have_cleft_center)$conf.int
 ```
 
 
 ## Cross-Comparison Results
 
-When comparing directors and residents responses, the grouping variable was always role: whether they were a resident or director. For each question the surveys had in common, if it could be treated numerically we conducted a Kruskal-Wallis test, and if categorical, a Fisher's exact test. We found that there was a significant difference in how directors and residents felt prepared for all subquestions of Q8. We also found a significant difference in whether residents were instructed in all aspects of cleft reconstruction including appropriate timing. The means and confidence intervals are reported below in the table. For each of the significant questions, the directors perceived residents to be more prepared than the residents responded to have felt, which is why the confidence intervals are all positive.
+When comparing directors and residents responses, the grouping variable was always role: whether they were a resident or director. For each question the surveys had in common, if it could be treated numerically we conducted a two sample t-test, and if categorical, a Fisher's exact test. We found that there was a significant difference in how directors and residents felt prepared for all subquestions of Q8. We also found a significant difference in whether residents were instructed in all aspects of cleft reconstruction including appropriate timing. The means and confidence intervals are reported below in the table. For each of the significant questions, the directors perceived residents to be more prepared than the residents responded to have felt, which is why the confidence intervals are all positive.
 
 ```{r, echo = FALSE}
 res_dir_results %>% select(Question1, Question2, Adj_P, Test, mean_dir, mean_res, CI_diff)
@@ -789,9 +793,9 @@ cleft_glm <- glm(cleft_response ~ cleft_center + program + cleft_center * progra
 cleft_no_interaction <- glm(cleft_response ~ cleft_center + program, family = "binomial", data = cleft_program)
 ```
 
-For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 (above) that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is -1.591, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are 5.13 (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.591} =  4.909$)
+For this analysis, we performed a logistic regression model to predict Yes/No in question 2 as a function of Q11 and Q12.  We see from this model summary in Table 1 (above) that we have one parameter that is significant (being at a hospital-based program).  This means that relative to the baseline, which is a Combination (University + Hospital), someone in a Hospital based program is much less likely to answer Yes to Question 2. The coefficient estimate for hospital-based programs is `r coef(cleft_no_interaction)["programHospital-based"]`, which means that if a resident is in a hospital-based program, the odds of them wanting to continue into cleft care are `r 1/exp(coef(cleft_no_interaction)["programHospital-based"])` (95% CI: `r round(1/exp(confint(cleft_glm))[3,c(2,1)],2)`) times lower relative to the odds of a resident in a hybrid program.  (Note: Odds ratio is computed as follows: $e^{1.591} =  4.909$)
 
-We then added an interaction term between having a cleft center and program to see if there was an additional factor driving the signifance, but when adding the term in, the model was no more significant than the model without the interaction term. None of the estimates of the parameters were significant either. Additionally, in the model with the interaction term, the estimate for Program (Hospital Based) became insignificant, despite being so in the previous model. The model summary is reported below.
+We then added an interaction term between having a cleft center and program to see if there was an additional factor driving the significance, but when adding the term in, the model was no more significant than the model without the interaction term. None of the estimates of the parameters were significant either. Additionally, in the model with the interaction term, the estimate for Program (Hospital Based) became insignificant, despite being so in the previous model. The model summary is reported below.
 
 ```{r, echo = FALSE}
 library(tinytable)
